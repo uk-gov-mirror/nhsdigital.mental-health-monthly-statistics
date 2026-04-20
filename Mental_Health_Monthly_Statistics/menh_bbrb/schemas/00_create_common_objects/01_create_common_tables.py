@@ -1288,7 +1288,7 @@ df1.write.insertInto(f"{db_output}.age_band_desc", overwrite=True)
  ("A18", "Single Point of Access Service", 1429, null),
  ("A19", "24/7 Crisis Response Line", 1429, null),
  ("A20", "Health Based Place Of Safety Service", 1429, null),
- ("A21", "Crisis Café/Safe Haven/Sanctuary Service", 1429, null),
+ ("A21", "Crisis Cafe/Safe Haven/Sanctuary Service", 1429, null),
  ("A22", "Walk-in Crisis Assessment Unit Service", 1429, null),
  ("A23", "Psychiatric Decision Unit Service", 1429, null),
  ("A24", "Acute Day Service", 1429, null),

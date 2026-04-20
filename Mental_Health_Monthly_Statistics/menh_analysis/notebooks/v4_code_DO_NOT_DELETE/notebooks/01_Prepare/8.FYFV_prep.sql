@@ -34,7 +34,7 @@
 -- DBTITLE 1,Calculate remaining dates from current month widget value
  %py
 
- # User note: I've moved the creation of these parameters into the notebook above as I *think* that parameters created in python code can't be used by SQL code in the same notebook...
+ # USER: I've moved the creation of these parameters into the notebook above as I *think* that parameters created in python code can't be used by SQL code in the same notebook...
 
  # from datetime import datetime
  # from dateutil.relativedelta import relativedelta
@@ -176,7 +176,7 @@ LEFT JOIN $db_output.STP_Region_mapping_post_2018 AS stp
 
 -- COMMAND ----------
 
--- User note: updated following the advice of David Fisher - 2nd contact date should be used to determine quarter not first contact date...
+-- USER: updated following the advice of responsible analyst - 2nd contact date should be used to determine quarter not first contact date...
 -- change made is to exclude the CASE statement
 
 CREATE OR REPLACE GLOBAL TEMPORARY VIEW ContPer_Quarterly AS
@@ -206,7 +206,7 @@ INNER JOIN global_temp.first_contacts f
 -- COMMAND ----------
 
 
--- User note: updated following the advice of David Fisher - 2nd contact date should be used to determine quarter not first contact date...
+-- USER: updated following the advice of responsible analyst - 2nd contact date should be used to determine quarter not first contact date...
 -- change made is to change the WHERE statement
 
 TRUNCATE TABLE $db_output.CYPFinal_2nd_contact_Quarterly;

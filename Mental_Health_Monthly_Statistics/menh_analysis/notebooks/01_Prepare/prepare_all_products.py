@@ -41,7 +41,7 @@ dbutils.notebook.run("../01_Prepare/5.CYP_monthly_prep", 0, params)
 
 # COMMAND ----------
 
-# added by User note (taken from 8.FYFV_prep)
+# added by USER (taken from 8.FYFV_prep)
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta

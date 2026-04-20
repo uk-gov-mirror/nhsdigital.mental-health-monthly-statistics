@@ -123,14 +123,22 @@
 # COMMAND ----------
 
  %sql
+ -- table can be dropped safely as it is truncated each run and holds no persisted data
+ DROP TABLE IF EXISTS $db_output.EIP32_ED32_common;
+  
  CREATE TABLE IF NOT EXISTS $db_output.EIP32_ED32_common
      (UniqServReqID                                        STRING,
       OrgIDProv                                            STRING,
       IC_Rec_CCG                                           STRING,
       PrimReasonReferralMH                                 STRING,
-      AgeServReferRecDate                                  BIGINT)
+      AgeServReferRecDate                                  BIGINT,
+      Age_Group                                            STRING,
+      Gender                                               STRING,
+      GenderDesc                                           STRING,
+      EthnicityHigher                                      STRING,
+      IMD_Decile                                           STRING)
  USING delta 
- PARTITIONED BY (OrgIDProv)  
+ PARTITIONED BY (OrgIDProv) 
 
 # COMMAND ----------
 

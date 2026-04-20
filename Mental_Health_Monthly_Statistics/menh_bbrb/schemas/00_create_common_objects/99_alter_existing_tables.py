@@ -64,7 +64,7 @@ for table, column in tableColumn.items():
 # DBTITLE 1,Set SOURCE_DB to source database
 # update only needs doing once
 # for table, column in tableColumn.items():
-#   action = """Update {db_output}.{table} SET {column} = '{mh_pre_clear}' where {column} is null""".format(db_output=db_output,table=table,column=column,mh_pre_clear=mh_pre_clear)
+#   action = """Update {db_output}.{table} SET {column} = '{mhsds_db}' where {column} is null""".format(db_output=db_output,table=table,column=column,mhsds_db=mhsds_db)
 #   print(action)
 #   spark.sql(action)
 

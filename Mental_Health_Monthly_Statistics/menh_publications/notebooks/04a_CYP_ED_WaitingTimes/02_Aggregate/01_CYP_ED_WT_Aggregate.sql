@@ -39,6 +39,111 @@
 
 -- COMMAND ----------
 
+-- DBTITLE 1,ED85- National - Total CYP ED referrals entering treatment by age group
+ %sql
+ INSERT INTO $db_output.cyp_ed_wt_unformatted
+ SELECT '$month_id' AS MONTH_ID
+        ,'$status' AS STATUS
+        ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+        ,'$rp_enddate' AS REPORTING_PERIOD_END
+        ,'England; Age' AS BREAKDOWN
+        ,'England' AS PRIMARY_LEVEL
+        ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+        ,Age_Group AS SECONDARY_LEVEL
+        ,Age_Group AS SECONDARY_LEVEL_DESCRIPTION
+        ,'ED85' AS METRIC
+        ,COUNT(DISTINCT UniqServReqID) METRIC_VALUE
+        ,SOURCE_DB
+   FROM $db_output.CYP_ED_WT_STEP4
+   WHERE UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+   group by Age_Group, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,ED85- National - Total CYP ED referrals entering treatment by gender
+ %sql
+ INSERT INTO $db_output.cyp_ed_wt_unformatted
+ SELECT '$month_id' AS MONTH_ID
+        ,'$status' AS STATUS
+        ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+        ,'$rp_enddate' AS REPORTING_PERIOD_END
+        ,'England; Gender' AS BREAKDOWN
+        ,'England' AS PRIMARY_LEVEL
+        ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+        ,Gender AS SECONDARY_LEVEL
+        ,GenderDesc AS SECONDARY_LEVEL_DESCRIPTION
+        ,'ED85' AS METRIC
+        ,COUNT(DISTINCT UniqServReqID) METRIC_VALUE
+        ,SOURCE_DB
+   FROM $db_output.CYP_ED_WT_STEP4 
+   WHERE UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+   group by Gender, GenderDesc, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,ED85- National - Total CYP ED referrals entering treatment by ethnicity
+ %sql
+ INSERT INTO $db_output.cyp_ed_wt_unformatted
+ SELECT '$month_id' AS MONTH_ID
+        ,'$status' AS STATUS
+        ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+        ,'$rp_enddate' AS REPORTING_PERIOD_END
+        ,'England; Ethnicity' AS BREAKDOWN
+        ,'England' AS PRIMARY_LEVEL
+        ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+        ,EthnicityHigher AS SECONDARY_LEVEL
+        ,EthnicityHigher AS SECONDARY_LEVEL_DESCRIPTION
+        ,'ED85' AS METRIC
+        ,COUNT(DISTINCT UniqServReqID) METRIC_VALUE
+        ,SOURCE_DB
+   FROM $db_output.CYP_ED_WT_STEP4 
+   WHERE UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+   group by EthnicityHigher, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,ED85- National - Total CYP ED referrals entering treatment by IMD decile
+ %sql
+ INSERT INTO $db_output.cyp_ed_wt_unformatted
+ SELECT '$month_id' AS MONTH_ID
+        ,'$status' AS STATUS
+        ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+        ,'$rp_enddate' AS REPORTING_PERIOD_END
+        ,'England; IMD Decile' AS BREAKDOWN
+        ,'England' AS PRIMARY_LEVEL
+        ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+        ,IMD_Decile AS SECONDARY_LEVEL
+        ,IMD_Decile AS SECONDARY_LEVEL_DESCRIPTION
+        ,'ED85' AS METRIC
+        ,COUNT(DISTINCT UniqServReqID) METRIC_VALUE
+        ,SOURCE_DB
+   FROM $db_output.CYP_ED_WT_STEP4 
+   WHERE UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+   group by IMD_Decile, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,ED85- National - Total CYP ED referrals entering treatment by intervention
+ %sql
+ INSERT INTO $db_output.cyp_ed_wt_unformatted
+ SELECT '$month_id' AS MONTH_ID
+        ,'$status' AS STATUS
+        ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+        ,'$rp_enddate' AS REPORTING_PERIOD_END
+        ,'England; Intervention' AS BREAKDOWN
+        ,'England' AS PRIMARY_LEVEL
+        ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+        ,Intervention AS SECONDARY_LEVEL
+        ,Intervention AS SECONDARY_LEVEL_DESCRIPTION
+        ,'ED85' AS METRIC
+        ,COUNT(DISTINCT UniqServReqID) METRIC_VALUE
+        ,SOURCE_DB
+   FROM $db_output.CYP_ED_WT_STEP4 
+   WHERE UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+   group by Intervention, SOURCE_DB
+
+-- COMMAND ----------
+
 -- DBTITLE 1,CYP_ED01 - ED85 - Provider- Total referrals for children and young people with eating disorder entering treatment in RP
  %sql
  INSERT INTO $db_output.cyp_ed_wt_unformatted
@@ -153,6 +258,121 @@ and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.
 
 where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
 group by SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,ED86 National Urgent CYP ED referrals entering treatment by age group
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+SELECT '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Age' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,Age_Group AS SECONDARY_LEVEL
+       ,Age_Group AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED86' AS METRIC
+       ,COUNT(DISTINCT UniqServReqID) METRIC_VALUE
+       ,SOURCE_DB
+  FROM $db_output.CYP_ED_WT_STEP4 step4
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED86_89' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue 
+and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by Age_Group, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,ED86 National Urgent CYP ED referrals entering treatment by gender
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+SELECT '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Gender' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,Gender AS SECONDARY_LEVEL
+       ,GenderDesc AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED86' AS METRIC
+       ,COUNT(DISTINCT UniqServReqID) METRIC_VALUE
+       ,SOURCE_DB
+  FROM $db_output.CYP_ED_WT_STEP4 step4
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED86_89' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue 
+and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+  WHERE UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+  group by Gender, GenderDesc, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,ED86 National Urgent CYP ED referrals entering treatment by ethnicity
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+SELECT '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Ethnicity' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,EthnicityHigher AS SECONDARY_LEVEL
+       ,EthnicityHigher AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED86' AS METRIC
+       ,COUNT(DISTINCT UniqServReqID) METRIC_VALUE
+       ,SOURCE_DB
+  FROM $db_output.CYP_ED_WT_STEP4 step4
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED86_89' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue 
+and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+  WHERE UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+  group by EthnicityHigher, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,ED86 National Urgent CYP ED referrals entering treatment by IMD decile
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+SELECT '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; IMD Decile' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,IMD_Decile AS SECONDARY_LEVEL
+       ,IMD_Decile AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED86' AS METRIC
+       ,COUNT(DISTINCT UniqServReqID) METRIC_VALUE
+       ,SOURCE_DB
+  FROM $db_output.CYP_ED_WT_STEP4 step4
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED86_89' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue 
+and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+  WHERE UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+  group by IMD_Decile, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,ED86 National Urgent CYP ED referrals entering treatment by intervention
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+SELECT '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Intervention' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,Intervention AS SECONDARY_LEVEL
+       ,Intervention AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED86' AS METRIC
+       ,COUNT(DISTINCT UniqServReqID) METRIC_VALUE
+       ,SOURCE_DB
+  FROM $db_output.CYP_ED_WT_STEP4 step4
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED86_89' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue 
+and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+  WHERE UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+  group by Intervention, SOURCE_DB
 
 -- COMMAND ----------
 
@@ -331,6 +551,141 @@ group by MONTH_ID
        ,METRIC_VALUE
        ,SOURCE_DB
 
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED01aa - ED86a National breakdown by age group
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Age' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,Age_Group AS SECONDARY_LEVEL
+       ,Age_Group AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED86a' AS METRIC
+       ,count(distinct UniqServReqID) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP4  step4
+ 
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED86_89' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue 
+and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+ 
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+and step4.waiting_time <= 1 
+group by Age_Group, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED01aa - ED86a National breakdown by gender
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Gender' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,Gender AS SECONDARY_LEVEL
+       ,GenderDesc AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED86a' AS METRIC
+       ,count(distinct UniqServReqID) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP4  step4
+ 
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED86_89' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue 
+and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+ 
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+and step4.waiting_time <= 1 
+group by Gender, GenderDesc, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED01aa - ED86a National breakdown by ethnicity
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Ethnicity' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,EthnicityHigher AS SECONDARY_LEVEL
+       ,EthnicityHigher AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED86a' AS METRIC
+       ,count(distinct UniqServReqID) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP4  step4
+ 
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED86_89' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue 
+and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+ 
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+and step4.waiting_time <= 1 
+group by EthnicityHigher, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED01aa - ED86a National breakdown by IMD decile
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; IMD Decile' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,IMD_Decile AS SECONDARY_LEVEL
+       ,IMD_Decile AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED86a' AS METRIC
+       ,count(distinct UniqServReqID) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP4 step4
+ 
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED86_89' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue 
+and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+ 
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+and step4.waiting_time <= 1 
+group by IMD_Decile, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED01aa - ED86a National breakdown by intervention
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Intervention' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,Intervention AS SECONDARY_LEVEL
+       ,Intervention AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED86a' AS METRIC
+       ,count(distinct UniqServReqID) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP4 step4
+ 
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED86_89' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue 
+and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+ 
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+and step4.waiting_time <= 1 
+group by Intervention, SOURCE_DB
 
 -- COMMAND ----------
 
@@ -754,6 +1109,131 @@ and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.
 
 where  UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
 group by SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,ED87 National routine CYP ED referrals entering treatment by age group
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Age' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,Age_Group AS SECONDARY_LEVEL
+       ,Age_Group AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED87' as METRIC  
+       ,count(distinct UniqServReqID) as METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP4 as step4
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED87_90' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue 
+and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+ 
+where  UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by Age_Group, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,ED87 National routine CYP ED referrals entering treatment by gender
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Gender' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,Gender AS SECONDARY_LEVEL
+       ,GenderDesc AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED87' as METRIC  
+       ,count(distinct UniqServReqID) as METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP4 as step4
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED87_90' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue 
+and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+ 
+where  UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by Gender, GenderDesc, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,ED87 National routine CYP ED referrals entering treatment by ethnicity
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Ethnicity' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,EthnicityHigher AS SECONDARY_LEVEL
+       ,EthnicityHigher AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED87' as METRIC  
+       ,count(distinct UniqServReqID) as METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP4 as step4
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED87_90' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue 
+and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+ 
+where  UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by EthnicityHigher, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,ED87 National routine CYP ED referrals entering treatment by IMD decile
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; IMD Decile' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,IMD_Decile AS SECONDARY_LEVEL
+       ,IMD_Decile AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED87' as METRIC  
+       ,count(distinct UniqServReqID) as METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP4 as step4
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED87_90' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue 
+and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+ 
+where  UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by IMD_Decile, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,ED87 National routine CYP ED referrals entering treatment by intervention
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Intervention' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,Intervention AS SECONDARY_LEVEL
+       ,Intervention AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED87' as METRIC  
+       ,count(distinct UniqServReqID) as METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP4 as step4
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED87_90' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue 
+and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+ 
+where  UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by Intervention, SOURCE_DB
 
 -- COMMAND ----------
 
@@ -1288,7 +1768,7 @@ group by stp.Region_code,SOURCE_DB
 
 -- COMMAND ----------
 
--- DBTITLE 1,CYP_ED01j - ED87 - National
+-- DBTITLE 1,CYP_ED01j - ED87j - National
 INSERT INTO $db_output.cyp_ed_wt_unformatted
 select 
        '$month_id' AS MONTH_ID
@@ -1308,6 +1788,121 @@ INNER JOIN $db_output.validcodes as vc
 ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED87_90' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
 where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
 group by SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED01j - ED87j - National by age group
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Age' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,Age_Group AS SECONDARY_LEVEL
+       ,Age_Group AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED87j' AS METRIC
+       ,CAST(COUNT(DISTINCT CASE WHEN waiting_time <= 4 THEN UniqServReqID END) AS FLOAT) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP4 step4
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED87_90' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by Age_Group, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED01j - ED87j - National by gender
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Gender' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,Gender AS SECONDARY_LEVEL
+       ,GenderDesc AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED87j' AS METRIC
+       ,CAST(COUNT(DISTINCT CASE WHEN waiting_time <= 4 THEN UniqServReqID END) AS FLOAT) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP4 step4
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED87_90' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by Gender, GenderDesc, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED01j - ED87j - National by ethnicity
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Ethnicity' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,EthnicityHigher AS SECONDARY_LEVEL
+       ,EthnicityHigher AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED87j' AS METRIC
+       ,CAST(COUNT(DISTINCT CASE WHEN waiting_time <= 4 THEN UniqServReqID END) AS FLOAT) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP4 step4
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED87_90' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by EthnicityHigher, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED01j - ED87j - National by IMD decile
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; IMD Decile' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,IMD_Decile AS SECONDARY_LEVEL
+       ,IMD_Decile AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED87j' AS METRIC
+       ,CAST(COUNT(DISTINCT CASE WHEN waiting_time <= 4 THEN UniqServReqID END) AS FLOAT) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP4 step4
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED87_90' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by IMD_Decile, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED01j - ED87j - National by intervention
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Intervention' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,Intervention AS SECONDARY_LEVEL
+       ,Intervention AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED87j' AS METRIC
+       ,CAST(COUNT(DISTINCT CASE WHEN waiting_time <= 4 THEN UniqServReqID END) AS FLOAT) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP4 step4
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED87_90' and vc.type = 'include' and step4.ClinRespPriorityType = vc.ValidValue and step4.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step4.SubmissionMonthID <= vc.LastMonth)
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by Intervention, SOURCE_DB
 
 -- COMMAND ----------
 
@@ -1437,6 +2032,90 @@ group by SOURCE_DB
 
 -- COMMAND ----------
 
+-- DBTITLE 1,CYP_ED02 - ED88 - National by age group
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Age' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,Age_Group AS SECONDARY_LEVEL
+       ,Age_Group AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED88' AS METRIC
+       ,count(distinct UniqServReqID) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP6 step6
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by Age_Group, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED02 - ED88 - National by gender
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Gender' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,Gender AS SECONDARY_LEVEL
+       ,GenderDesc AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED88' AS METRIC
+       ,count(distinct UniqServReqID) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP6 step6
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by Gender, GenderDesc, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED02 - ED88 - National by ethnicity
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Ethnicity' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,EthnicityHigher AS SECONDARY_LEVEL
+       ,EthnicityHigher AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED88' AS METRIC
+       ,count(distinct UniqServReqID) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP6 step6
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by EthnicityHigher, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED02 - ED88 - National by IMD decile
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; IMD Decile' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,IMD_Decile AS SECONDARY_LEVEL
+       ,IMD_Decile AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED88' AS METRIC
+       ,count(distinct UniqServReqID) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP6 step6
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by IMD_Decile, SOURCE_DB
+
+-- COMMAND ----------
+
 -- DBTITLE 1,CYP_ED02 - ED88 - Provider
 INSERT INTO $db_output.cyp_ed_wt_unformatted
 select 
@@ -1554,6 +2233,110 @@ and step6.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step6.
  
 where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
 group by SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED02a - ED89 - National by age group
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Age' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,Age_Group AS SECONDARY_LEVEL
+       ,Age_Group AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED89' AS METRIC
+       ,count(distinct UniqServReqID) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP6 step6 
+ 
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED86_89' and vc.type = 'include' and step6.ClinRespPriorityType = vc.ValidValue 
+and step6.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step6.SubmissionMonthID <= vc.LastMonth)
+ 
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by Age_Group, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED02a - ED89 - National by gender
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Gender' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,Gender AS SECONDARY_LEVEL
+       ,GenderDesc AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED89' AS METRIC
+       ,count(distinct UniqServReqID) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP6 step6 
+ 
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED86_89' and vc.type = 'include' and step6.ClinRespPriorityType = vc.ValidValue 
+and step6.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step6.SubmissionMonthID <= vc.LastMonth)
+ 
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by Gender, GenderDesc, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED02a - ED89 - National by ethnicity
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Ethnicity' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,EthnicityHigher AS SECONDARY_LEVEL
+       ,EthnicityHigher AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED89' AS METRIC
+       ,count(distinct UniqServReqID) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP6 step6 
+ 
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED86_89' and vc.type = 'include' and step6.ClinRespPriorityType = vc.ValidValue 
+and step6.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step6.SubmissionMonthID <= vc.LastMonth)
+ 
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by EthnicityHigher, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED02a - ED89 - National by IMD decile
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; IMD Decile' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,IMD_Decile AS SECONDARY_LEVEL
+       ,IMD_Decile AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED89' AS METRIC
+       ,count(distinct UniqServReqID) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP6 step6 
+ 
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED86_89' and vc.type = 'include' and step6.ClinRespPriorityType = vc.ValidValue 
+and step6.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step6.SubmissionMonthID <= vc.LastMonth)
+ 
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by IMD_Decile, SOURCE_DB
 
 -- COMMAND ----------
 
@@ -1847,6 +2630,98 @@ group by SOURCE_DB
 
 -- COMMAND ----------
 
+-- DBTITLE 1,CYP_ED02b - ED90 - National by age group
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Age' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,Age_Group AS SECONDARY_LEVEL
+       ,Age_Group AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED90' AS METRIC
+       ,count(distinct UniqServReqID) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP6 step6
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED87_90' and vc.type = 'include' and step6.ClinRespPriorityType = vc.ValidValue and step6.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step6.SubmissionMonthID <= vc.LastMonth)
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by Age_Group, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED02b - ED90 - National by gender
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Gender' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,Gender AS SECONDARY_LEVEL
+       ,GenderDesc AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED90' AS METRIC
+       ,count(distinct UniqServReqID) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP6 step6
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED87_90' and vc.type = 'include' and step6.ClinRespPriorityType = vc.ValidValue and step6.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step6.SubmissionMonthID <= vc.LastMonth)
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by Gender, GenderDesc, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED02b - ED90 - National by ethnicity
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; Ethnicity' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,EthnicityHigher AS SECONDARY_LEVEL
+       ,EthnicityHigher AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED90' AS METRIC
+       ,count(distinct UniqServReqID) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP6 step6
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED87_90' and vc.type = 'include' and step6.ClinRespPriorityType = vc.ValidValue and step6.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step6.SubmissionMonthID <= vc.LastMonth)
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by EthnicityHigher, SOURCE_DB
+
+-- COMMAND ----------
+
+-- DBTITLE 1,CYP_ED02b - ED90 - National by IMD decile
+INSERT INTO $db_output.cyp_ed_wt_unformatted
+select 
+       '$month_id' AS MONTH_ID
+       ,'$status' AS STATUS
+       ,'$rp_startdate_run' AS REPORTING_PERIOD_START
+       ,'$rp_enddate' AS REPORTING_PERIOD_END
+       ,'England; IMD Decile' AS BREAKDOWN
+       ,'England' AS PRIMARY_LEVEL
+       ,'England' AS PRIMARY_LEVEL_DESCRIPTION
+       ,IMD_Decile AS SECONDARY_LEVEL
+       ,IMD_Decile AS SECONDARY_LEVEL_DESCRIPTION
+       ,'ED90' AS METRIC
+       ,count(distinct UniqServReqID) AS METRIC_VALUE
+       ,SOURCE_DB
+from $db_output.CYP_ED_WT_STEP6 step6
+INNER JOIN $db_output.validcodes as vc
+ON vc.tablename = 'mhs101referral' and vc.field = 'ClinRespPriorityType' and vc.Measure = 'ED87_90' and vc.type = 'include' and step6.ClinRespPriorityType = vc.ValidValue and step6.SubmissionMonthID >= vc.FirstMonth and (vc.LastMonth is null or step6.SubmissionMonthID <= vc.LastMonth)
+where UniqMonthID = '$month_id' AND Status = '$status' and SOURCE_DB = '$db_source' AND rp_startdate_run = '$rp_startdate_run'
+group by IMD_Decile, SOURCE_DB
+
+-- COMMAND ----------
+
 -- DBTITLE 1,CYP_ED02b - ED90 - Provider
 INSERT INTO $db_output.cyp_ed_wt_unformatted
 select 
@@ -2108,6 +2983,7 @@ CASE
   WHEN NUM.METRIC = 'ED86c' THEN 'ED86g'
   WHEN NUM.METRIC = 'ED86d' THEN 'ED86h'
   WHEN NUM.METRIC = 'ED87a' THEN 'ED87f' --ED87e is calculated separately as it includes those waiting less than a week and between 1 and 4 weeks
+  WHEN NUM.METRIC = 'ED87j' THEN 'ED87e' --ED87e now calculated here as ED87j includes those waiting less than 4 weeks
   WHEN NUM.METRIC = 'ED87b' THEN 'ED87g'
   WHEN NUM.METRIC = 'ED87c' THEN 'ED87h'
   WHEN NUM.METRIC = 'ED87d' THEN 'ED87i'
@@ -2135,6 +3011,7 @@ INNER JOIN $db_output.cyp_ed_wt_unformatted DEN
         (NUM.METRIC = 'ED87b' and DEN.METRIC = 'ED87') OR
         (NUM.METRIC = 'ED87c' and DEN.METRIC = 'ED87') OR
         (NUM.METRIC = 'ED87d' and DEN.METRIC = 'ED87') OR
+        (NUM.METRIC = 'ED87j' and DEN.METRIC = 'ED87') OR
         (NUM.METRIC = 'ED89a' and DEN.METRIC = 'ED89') OR
         (NUM.METRIC = 'ED89b' and DEN.METRIC = 'ED89') OR
         (NUM.METRIC = 'ED89c' and DEN.METRIC = 'ED89') OR

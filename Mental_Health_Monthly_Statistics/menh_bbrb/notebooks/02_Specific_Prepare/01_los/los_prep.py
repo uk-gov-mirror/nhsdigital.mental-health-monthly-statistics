@@ -132,6 +132,34 @@ else:
 # COMMAND ----------
 
  %sql
+ ----this step needs to be done to bin invalid/expired ccg/sub-icb codes into UNKNOWN - also need to only include 1 item per row so only latest Acute_Bed day is used for subsetting
+ INSERT OVERWRITE TABLE $db_output.distinct_spells_filter 
+ SELECT
+ a.Person_ID, 
+ a.UniqHospProvSpellID,
+ a.OrgIDProv,
+ Provider_Name,
+ StartDateHospProvSpell,
+ DischDateHospProvSpell,
+ Hosp_LOS,
+ AgeRepPeriodEnd,
+ CCG_Code,
+ CCG_Name,
+ REGION_CODE,
+ REGION_Name,
+ STP_CODE,
+ STP_Name,
+ Acute_Bed,
+ ROW_NUMBER() OVER(PARTITION BY a.UniqHospProvSpellID ORDER BY IFNULL(a.EndDateWardStay,'2100-03-31') DESC, b.MHS502UNIQID DESC) AS WS_Order_Desc
+  
+ FROM $db_output.spells A
+ LEFT JOIN $db_source.MHS502WARDSTAY B on a.UniqHospProvSpellID = b.UniqHospProvSpellID and a.Person_ID = b.Person_ID and b.EndDateWardStay = a.DischDateHospProvSpell
+ WHERE
+ Acute_Bed <> 'Invalid' and AgeRepPeriodEnd >= 18
+
+# COMMAND ----------
+
+ %sql
  ----this step needs to be done to bin invalid/expired ccg/sub-icb codes into UNKNOWN
  INSERT OVERWRITE TABLE $db_output.distinct_spells 
  SELECT DISTINCT
@@ -150,6 +178,58 @@ else:
  STP_CODE,
  STP_Name
   
- FROM $db_output.spells A
+ FROM $db_output.distinct_spells_filter A
  WHERE
  Acute_Bed <> 'Invalid' and AgeRepPeriodEnd >= 18
+
+# COMMAND ----------
+
+ %sql
+ ----only include Adult Acute and PICU beds at latest stay
+ INSERT OVERWRITE TABLE $db_output.distinct_spells_adult_acute_PICU 
+ SELECT DISTINCT
+ Person_ID, 
+ UniqHospProvSpellID,
+ OrgIDProv,
+ Provider_Name,
+ StartDateHospProvSpell,
+ DischDateHospProvSpell,
+ Hosp_LOS,
+ AgeRepPeriodEnd,
+ CCG_Code,
+ CCG_Name,
+ REGION_CODE,
+ REGION_Name,
+ STP_CODE,
+ STP_Name
+  
+ FROM $db_output.distinct_spells_filter A
+ WHERE
+ A.WS_Order_Desc = 1
+ AND Acute_Bed IN ("Adult Acute","PICU")
+
+# COMMAND ----------
+
+ %sql
+ ----only include Older Adult Acute beds at latest stay
+ INSERT OVERWRITE TABLE $db_output.distinct_spells_older_adult_acute
+ SELECT DISTINCT
+ Person_ID, 
+ UniqHospProvSpellID,
+ OrgIDProv,
+ Provider_Name,
+ StartDateHospProvSpell,
+ DischDateHospProvSpell,
+ Hosp_LOS,
+ AgeRepPeriodEnd,
+ CCG_Code,
+ CCG_Name,
+ REGION_CODE,
+ REGION_Name,
+ STP_CODE,
+ STP_Name
+  
+ FROM $db_output.distinct_spells_filter A
+ WHERE
+ A.WS_Order_Desc = 1
+ AND Acute_Bed IN ("Older Adult Acute")

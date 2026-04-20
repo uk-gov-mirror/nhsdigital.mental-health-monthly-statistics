@@ -29,7 +29,7 @@
  %sql
 
  CREATE OR REPLACE GLOBAL TEMP VIEW AWT_possible_metrics AS
- -- User note: original code comented out
+ -- USER: original code comented out
  -- SELECT      DISTINCT b.breakdown, l.level, l.level_desc, m.metric, m.metric_name
  SELECT      DISTINCT b.breakdown, l.level, l.level_desc, l.secondary_level, l.secondary_level_desc, m.metric, m.metric_name
  FROM        $db_output.AWT_breakdown_values as b

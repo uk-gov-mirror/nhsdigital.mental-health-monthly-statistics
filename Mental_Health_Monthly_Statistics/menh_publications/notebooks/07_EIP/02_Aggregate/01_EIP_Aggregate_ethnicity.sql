@@ -584,6 +584,33 @@
 
 -- COMMAND ----------
 
+-- DBTITLE 1,ED32 National break down by ethnicity
+ %sql
+ /* ---------------------------------------------------------------------------------------------------------*/
+ /* ED32 national breakdown by ethnicity */ 
+ /* ---------------------------------------------------------------------------------------------------------*/
+  
+ Insert into $db_output.AWT_unformatted 
+        SELECT '$rp_startdate_quarterly' AS REPORTING_PERIOD_START, 
+                 '$rp_enddate' AS REPORTING_PERIOD_END,
+                 '$status' AS STATUS,
+                 'England; Ethnicity' AS BREAKDOWN,
+                 'England' as LEVEL,
+                 NULL as LEVEL_DESCRIPTION,
+                 'ED32' AS METRIC,
+                 COALESCE(COUNT (DISTINCT A.UniqServReqID), 0) AS METRIC_VALUE, 
+                 '$db_source' AS SOURCE_DB,
+                 A.EthnicityHigher AS SECONDARY_LEVEL, 
+                 A.EthnicityHigher as SECONDARY_LEVEL_DESCRIPTION
+                 
+         FROM $db_output.EIP32_ED32_common A
+         WHERE PrimReasonReferralMH = '12'
+               AND ((AgeServReferRecDate <=17 AND AgeServReferRecDate >=0 AND $month_id >= $month_id_chgover)
+                     OR (AgeServReferRecDate <=18 AND AgeServReferRecDate >=0 AND $month_id < $month_id_chgover))
+ GROUP BY        A.EthnicityHigher
+
+-- COMMAND ----------
+
 -- DBTITLE 1,EIP63 National : Ethnicity
  %sql
  /* ---------------------------------------------------------------------------------------------------------*/

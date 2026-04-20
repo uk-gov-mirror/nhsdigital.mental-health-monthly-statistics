@@ -64,9 +64,8 @@ dbutils.notebook.run("../02_Aggregate/1.Main_monthly_agg/4.LA-CASSR/Outpatient-O
 # COMMAND ----------
 
 # DBTITLE 1,Optimize output table for performance
- %python
 
- import os
+import os
 
- if os.environ['env'] == 'prod':
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Main_monthly_unformatted'))
+if os.environ['env'] == 'prod':
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Main_monthly_unformatted'))

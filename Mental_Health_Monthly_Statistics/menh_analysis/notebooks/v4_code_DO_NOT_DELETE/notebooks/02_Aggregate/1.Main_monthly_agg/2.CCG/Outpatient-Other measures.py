@@ -508,14 +508,14 @@
             ON MPI.Person_ID = CRS.Person_ID
             AND CRS.UniqMonthID <= '$month_id' 
 
-  --User note: commenting this section of code out to exclude the need for table MHS008CrisisPlan in the source data           
+  --USER: commenting this section of code out to exclude the need for table MHS008CrisisPlan in the source data           
  -- LEFT JOIN $db_source.MHS008CrisisPlan AS CRSold
  -- 		   ON MPI.Person_ID = CRSold.Person_ID 
  --            AND CRSold.UniqMonthID <= '$month_id' 
 
      WHERE 
      
-     --User note: commenting this section of code out to exclude the need for table MHS008CrisisPlan in the source data
+     --USER: commenting this section of code out to exclude the need for table MHS008CrisisPlan in the source data
      --(
                       (CarePlanTypeMH = '12' AND CRS.Person_ID IS NOT NULL 
                       AND ((CRS.CarePlanCreatDate <= '$rp_enddate' 
@@ -523,7 +523,7 @@
                       OR (CRS.CarePlanLastUpdateDate <= '$rp_enddate' 
                       AND CRS.CarePlanLastUpdateDate >= DATE_ADD(ADD_MONTHS( '$rp_enddate', -12),1))))
    
-     --User note: commenting this section of code out to exclude the need for table MHS008CrisisPlan in the source data
+     --USER: commenting this section of code out to exclude the need for table MHS008CrisisPlan in the source data
  --     OR 
  --                      (CRSold.Person_ID IS NOT NULL 
  --                      AND ((CRSold.MHCrisisPlanCreatDate <= '$rp_enddate' 

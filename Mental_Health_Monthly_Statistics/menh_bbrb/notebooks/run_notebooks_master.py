@@ -1,11 +1,11 @@
 # Databricks notebook source
-# %sql
-# create widget text db_output default "";
-# create widget text db_source default "";
-# create widget text rp_startdate default "";
-# create widget text rp_enddate default "";
-# create widget text status default "";
-# create widget text product default "";
+ %sql
+ create widget text db_output default "";
+ create widget text db_source default "";
+ create widget text rp_startdate default "";
+ create widget text rp_enddate default "";
+ create widget text status default "";
+ create widget text product default "";
 
 # COMMAND ----------
 
@@ -180,6 +180,17 @@ if (params['product'] == 'ALL') | (params['product'] == '10_MHA'):
   sqlContext.sql(f"UPDATE {db_output}.bbrb_final_suppressed SET MEASURE_ID = LEFT(MEASURE_ID, length(MEASURE_ID)-1) WHERE MEASURE_ID in ('MHS81Y', 'MHS84Y')") 
   #final output
   sqlContext.sql(f"UPDATE {db_output}.bbrb_final SET MEASURE_ID = LEFT(MEASURE_ID, length(MEASURE_ID)-1) WHERE MEASURE_ID in ('MHS81Y', 'MHS84Y')") #replace yearly MEASURE_IDs with same MEASURE_ID as monthly
+
+# COMMAND ----------
+
+#Only run update if full run or 4 week wait run
+if (params['product'] == 'ALL') | (params['product'] == '02_4W_WAITS'):
+  #unsuppressed output
+  sqlContext.sql(f"UPDATE {db_output}.bbrb_final_raw SET MEASURE_ID = LEFT(MEASURE_ID, length(MEASURE_ID)-1) WHERE MEASURE_ID in ('MRS01Y', 'MRS08Y')")  #replace yearly MEASURE_IDs with same MEASURE_ID as monthly
+  #suppressed output
+  sqlContext.sql(f"UPDATE {db_output}.bbrb_final_suppressed SET MEASURE_ID = LEFT(MEASURE_ID, length(MEASURE_ID)-1) WHERE MEASURE_ID in ('MRS01Y', 'MRS08Y')") 
+  #final output
+  sqlContext.sql(f"UPDATE {db_output}.bbrb_final SET MEASURE_ID = LEFT(MEASURE_ID, length(MEASURE_ID)-1) WHERE MEASURE_ID in ('MRS01Y', 'MRS08Y')") #replace yearly MEASURE_IDs with same MEASURE_ID as monthly
 
 # COMMAND ----------
 

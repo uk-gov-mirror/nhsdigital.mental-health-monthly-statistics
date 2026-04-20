@@ -147,14 +147,12 @@ else:
 # COMMAND ----------
 
 # DBTITLE 1,Optimize formatted output tables (again) for performance
- %python
 
- import os
+import os
 
- db_output = dbutils.widgets.get("db_output")
- rp_enddate = dbutils.widgets.get("rp_enddate")
- status = dbutils.widgets.get("status")
+db_output = dbutils.widgets.get("db_output")
+rp_enddate = dbutils.widgets.get("rp_enddate")
+status = dbutils.widgets.get("status")
 
- if os.environ['env'] == 'prod':
-   spark.sql('OPTIMIZE {db_output}.{table} WHERE REPORTING_PERIOD_END = "{rp_enddate}" AND STATUS = "{status}"'.format(db_output=db_output, table='All_products_formatted', rp_enddate=rp_enddate, status=status))
-   
+if os.environ['env'] == 'prod':
+  spark.sql('OPTIMIZE {db_output}.{table} WHERE REPORTING_PERIOD_END = "{rp_enddate}" AND STATUS = "{status}"'.format(db_output=db_output, table='All_products_formatted', rp_enddate=rp_enddate, status=status))

@@ -1583,7 +1583,7 @@
 -- DBTITLE 1,ED32 National
  %sql
  /* ---------------------------------------------------------------------------------------------------------*/
- /* EIP32 national aggregation - this aggregates the EIP32_ED32_common table based on the requirements of EIP32
+ /* ED32 national aggregation - this aggregates the EIP32_ED32_common table based on the requirements of EIP32
    across the whole country. */ 
  /* ---------------------------------------------------------------------------------------------------------*/
 
@@ -1602,15 +1602,97 @@
                  
          FROM  $db_output.EIP32_ED32_common A
          WHERE PrimReasonReferralMH = '12'
-               AND (AgeServReferRecDate <=18 AND AgeServReferRecDate >=0)
+               AND ((AgeServReferRecDate <=17 AND AgeServReferRecDate >=0 AND $month_id >= $month_id_chgover)
+                     OR (AgeServReferRecDate <=18 AND AgeServReferRecDate >=0 AND $month_id < $month_id_chgover))
 
+
+-- COMMAND ----------
+
+-- DBTITLE 1,ED32 National by age group
+ %sql
+ /* ---------------------------------------------------------------------------------------------------------*/
+ /* ED32 national breakdown by age group */ 
+ /* ---------------------------------------------------------------------------------------------------------*/
+
+ Insert into $db_output.AWT_unformatted 
+        SELECT '$rp_startdate_quarterly' AS REPORTING_PERIOD_START, 
+                 '$rp_enddate' AS REPORTING_PERIOD_END,
+                 '$status' AS STATUS,
+                 'England; Age' AS BREAKDOWN,
+                 'England' as LEVEL,
+                 NULL as LEVEL_DESCRIPTION,
+                 'ED32' AS METRIC,
+                 COALESCE(COUNT (DISTINCT A.UniqServReqID), 0) AS METRIC_VALUE, 
+                 '$db_source' AS SOURCE_DB,
+                 A.Age_Group AS SECONDARY_LEVEL, 
+                 A.Age_Group as SECONDARY_LEVEL_DESCRIPTION
+                 
+         FROM  $db_output.EIP32_ED32_common A
+         WHERE PrimReasonReferralMH = '12'
+               AND ((AgeServReferRecDate <=17 AND AgeServReferRecDate >=0 AND $month_id >= $month_id_chgover)
+                     OR (AgeServReferRecDate <=18 AND AgeServReferRecDate >=0 AND $month_id < $month_id_chgover))
+ GROUP BY        A.Age_Group
+
+-- COMMAND ----------
+
+-- DBTITLE 1,ED32 National by gender
+ %sql
+ /* ---------------------------------------------------------------------------------------------------------*/
+ /* ED32 national breakdown by gender */ 
+ /* ---------------------------------------------------------------------------------------------------------*/
+  
+ Insert into $db_output.AWT_unformatted 
+        SELECT '$rp_startdate_quarterly' AS REPORTING_PERIOD_START, 
+                 '$rp_enddate' AS REPORTING_PERIOD_END,
+                 '$status' AS STATUS,
+                 'England; Gender' AS BREAKDOWN,
+                 'England' AS LEVEL,
+                 NULL AS LEVEL_DESCRIPTION,
+                 'ED32' AS METRIC,
+                 COALESCE(COUNT (DISTINCT A.UniqServReqID), 0) AS METRIC_VALUE, 
+                 '$db_source' AS SOURCE_DB,
+                 A.Gender AS SECONDARY_LEVEL, 
+                 A.GenderDesc as SECONDARY_LEVEL_DESCRIPTION
+                 
+         FROM  $db_output.EIP32_ED32_common A
+         WHERE PrimReasonReferralMH = '12'
+               AND ((AgeServReferRecDate <=17 AND AgeServReferRecDate >=0 AND $month_id >= $month_id_chgover)
+                     OR (AgeServReferRecDate <=18 AND AgeServReferRecDate >=0 AND $month_id < $month_id_chgover))
+ GROUP BY        A.Gender, A.GenderDesc
+
+-- COMMAND ----------
+
+-- DBTITLE 1,ED32 National by IMD decile
+ %sql
+ /* ---------------------------------------------------------------------------------------------------------*/
+ /* ED32 national breakdown by IMD_Decile */ 
+ /* ---------------------------------------------------------------------------------------------------------*/
+  
+ Insert into $db_output.AWT_unformatted 
+        SELECT '$rp_startdate_quarterly' AS REPORTING_PERIOD_START, 
+                 '$rp_enddate' AS REPORTING_PERIOD_END,
+                 '$status' AS STATUS,
+                 'England; IMD Decile' AS BREAKDOWN,
+                 'England' AS LEVEL,
+                 NULL AS LEVEL_DESCRIPTION,
+                 'ED32' AS METRIC,
+                 COALESCE(COUNT (DISTINCT A.UniqServReqID), 0) AS METRIC_VALUE, 
+                 '$db_source' AS SOURCE_DB,
+                 A.IMD_Decile AS SECONDARY_LEVEL, 
+                 A.IMD_Decile as SECONDARY_LEVEL_DESCRIPTION
+                 
+         FROM  $db_output.EIP32_ED32_common A
+         WHERE PrimReasonReferralMH = '12'
+               AND ((AgeServReferRecDate <=17 AND AgeServReferRecDate >=0 AND $month_id >= $month_id_chgover)
+                     OR (AgeServReferRecDate <=18 AND AgeServReferRecDate >=0 AND $month_id < $month_id_chgover))
+ GROUP BY        A.IMD_Decile
 
 -- COMMAND ----------
 
 -- DBTITLE 1,ED32 CCG
  %sql
  /* ---------------------------------------------------------------------------------------------------------*/
- /* EIP32 CCG - this aggregates the EIP32_ED32_common table based on the requirements of EIP32
+ /* ED32 CCG - this aggregates the EIP32_ED32_common table based on the requirements of ED32
    for each CCG. */ 
  /* ---------------------------------------------------------------------------------------------------------*/
 
@@ -1629,7 +1711,8 @@
            
      FROM  $db_output.EIP32_ED32_common A
      WHERE PrimReasonReferralMH = '12'
-           AND (AgeServReferRecDate <=18 AND AgeServReferRecDate >=0)
+               AND ((AgeServReferRecDate <=17 AND AgeServReferRecDate >=0 AND $month_id >= $month_id_chgover)
+                     OR (AgeServReferRecDate <=18 AND AgeServReferRecDate >=0 AND $month_id < $month_id_chgover))
      GROUP BY LEVEL
 
 
@@ -1638,7 +1721,7 @@
 -- DBTITLE 1,ED32 Provider
  %sql
  /* ---------------------------------------------------------------------------------------------------------*/
- /* EIP32 Provider - this aggregates the EIP32_ED32_common table based on the requirements of EIP32
+ /* ED32 Provider - this aggregates the EIP32_ED32_common table based on the requirements of ED32
    for each Provider. */ 
  /* ---------------------------------------------------------------------------------------------------------*/
 
@@ -1657,7 +1740,8 @@
            
      FROM  $db_output.EIP32_ED32_common A
      WHERE PrimReasonReferralMH = '12'
-           AND (AgeServReferRecDate <=18 AND AgeServReferRecDate >=0)
+               AND ((AgeServReferRecDate <=17 AND AgeServReferRecDate >=0 AND $month_id >= $month_id_chgover)
+                     OR (AgeServReferRecDate <=18 AND AgeServReferRecDate >=0 AND $month_id < $month_id_chgover))
      GROUP BY A.OrgIDProv
 
 
@@ -1666,7 +1750,7 @@
 -- DBTITLE 1,EIP32 National
  %sql
  /* ---------------------------------------------------------------------------------------------------------*/
- /* ED32 national aggregation - this aggregates the EIP32_ED32_common table based on the requirements of ED32
+ /* EIP32 national aggregation - this aggregates the EIP32_ED32_common table based on the requirements of EIP32
    across the whole country. */ 
  /* ---------------------------------------------------------------------------------------------------------*/
 
@@ -1692,7 +1776,7 @@
 -- DBTITLE 1,EIP32 CCG
  %sql
  /* ---------------------------------------------------------------------------------------------------------*/
- /* ED32 CCG - this aggregates the EIP32_ED32_common table based on the requirements of ED32
+ /* EIP32 CCG - this aggregates the EIP32_ED32_common table based on the requirements of ED32
    for each CCG. */ 
  /* ---------------------------------------------------------------------------------------------------------*/
 
@@ -1719,7 +1803,7 @@
 -- DBTITLE 1,EIP32 Provider
  %sql
  /* ---------------------------------------------------------------------------------------------------------*/
- /* ED32 Provider - this aggregates the EIP32_ED32_common table based on the requirements of ED32
+ /* EIP32 Provider - this aggregates the EIP32_ED32_common table based on the requirements of EIP32
    for each Provider. */ 
  /* ---------------------------------------------------------------------------------------------------------*/
 

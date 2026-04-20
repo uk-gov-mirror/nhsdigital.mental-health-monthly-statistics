@@ -11,7 +11,7 @@ dbutils.widgets.removeAll() above can be run to annihilate the existing widgets 
 # dbutils.widgets.text("db", "menh_bbrb", "Target database")
 # dbutils.widgets.text("mhsds_db", "testdata_menh_bbrb_mhsds_db", "Input database")
 # dbutils.widgets.text("status", "Performance", "status")
-# dbutils.widgets.text("reference_db", "reference_db", "reference_db")
+# dbutils.widgets.text("reference_data", "reference_data", "reference_data")
 # dbutils.widgets.text(name='rp_startdate', defaultValue='2021-10-01', label='Reporting period start date')
 # dbutils.widgets.text("product","","product")
 
@@ -70,9 +70,9 @@ try:
 except:
   print('mhsds_db is not defined')
 
-###dbutils.widgets.text("reference_db","reference_db","Source Ref Database")
-reference_db = dbutils.widgets.get("reference_db")
-assert reference_db
+###dbutils.widgets.text("reference_data","reference_data","Source Ref Database")
+reference_data = dbutils.widgets.get("reference_data")
+assert reference_data
 
 ####
 # here a parameter is defined and assigned no value - this makes it an optional parameter - it doesn't need to be added at run time because it will be added here with no value if it doesn't already exist.
@@ -93,7 +93,7 @@ else:
 params = {
   'db_source' : db_source, 
   'db_output' : db_output, 
-  'reference_db': reference_db,
+  'reference_data': reference_data,
   'rp_enddate' : '', 
   'rp_startdate' : '', 
   'month_id' : '', 

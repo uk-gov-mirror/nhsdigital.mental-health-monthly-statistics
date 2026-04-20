@@ -2155,7 +2155,7 @@
 
 # COMMAND ----------
 
-# DBTITLE 1,Distinct Providers and Commissioners - User note: needed for Expand section - add to 0.Insert_lookup_data???  OR is this already covered within existing tables...?
+# DBTITLE 1,Distinct Providers and Commissioners - USER: needed for Expand section - add to 0.Insert_lookup_data???  OR is this already covered within existing tables...?
 # %sql
 # -- CREATES TEMPORARY TABLES WHICH HOUSE ALL DISTINCT PROVIDERS AND COMMISSIONERS
 # -- This means that all providers and commissioners are held in a list to join with the menh_analysis.ProviderCrossCategories table to ensure all options are included for all providers.

@@ -29,6 +29,7 @@
 # DBTITLE 1,List possible metrics for cyp_ed_wt
  %sql
  CREATE OR REPLACE GLOBAL TEMP VIEW cyp_ed_wt_possible_metrics AS 
+ /* add demographic breakdowns for specific measures at England level only */ 
  SELECT 
  DISTINCT
  b.breakdown,
@@ -41,6 +42,41 @@
  FROM $db_output.cyp_ed_wt_breakdown_values as b 
  INNER JOIN $db_output.cyp_ed_wt_level_values_1 as l ON b.breakdown = l.breakdown 
  CROSS JOIN $db_output.cyp_ed_wt_metric_values as m
+ where b.breakdown not like 'England;%'
+  
+ UNION ALL
+  
+ SELECT 
+ DISTINCT
+ b.breakdown,
+ l.primary_level,
+ l.primary_level_desc,
+ l.secondary_level,
+ l.secondary_level_desc,
+ m.metric,
+ m.metric_name 
+ FROM $db_output.cyp_ed_wt_breakdown_values as b 
+ INNER JOIN $db_output.cyp_ed_wt_level_values_1 as l ON b.breakdown = l.breakdown 
+ CROSS JOIN $db_output.cyp_ed_wt_metric_values as m
+ where b.breakdown in ('England; Age', 'England; Gender', 'England; Ethnicity', 'England; IMD Decile')
+ and m.metric in ('ED85','ED86','ED86a','ED86e','ED87','ED87e','ED87j','ED88','ED89','ED90')
+  
+ UNION ALL
+  
+ SELECT 
+ DISTINCT
+ b.breakdown,
+ l.primary_level,
+ l.primary_level_desc,
+ l.secondary_level,
+ l.secondary_level_desc,
+ m.metric,
+ m.metric_name 
+ FROM $db_output.cyp_ed_wt_breakdown_values as b 
+ INNER JOIN $db_output.cyp_ed_wt_level_values_1 as l ON b.breakdown = l.breakdown 
+ CROSS JOIN $db_output.cyp_ed_wt_metric_values as m
+ where b.breakdown in ('England; Intervention')
+ and m.metric in ('ED85','ED86','ED86a','ED86e','ED87','ED87e','ED87j')
 
 # COMMAND ----------
 
@@ -163,11 +199,18 @@
    (
      'EIP01a','EIP01b','EIP01c','EIP23aa','EIP23ab','EIP23ac','EIP23ba','EIP23bb','EIP23bc','EIP23ca','EIP23cb','EIP23cc','EIP23da','EIP23db','EIP23dc',
      'EIP23ea','EIP23eb','EIP23ec','EIP23fa','EIP23fb','EIP23fc','EIP23g','EIP23h','EIP23ia','EIP23ib','EIP23ic','EIP23ja','EIP23jb','EIP23jc',	'EIP32',
-     'EIP63a','EIP63b','EIP63c','EIP64a','EIP64b','EIP64c','EIP65a',	'EIP65b','EIP65c','EIP66a','EIP66b','EIP66c','EIP67a','EIP67b',	'EIP67c','MHS32','ED32'
+     'EIP63a','EIP63b','EIP63c','EIP64a','EIP64b','EIP64c','EIP65a',	'EIP65b','EIP65c','EIP66a','EIP66b','EIP66c','EIP67a','EIP67b',	'EIP67c','MHS32'
      )
+  
+ UNION ALL
+  
+ SELECT      b.breakdown, l.level, l.level_desc, l.secondary_level, l.secondary_level_desc, m.metric, m.metric_name
+ FROM        $db_output.AWT_breakdown_values as b
+ INNER JOIN  $db_output.AWT_level_values as l ON b.breakdown=l.breakdown and b.breakdown IN ('England','England; Age','England; Gender','England; IMD Decile','England; Ethnicity','Provider','CCG - GP Practice or Residence')
+ CROSS JOIN  $db_output.AWT_metric_values as m
+ WHERE m.metric IN ('ED32')
 
  UNION ALL
-
 
  SELECT      b.breakdown, l.level, l.level_desc, l.secondary_level, l.secondary_level_desc, m.metric, m.metric_name
  FROM        $db_output.AWT_breakdown_values as b

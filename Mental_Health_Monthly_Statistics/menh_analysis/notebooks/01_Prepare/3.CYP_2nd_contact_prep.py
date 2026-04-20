@@ -11,15 +11,14 @@
 
 # COMMAND ----------
 
- %python
- assert dbutils.widgets.get('Financial_Yr_Start')
- assert dbutils.widgets.get('Financial_Yr_End')
- assert dbutils.widgets.get('db_output')
- assert dbutils.widgets.get('db_source')
- assert dbutils.widgets.get('month_id')
- assert dbutils.widgets.get('rp_enddate')
- assert dbutils.widgets.get('rp_startdate')
- assert dbutils.widgets.get('status')
+assert dbutils.widgets.get('Financial_Yr_Start')
+assert dbutils.widgets.get('Financial_Yr_End')
+assert dbutils.widgets.get('db_output')
+assert dbutils.widgets.get('db_source')
+assert dbutils.widgets.get('month_id')
+assert dbutils.widgets.get('rp_enddate')
+assert dbutils.widgets.get('rp_startdate')
+assert dbutils.widgets.get('status')
 
 # COMMAND ----------
 
@@ -38,7 +37,7 @@ if int(month_id) < 1459:
   sql=("CREATE OR REPLACE GLOBAL TEMPORARY VIEW Cont AS \
    SELECT c.UniqMonthID, c.Person_ID, c.UniqServReqID, c.AgeCareContDate, c.UniqCareContID AS ContID, c.CareContDate AS ContDate, c.MHS201UniqID as UniqID \
    FROM {db_source}.MHS201CareContact c \
-  WHERE ((c.AttendStatus IN ('5','6') and c.ConsMechanismMH NOT IN ('05','06')) or (c.ConsMechanismMH IN ('05','06') and OrgIdProv in ('DFC','S9X2N'))) AND UniqMonthID <= '{month_id}' \
+  WHERE ((c.AttendStatus IN ('5','6') and c.ConsMechanismMH NOT IN ('05','06')) or (c.ConsMechanismMH IN ('05','06') and OrgIdProv in ('DFC','S9X2N','F9R5H'))) AND UniqMonthID <= '{month_id}' \
   UNION ALL \
    SELECT i.UniqMonthID, i.Person_ID, i.UniqServReqID, NULL AS AgeCareContDate, CAST(i.MHS204UniqID AS string) AS ContID, i.IndirectActDate AS ContDate,  i.MHS204UniqID as UniqID \
    FROM {db_source}.MHS204IndirectActivity i \
@@ -53,7 +52,7 @@ else:
    LEFT JOIN {db_output}.validcodes as vc \
     ON vc.Tablename = 'mhs201carecontact' and vc.field = 'ConsMechanismMH' and vc.Measure = 'CYP' and vc.type = 'include' and c.ConsMechanismMH = vc.ValidValue \
     and c.UniqMonthID >= vc.FirstMonth and (vc.LastMonth is null or c.UniqMonthID <= vc.LastMonth) \
-    and OrgIdProv not in ('DFC','S9X2N') \
+    and OrgIdProv not in ('DFC','S9X2N','F9R5H') \
    LEFT JOIN {db_output}.validcodes as vck \
     ON vck.Tablename = 'mhs201carecontact' and vck.field = 'ConsMechanismMH' and vck.Measure = 'CYP_KOOTH' and vck.type = 'include' and c.ConsMechanismMH = vck.ValidValue \
     and c.UniqMonthID >= vck.FirstMonth and (vck.LastMonth is null or c.UniqMonthID <= vck.LastMonth) \
@@ -92,7 +91,7 @@ spark.sql(sql)
        FROM global_temp.Cont c
  INNER JOIN $db_source.MHS101Referral r 
             ON ((c.UniqServReqID = r.UniqServReqID AND c.Person_ID = r.Person_ID) 
-            OR (r.OrgIDProv in ('DFC','S9X2N') AND c.UniqServReqID = r.UniqServReqID))
+            OR (r.OrgIDProv in ('DFC','S9X2N','F9R5H') AND c.UniqServReqID = r.UniqServReqID))
  		   AND AgeServReferRecDate BETWEEN 0 AND 18 
             AND (RecordEndDate IS null OR RecordEndDate >= '$rp_enddate')
             AND RecordStartDate <= '$rp_enddate'
@@ -115,7 +114,7 @@ spark.sql(sql)
             r.RN1,
             r.UniqID 
        FROM global_temp.RefCont r
-      WHERE ((r.RN1 = 1 and r.OrgIDProv <> 'DFC') OR (r.DFC_RN1 = 1 and r.OrgIDProv in ('DFC','S9X2N')))
+      WHERE ((r.RN1 = 1 and r.OrgIDProv <> 'DFC') OR (r.DFC_RN1 = 1 and r.OrgIDProv in ('DFC','S9X2N','F9R5H')))
             AND r.AgeCareContDate <18
 
 # COMMAND ----------
@@ -138,7 +137,7 @@ spark.sql(sql)
  INNER JOIN global_temp.FirstCont f 
             ON f.Person_ID = r.Person_ID 
             AND f.UniqServReqID = r.UniqServReqID
-      WHERE ((r.RN1 = 2 and r.OrgIDProv <> 'DFC') OR (r.DFC_RN1 = 2 and r.OrgIDProv in ('DFC','S9X2N'))) 
+      WHERE ((r.RN1 = 2 and r.OrgIDProv <> 'DFC') OR (r.DFC_RN1 = 2 and r.OrgIDProv in ('DFC','S9X2N','F9R5H'))) 
             AND (r.ContDate BETWEEN '${Financial_Yr_Start}' AND '${Financial_Yr_End}')
 
 # COMMAND ----------
@@ -166,7 +165,7 @@ spark.sql(sql)
        FROM global_temp.Cont c
  INNER JOIN $db_source.MHS101Referral r 
             ON ((c.UniqServReqID = r.UniqServReqID AND c.Person_ID = r.Person_ID) 
-            OR (r.OrgIDProv in ('DFC','S9X2N') AND c.UniqServReqID = r.UniqServReqID))
+            OR (r.OrgIDProv in ('DFC','S9X2N','F9R5H') AND c.UniqServReqID = r.UniqServReqID))
  		   AND AgeServReferRecDate BETWEEN 0 AND 18 
             AND (RecordEndDate IS null OR RecordEndDate >= '${rp_enddate}') 
             AND RecordStartDate <= '${rp_enddate}'
@@ -189,7 +188,7 @@ spark.sql(sql)
             r.RN1,
             r.UniqID
        FROM global_temp.RefCont_inyear r
-      WHERE ((r.RN1 = 1 and r.OrgIDProv <> 'DFC') OR (r.DFC_RN1 = 1 and r.OrgIDProv in ('DFC','S9X2N'))) 
+      WHERE ((r.RN1 = 1 and r.OrgIDProv <> 'DFC') OR (r.DFC_RN1 = 1 and r.OrgIDProv in ('DFC','S9X2N','F9R5H'))) 
             AND r.AgeCareContDate <18
             AND ContDate BETWEEN '${Financial_Yr_Start}' AND '${Financial_Yr_End}'
 
@@ -212,8 +211,8 @@ spark.sql(sql)
        FROM global_temp.RefCont_inyear r
  INNER JOIN global_temp.FirstCont_inyear f 
             ON ((f.UniqServReqID = r.UniqServReqID AND f.Person_ID = r.Person_ID) 
-            OR (r.OrgIDProv in ('DFC','S9X2N') AND f.UniqServReqID = r.UniqServReqID))
-      WHERE ((r.RN1 = 2 and r.OrgIDProv <> 'DFC') OR (r.DFC_RN1 = 2 and r.OrgIDProv in ('DFC','S9X2N')))
+            OR (r.OrgIDProv in ('DFC','S9X2N','F9R5H') AND f.UniqServReqID = r.UniqServReqID))
+      WHERE ((r.RN1 = 2 and r.OrgIDProv <> 'DFC') OR (r.DFC_RN1 = 2 and r.OrgIDProv in ('DFC','S9X2N','F9R5H')))
             AND r.ContDate BETWEEN '${Financial_Yr_Start}' AND '${Financial_Yr_End}'
 
 # COMMAND ----------
@@ -276,7 +275,7 @@ spark.sql(sql)
             FROM global_temp.FirstPersQtr s
  INNER JOIN global_temp.first_contacts f 
             ON ((f.UniqServReqID = s.UniqServReqID AND f.Person_ID = s.Person_ID) 
-            OR (s.OrgIDProv in ('DFC','S9X2N') AND f.UniqServReqID = s.UniqServReqID))
+            OR (s.OrgIDProv in ('DFC','S9X2N','F9R5H') AND f.UniqServReqID = s.UniqServReqID))
       WHERE QtrRN=1
 
 # COMMAND ----------

@@ -113,25 +113,25 @@ db = dbutils.widgets.get("db")
 assert db
 
 # this is needed to enable run_notebooks to be run both from run_tests during promotion and directly run
-# needs to use mhsds_database for both but the parameter is fed in from run_tests as the original mhsds_database :o(
+# needs to use mhsds_db for both but the parameter is fed in from run_tests as the original mhsds_db :o(
 
 # get the original parameter value (will work in all sitations)
 try:
-  db_source = dbutils.widgets.get("mhsds_database")
+  db_source = dbutils.widgets.get("mhsds_db")
 except:
-  print('mhsds_database is not defined')
+  print('mhsds_db is not defined')
 
-# get the new parameter value (will only work in direct run, and will overwrite value for mhsds_database)
+# get the new parameter value (will only work in direct run, and will overwrite value for mhsds_db)
 try:
-  db_source = dbutils.widgets.get("mhsds_database")
+  db_source = dbutils.widgets.get("mhsds_db")
 except:
-  print('mhsds_database is not defined')
+  print('mhsds_db is not defined')
   
 
 # the above replaces this simpler situation!
-# db_source = dbutils.widgets.get("mhsds_database")
+# db_source = dbutils.widgets.get("mhsds_db")
 # new v5 source
-# db_source = dbutils.widgets.get("mhsds_database")
+# db_source = dbutils.widgets.get("mhsds_db")
 # assert db_source
 
 reference_data = dbutils.widgets.get("reference_data")

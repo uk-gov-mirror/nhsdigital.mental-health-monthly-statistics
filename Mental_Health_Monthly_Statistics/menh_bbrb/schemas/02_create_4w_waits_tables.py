@@ -187,6 +187,56 @@
 # COMMAND ----------
 
  %sql
+ DROP TABLE IF EXISTS $db_output.cmh_4ww_spell_master_long_12m; 
+ CREATE TABLE IF NOT EXISTS $db_output.cmh_4ww_spell_master_long_12m
+ ( 
+ ReportingPeriodStartDate date,
+ ReportingPeriodEndDate date,
+ Person_ID string,
+ OrgIDProv string,
+ Provider_Name string,
+ CCG_Code string,
+ CCG_Name string,
+ STP_Code string,
+ STP_Name string,
+ Region_Code string,
+ Region_Name string,
+ --BITC-6882: IMD breakdowns
+ IMD_Core20 string,
+ SpellID string, 
+ StartDate date,
+ EndDate date,
+ Der_Open int,
+ Time_start_to_end_rp int,
+ Weeks_To_End_RP float,
+ Second_contact date,
+ Time_to_second_contact int,
+ First_outcome_pathway date,
+ First_assessment_pathway date,
+ First_Care_Plan_or_Intervention_pathway date,
+ Pathway_ClockStop date,
+ Time_to_clock_stop int,
+ Spell_start int,
+ Spell_closed int,
+ Spell_inactive int,
+ Spell_Open int,
+ 1st_contact_in_RP int,
+ With_1st_contact int,
+ 2nd_contact_in_RP int,
+ With_2nd_contact int,
+ Outcome_in_RP int,
+ With_outcome int,
+ Assessment_in_RP int,
+ With_assessment int,
+ Intervention_or_CP_in_RP int,
+ With_Intervention_or_CP int,
+ Clock_stop_in_RP int,
+ With_clock_stop int
+ ) USING DELTA
+
+# COMMAND ----------
+
+ %sql
  -- DROP TABLE IF EXISTS $db_output.cyp_4ww_referrals; 
  CREATE TABLE IF NOT EXISTS $db_output.cyp_4ww_referrals 
  (
@@ -396,8 +446,97 @@
 # COMMAND ----------
 
  %sql
+ DROP TABLE IF EXISTS $db_output.cyp_4ww_spell_master_long_12m; 
+ CREATE TABLE IF NOT EXISTS $db_output.cyp_4ww_spell_master_long_12m
+ ( 
+ ReportingPeriodStartDate date,
+ ReportingPeriodEndDate date,
+ Person_ID string,
+ OrgIDProv string,
+ Provider_Name string,
+ CCG_Code string,
+ CCG_Name string,
+ STP_Code string,
+ STP_Name string,
+ Region_Code string,
+ Region_Name string,
+ --BITC-6882: IMD breakdowns
+ IMD_Core20 string,
+ SpellID string, 
+ StartDate date,
+ EndDate date,
+ Der_Open int,
+ Time_start_to_end_rp int,
+ Weeks_To_End_RP float,
+ First_contact date,
+ First_outcome_pathway date,
+ First_Care_Plan_or_Intervention_pathway date,
+ Pathway_ClockStop date,
+ Time_to_clock_stop int,
+ Spell_start int,
+ Spell_closed int,
+ Spell_inactive int,
+ Spell_Open int,
+ 1st_contact_in_RP int,
+ With_1st_contact int,
+ Outcome_in_RP int,
+ With_outcome int,
+ Intervention_or_CP_in_RP int,
+ With_Intervention_or_CP int,
+ Clock_stop_in_RP int,
+ With_clock_stop int
+ ) USING DELTA
+
+# COMMAND ----------
+
+ %sql
  DROP TABLE IF EXISTS $db_output.cyp_4ww_spell_master_long_pathway; 
  CREATE TABLE IF NOT EXISTS $db_output.cyp_4ww_spell_master_long_pathway
+ ( 
+ ReportingPeriodStartDate date,
+ ReportingPeriodEndDate date,
+ Person_ID string,
+ OrgIDProv string,
+ Provider_Name string,
+ CCG_Code string,
+ CCG_Name string,
+ STP_Code string,
+ STP_Name string,
+ Region_Code string,
+ Region_Name string,
+ IMD_Core20 string,
+ SpellID string, 
+ StartDate date,
+ EndDate date,
+ Der_Open int,
+ Time_start_to_end_rp int,
+ Weeks_To_End_RP float,
+ First_contact date,
+ First_outcome_pathway date,
+ First_Care_Plan_or_Intervention_pathway date,
+ Pathway_ClockStop date,
+ Time_to_clock_stop int,
+ Spell_start int,
+ Spell_closed int,
+ Spell_inactive int,
+ Spell_Open int,
+ 1st_contact_in_RP int,
+ With_1st_contact int,
+ Outcome_in_RP int,
+ With_outcome int,
+ Intervention_or_CP_in_RP int,
+ With_Intervention_or_CP int,
+ Clock_stop_in_RP int,
+ With_clock_stop int,
+ Pathway string,
+ PathwayDesc string
+ ) USING DELTA
+
+# COMMAND ----------
+
+ %sql
+ DROP TABLE IF EXISTS $db_output.cyp_4ww_spell_master_long_12m_pathway; 
+ CREATE TABLE IF NOT EXISTS $db_output.cyp_4ww_spell_master_long_12m_pathway
  ( 
  ReportingPeriodStartDate date,
  ReportingPeriodEndDate date,

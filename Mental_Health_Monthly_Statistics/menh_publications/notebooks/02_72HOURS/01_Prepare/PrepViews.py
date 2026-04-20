@@ -1,4 +1,5 @@
 # Databricks notebook source
+
  %sql
  CREATE OR REPLACE GLOBAL TEMP VIEW Cont AS
  SELECT        c.UniqMonthID

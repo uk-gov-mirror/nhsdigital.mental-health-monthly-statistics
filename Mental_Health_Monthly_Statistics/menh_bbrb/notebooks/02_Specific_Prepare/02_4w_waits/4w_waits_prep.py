@@ -7,9 +7,9 @@
  c.EffectiveTime as Concept_EffectiveTime,
  c.active as Concept_Active,
  ROW_NUMBER() OVER (PARTITION BY c.ID ORDER BY c.effectiveTime desc) as Concept_RN
- FROM reference_db.snomed_sct2_concept_full c
+ FROM reference_data.snomed_sct2_concept_full c
  INNER JOIN (
-   select distinct ReferencedComponentID from reference_db.snomed_sct2_refset_full
+   select distinct ReferencedComponentID from reference_data.snomed_sct2_refset_full
    where RefSetID IN 
    ('1853441000000109', --Mental Health Services Data Set assessment procedures simple reference set
    '1853461000000105', --Mental Health Services Data Set psychological therapies simple reference set
@@ -23,7 +23,7 @@
  CREATE OR REPLACE TEMP VIEW SNOMED_4ww_RefSets AS
  SELECT DISTINCT r.RefSetID, r.ReferencedComponentID as ConceptID, r.effectiveTime as RefSet_EffectiveTime, r.Active as RefSet_Active,
  ROW_NUMBER() OVER (PARTITION BY r.ReferencedComponentID ORDER BY r.effectiveTime desc) as RefSet_RN
- from reference_db.snomed_sct2_refset_full r
+ from reference_data.snomed_sct2_refset_full r
    where RefSetID IN 
    ('1853441000000109', --Mental Health Services Data Set assessment procedures simple reference set
    '1853461000000105', --Mental Health Services Data Set psychological therapies simple reference set
@@ -115,14 +115,44 @@
   
  LEFT JOIN
           (SELECT LSOA_CODE_2011, DECI_IMD, IMD_YEAR
-          FROM $reference_db.english_indices_of_dep_v02
-          WHERE IMD_YEAR = (SELECT MAX(IMD_YEAR) FROM $reference_db.english_indices_of_dep_v02) ) C ON B.LSOA2011 = C.LSOA_CODE_2011     
+          FROM $reference_data.english_indices_of_dep_v02
+          WHERE IMD_YEAR = (SELECT MAX(IMD_YEAR) FROM $reference_data.english_indices_of_dep_v02) ) C ON B.LSOA2011 = C.LSOA_CODE_2011     
   
  LEFT JOIN $db_output.imd_desc imd on C.DECI_IMD = imd.IMD_Number and '$end_month_id' >= imd.FirstMonth and (imd.LastMonth is null or '$end_month_id' <= imd.LastMonth)
       
  INNER JOIN (SELECT PERSON_ID, MAX(UNIQMONTHID) AS UNIQMONTHID FROM $db_source.MHS001MPI WHERE (RecordEndDate is null or RecordEndDate >= '$rp_enddate') and RecordStartDate <= '$rp_enddate' AND RecordStartDate >= ADD_MONTHS('$rp_enddate',-3) AND PatMRecInRP = True GROUP BY PERSON_ID) AS MPI on b.person_id = mpi.person_id and b.uniqmonthid =mpi.uniqmonthid  
   
  WHERE (b.RecordEndDate is null or b.RecordEndDate >= '$rp_enddate') and b.RecordStartDate <= '$rp_enddate' AND b.RecordStartDate >= ADD_MONTHS('$rp_enddate',-3)
+      AND PatMRecInRP = True
+
+# COMMAND ----------
+
+# DBTITLE 1,Get latest MPI records for the  Year
+ %sql
+ -- Get latest MPI records for the year (BITC-7307)
+  
+ CREATE OR REPLACE TEMP VIEW REFSPL_MHS001MPI_LATEST_YEAR AS
+  
+ SELECT             
+                  B.UniqMonthID
+                 ,B.orgidProv
+                 ,B.Person_ID
+                 ,B.RecordNumber
+                 ,C.DECI_IMD
+                 ,coalesce(imd.IMD_Decile, "UNKNOWN") as IMD_Decile
+                 ,coalesce(imd.IMD_Core20, "UNKNOWN") as IMD_Core20
+ FROM            $db_source.MHS001MPI AS B                                     
+  
+ LEFT JOIN
+          (SELECT LSOA_CODE_2011, DECI_IMD, IMD_YEAR
+          FROM $reference_data.english_indices_of_dep_v02
+          WHERE IMD_YEAR = (SELECT MAX(IMD_YEAR) FROM $reference_data.english_indices_of_dep_v02) ) C ON B.LSOA2011 = C.LSOA_CODE_2011     
+  
+ LEFT JOIN $db_output.imd_desc imd on C.DECI_IMD = imd.IMD_Number and '$end_month_id' >= imd.FirstMonth and (imd.LastMonth is null or '$end_month_id' <= imd.LastMonth)
+      
+ INNER JOIN (SELECT PERSON_ID, MAX(UNIQMONTHID) AS UNIQMONTHID FROM $db_source.MHS001MPI WHERE (RecordEndDate is null or RecordEndDate >= '$rp_enddate') and RecordStartDate <= '$rp_enddate' AND RecordStartDate >= ADD_MONTHS('$rp_enddate',-12) AND PatMRecInRP = True GROUP BY PERSON_ID) AS MPI on b.person_id = mpi.person_id and b.uniqmonthid =mpi.uniqmonthid  
+  
+ WHERE (b.RecordEndDate is null or b.RecordEndDate >= '$rp_enddate') and b.RecordStartDate <= '$rp_enddate' AND b.RecordStartDate >= ADD_MONTHS('$rp_enddate',-12)
       AND PatMRecInRP = True
 
 # COMMAND ----------
@@ -169,7 +199,7 @@
  WHERE r.AgeServReferRecDate >= 18 -- 18 and over
      AND s.ServTeamTypeRefToMH IN ('A05','A06','A08','A09','A12','A13','A16','C03','C10') -- Core community MH teams
      AND (m.LADistrictAuth LIKE 'E%' OR m.LADistrictAuth IS NULL OR m.LADistrictAuth = "") -- only people resident in England
-     AND r.OrgIDProv not in ('DFC','S9X2N')
+     AND r.OrgIDProv not in ('DFC','S9X2N','F9R5H','B4A3L')
      AND r.UniqMonthID <= $end_month_id
      AND h.UniqHospProvSpellID is null --remove inpatients as per join above
 
@@ -607,6 +637,77 @@
 # COMMAND ----------
 
  %sql
+ ---EXPLODE INTO LONG-FORM TABLE FOR TIME SERIES ANALYSIS 
+ INSERT OVERWRITE TABLE $db_output.cmh_4ww_spell_master_long_12m
+ SELECT 
+ h.ReportingPeriodStartDate,
+ h.ReportingPeriodEndDate,
+ m.Person_ID,
+ m.OrgIDProv,
+ COALESCE(o.NAME, "UNKNOWN") as Provider_Name,
+ COALESCE(s.CCG_CODE, 'UNKNOWN') as CCG_Code,
+ COALESCE(s.CCG_NAME, 'UNKNOWN') as CCG_Name,
+ COALESCE(s.STP_CODE, 'UNKNOWN') AS STP_Code,
+ COALESCE(s.STP_NAME, 'UNKNOWN') AS STP_Name,
+ COALESCE(s.REGION_CODE, 'UNKNOWN') AS Region_Code,
+ COALESCE(s.REGION_NAME, 'UNKNOWN') AS Region_Name,
+ --BITC-6882: IMD breakdowns
+ COALESCE(mpi.IMD_Core20, "UNKNOWN") as IMD_Core20,
+ m.SpellID,
+ m.StartDate,
+ m.EndDate,
+ m.Open AS Der_Open,
+ DATEDIFF('$rp_enddate', m.StartDate) as Time_start_to_end_rp,
+ (DATEDIFF('$rp_enddate', m.StartDate)) / 7 as Weeks_To_End_RP,
+ m.Second_contact,
+ DATEDIFF(m.Second_contact, m.StartDate) as Time_to_second_contact,
+ m.First_outcome_pathway,
+ m.First_assessment_pathway,
+ m.First_Care_Plan_or_Intervention_pathway,
+ m.Pathway_ClockStop,
+ DATEDIFF(m.Pathway_Clockstop, m.StartDate) as Time_to_clock_stop,
+ CASE WHEN m.StartDate BETWEEN h.ReportingPeriodStartDate AND h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS Spell_start,
+ CASE WHEN m.EndDate BETWEEN h.ReportingPeriodStartDate AND h.ReportingPeriodEndDate AND m.Open = 0 THEN 1 ELSE 0 END AS Spell_closed,
+ CASE WHEN m.EndDate = h.ReportingPeriodEndDate AND m.Open = 1 AND h.ReportingPeriodEndDate < '$rp_enddate' THEN 1 ELSE 0 END AS Spell_inactive,
+ CASE WHEN (m.EndDate > h.ReportingPeriodEndDate) 
+           OR (m.EndDate between DATE_ADD(h.ReportingPeriodEndDate, -5) AND h.ReportingPeriodEndDate AND m.Open = 1 AND h.ReportingPeriodEndDate = '$rp_enddate') THEN 1 ELSE 0 END AS Spell_Open,
+ CASE WHEN m.First_contact BETWEEN h.ReportingPeriodStartDate AND h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS 1st_contact_in_RP,
+ CASE WHEN m.First_contact <= h.ReportingPeriodEndDate THEN 1 ELSE 0 END as With_1st_contact,
+ CASE WHEN m.Second_contact BETWEEN h.ReportingPeriodStartDate AND h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS 2nd_contact_in_RP,
+ CASE WHEN m.Second_contact <= h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS With_2nd_contact,
+ CASE WHEN m.First_outcome_pathway BETWEEN h.ReportingPeriodStartDate AND h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS Outcome_in_RP, 
+ CASE WHEN m.First_outcome_pathway <= h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS With_outcome, 
+ CASE WHEN m.First_assessment_pathway BETWEEN h.ReportingPeriodStartDate AND h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS Assessment_in_RP,
+ CASE WHEN m.First_assessment_pathway <= h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS With_assessment,
+ CASE WHEN m.First_Care_Plan_or_Intervention_pathway BETWEEN h.ReportingPeriodStartDate AND h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS Intervention_or_CP_in_RP,
+ CASE WHEN m.First_Care_Plan_or_Intervention_pathway <= h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS With_Intervention_or_CP,
+ CASE WHEN m.Pathway_ClockStop BETWEEN h.ReportingPeriodStartDate AND h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS Clock_stop_in_RP,
+ CASE WHEN m.Pathway_ClockStop <= h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS With_clock_stop
+  
+ FROM (
+ SELECT MIN(ReportingPeriodStartDate) as ReportingPeriodStartDate, MAX(ReportingPeriodEndDate) AS ReportingPeriodEndDate
+ FROM $db_source.MHS000Header WHERE ReportingPeriodEndDate between '$rp_startdate_12m' and '$rp_enddate'
+ ) h
+  
+ INNER JOIN $db_output.cmh_4ww_spell_master m ON m.StartDate <= h.ReportingPeriodEndDate AND m.EndDate >= h.ReportingPeriodStartDate 
+  
+ LEFT JOIN $db_output.bbrb_org_daily_latest o ON m.OrgIDProv = o.ORG_CODE ---provider reference data
+  
+ LEFT JOIN $db_output.bbrb_ccg_in_year c on m.Person_ID = c.Person_ID
+  
+ LEFT JOIN $db_output.bbrb_stp_mapping s on c.SubICBGPRes = s.CCG_CODE
+
+ --BITC-6882: IMD breakdowns
+ LEFT JOIN REFSPL_MHS001MPI_LATEST_YEAR mpi on m.Person_ID = mpi.Person_ID
+
+# COMMAND ----------
+
+ %sql
+ OPTIMIZE $db_output.cmh_4ww_spell_master_long_12m
+
+# COMMAND ----------
+
+ %sql
  ---GET ALL CYP REFERRALS IN REPORTING PERIOD 
  CREATE OR REPLACE TEMPORARY VIEW cyp_4ww_referrals AS
  SELECT DISTINCT
@@ -648,7 +749,7 @@
      AND (m.LADistrictAuth LIKE 'E%' OR m.LADistrictAuth IS NULL OR m.LADistrictAuth = "") -- only people resident in England
      AND r.UniqMonthID <= $end_month_id
      AND h.UniqHospProvSpellID is null --Added to remove inpatients as per join above
-     AND r.OrgIDProv not in ('DFC','S9X2N') --Remove Kooth and TellMi
+     AND r.OrgIDProv not in ('DFC','S9X2N','F9R5H','B4A3L') --Remove Kooth and TellMi
      AND CASE WHEN s.ServTeamTypeRefToMH = 'A18' AND r.ClinRespPriorityType IN ('1', '4', '2') THEN 1 ELSE 0 END = 0  --Flag referrals made to SPA teams with priority Emergency, Urgent/Serious, Very Urgent- to be excluded 
      AND CASE WHEN r.PrimReasonReferralMH = '12' AND (s.ServTeamTypeRefToMH NOT IN ('A18','F01') OR s.ServTeamTypeRefToMH IS NULL) THEN 1 ELSE 0 END = 0  --Flag ED referrals that were made to non-SPA/non-MHST team types - to be excluded 
      AND CASE WHEN r.PrimReasonReferralMH = '01' AND s.ServTeamTypeRefToMH = 'A14' THEN 1 ELSE 0 END = 0  --Flag referrals made to EIP teams with a referral reason of suspected FEP - to be excluded 
@@ -1127,6 +1228,71 @@
 # COMMAND ----------
 
  %sql
+ ---EXPLODE INTO LONG-FORM TABLE FOR TIME SERIES ANALYSIS 
+ INSERT OVERWRITE TABLE $db_output.cyp_4ww_spell_master_long_12m
+ SELECT 
+ h.ReportingPeriodStartDate,
+ h.ReportingPeriodEndDate,
+ m.Person_ID,
+ m.OrgIDProv,
+ COALESCE(o.NAME, "UNKNOWN") as Provider_Name,
+ COALESCE(s.CCG_CODE, 'UNKNOWN') as CCG_Code,
+ COALESCE(s.CCG_NAME, 'UNKNOWN') as CCG_Name,
+ COALESCE(s.STP_CODE, 'UNKNOWN') AS STP_Code,
+ COALESCE(s.STP_NAME, 'UNKNOWN') AS STP_Name,
+ COALESCE(s.REGION_CODE, 'UNKNOWN') AS Region_Code,
+ COALESCE(s.REGION_NAME, 'UNKNOWN') AS Region_Name,
+ --BITC-6882: IMD breakdowns
+ COALESCE(mpi.IMD_Core20, "UNKNOWN") as IMD_Core20,
+ m.SpellID,
+ m.StartDate,
+ m.EndDate,
+ m.Open AS Der_Open,
+ DATEDIFF('$rp_enddate', m.StartDate) as Time_start_to_end_rp,
+ (DATEDIFF('$rp_enddate', m.StartDate)) / 7 as Weeks_To_End_RP,
+ m.First_contact,
+ m.First_outcome_pathway,
+ m.First_Care_Plan_or_Intervention_pathway,
+ m.Pathway_ClockStop,
+ DATEDIFF(m.Pathway_Clockstop, m.StartDate) as Time_to_clock_stop,
+ CASE WHEN m.StartDate BETWEEN h.ReportingPeriodStartDate AND h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS Spell_start,
+ CASE WHEN m.EndDate BETWEEN h.ReportingPeriodStartDate AND h.ReportingPeriodEndDate AND m.Open = 0 THEN 1 ELSE 0 END AS Spell_closed,
+ CASE WHEN m.EndDate = h.ReportingPeriodEndDate AND m.Open = 1 AND h.ReportingPeriodEndDate < '$rp_enddate' THEN 1 ELSE 0 END AS Spell_inactive,
+ CASE WHEN (m.EndDate > h.ReportingPeriodEndDate) 
+           OR (m.EndDate between DATE_ADD(h.ReportingPeriodEndDate, -5) AND h.ReportingPeriodEndDate AND m.Open = 1 AND h.ReportingPeriodEndDate = '$rp_enddate') THEN 1 ELSE 0 END AS Spell_Open,
+ CASE WHEN m.First_contact BETWEEN h.ReportingPeriodStartDate AND h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS 1st_contact_in_RP,
+ CASE WHEN m.First_contact <= h.ReportingPeriodEndDate THEN 1 ELSE 0 END as With_1st_contact,
+ CASE WHEN m.First_outcome_pathway BETWEEN h.ReportingPeriodStartDate AND h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS Outcome_in_RP, 
+ CASE WHEN m.First_outcome_pathway <= h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS With_outcome, 
+ CASE WHEN m.First_Care_Plan_or_Intervention_pathway BETWEEN h.ReportingPeriodStartDate AND h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS Intervention_or_CP_in_RP,
+ CASE WHEN m.First_Care_Plan_or_Intervention_pathway <= h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS With_Intervention_or_CP,
+ CASE WHEN m.Pathway_ClockStop BETWEEN h.ReportingPeriodStartDate AND h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS Clock_stop_in_RP,
+ CASE WHEN m.Pathway_ClockStop <= h.ReportingPeriodEndDate THEN 1 ELSE 0 END AS With_clock_stop
+  
+ FROM (
+ SELECT MIN(ReportingPeriodStartDate) as ReportingPeriodStartDate, MAX(ReportingPeriodEndDate) AS ReportingPeriodEndDate
+ FROM $db_source.MHS000Header WHERE ReportingPeriodEndDate between '$rp_startdate_12m' and '$rp_enddate'
+ ) h
+  
+ INNER JOIN $db_output.cyp_4ww_spell_master m ON m.StartDate <= h.ReportingPeriodEndDate AND m.EndDate >= h.ReportingPeriodStartDate 
+  
+ LEFT JOIN $db_output.bbrb_org_daily_latest o ON m.OrgIDProv = o.ORG_CODE ---provider reference data
+  
+ LEFT JOIN $db_output.bbrb_ccg_in_year c on m.Person_ID = c.Person_ID
+  
+ LEFT JOIN $db_output.bbrb_stp_mapping s on c.SubICBGPRes = s.CCG_CODE
+
+ --BITC-6882: IMD breakdowns
+ LEFT JOIN REFSPL_MHS001MPI_LATEST_YEAR mpi on m.Person_ID = mpi.Person_ID
+
+# COMMAND ----------
+
+ %sql
+ OPTIMIZE $db_output.cyp_4ww_spell_master_long_12m
+
+# COMMAND ----------
+
+ %sql
  --Add in primary reason for referral and service or team type to master table (pathways)
  CREATE OR REPLACE TEMPORARY VIEW CYP_SPELL_REF AS
  SELECT
@@ -1136,6 +1302,21 @@
  r.PrimReasonReferralMH, 
  r.Der_ServTeamTypeRefToMH
  FROM $db_output.cyp_4ww_spell_master_long AS s
+ INNER JOIN $db_output.cyp_4ww_referrals AS r 
+ ON r.Person_ID = s.Person_ID AND r.OrgIDProv = s.OrgIDProv AND r.ReferralRequestReceivedDate BETWEEN s.StartDate AND s.EndDate
+
+# COMMAND ----------
+
+ %sql
+ --Add in primary reason for referral and service or team type to master table (pathways)
+ CREATE OR REPLACE TEMPORARY VIEW CYP_SPELL_REF_12m AS
+ SELECT
+ s.SpellID,
+ r.ReportingPeriodEndDate,
+ r.UniqServReqID, 
+ r.PrimReasonReferralMH, 
+ r.Der_ServTeamTypeRefToMH
+ FROM $db_output.cyp_4ww_spell_master_long_12m AS s
  INNER JOIN $db_output.cyp_4ww_referrals AS r 
  ON r.Person_ID = s.Person_ID AND r.OrgIDProv = s.OrgIDProv AND r.ReferralRequestReceivedDate BETWEEN s.StartDate AND s.EndDate
 
@@ -1152,6 +1333,23 @@
  SELECT DISTINCT a.SpellID, a.UniqServReqID, a.PrimReasonReferralMH
  FROM CYP_SPELL_REF AS a
  INNER JOIN MAX_RP_RECORD AS b
+ ON a.ReportingPeriodEndDate == b.ReportingPeriodEndDate
+ AND a.SpellID == b.SpellID
+ AND a.UniqServReqID == b.UniqServReqID
+
+# COMMAND ----------
+
+ %sql
+ --Get the latest PRFR for each referral within each spell
+ CREATE OR REPLACE TEMPORARY VIEW MAX_RP_RECORD_12m AS
+ SELECT MAX(ReportingPeriodEndDate) AS ReportingPeriodEndDate, SpellID, UniqServReqID
+ FROM CYP_SPELL_REF
+ GROUP BY SpellID, UniqServReqID
+ ;
+ CREATE OR REPLACE TEMPORARY VIEW LATEST_PRFR_12m AS
+ SELECT DISTINCT a.SpellID, a.UniqServReqID, a.PrimReasonReferralMH
+ FROM CYP_SPELL_REF_12m AS a
+ INNER JOIN MAX_RP_RECORD_12m AS b
  ON a.ReportingPeriodEndDate == b.ReportingPeriodEndDate
  AND a.SpellID == b.SpellID
  AND a.UniqServReqID == b.UniqServReqID
@@ -1189,6 +1387,36 @@
 # COMMAND ----------
 
  %sql
+ --Now join to get any team types associated with the spell/referrals
+ CREATE OR REPLACE TEMPORARY VIEW CYP_SPELL_REF_PATHWAYS_12m AS
+ SELECT a.*,
+ b.Der_ServTeamTypeRefToMH,
+ CASE WHEN a.PrimReasonReferralMH == 20
+ THEN 'Y'
+ ELSE 'N'
+ END AS GenderIdentityPathwayFlag,
+ CASE WHEN (a.PrimReasonReferralMH == 24 OR b.Der_ServTeamTypeRefToMH == 'C04')
+ THEN 'Y'
+ ELSE 'N'
+ END AS NeurodevelopmentalPathwayFlag,
+ CASE WHEN (a.PrimReasonReferralMH IN (25,26) OR b.Der_ServTeamTypeRefToMH == 'C01')
+ THEN 'Y'
+ ELSE 'N'
+ END AS AutismPathwayFlag,
+ CASE WHEN 
+ (a.PrimReasonReferralMH NOT IN ('20','24','25','26') OR a.PrimReasonReferralMH IS NULL)
+ AND (b.Der_ServTeamTypeRefToMH NOT IN ('C01', 'C04') OR b.Der_ServTeamTypeRefToMH IS NULL)
+ THEN 'Y'
+ ELSE 'N'
+ END AS OtherPathwayFlag
+ FROM LATEST_PRFR_12m AS a
+ INNER JOIN CYP_SPELL_REF_12m AS b
+ ON a.SpellID == b.SpellID
+ AND a.UniqServReqID == b.UniqServReqID
+
+# COMMAND ----------
+
+ %sql
  --Create view to be able to just analyse this at spell level
  CREATE OR REPLACE TEMPORARY VIEW CYP_SPELL_PATHWAYS_MAX AS
  SELECT SpellID, 
@@ -1197,6 +1425,19 @@
  MAX(AutismPathwayFlag) AS AutismPathwayFlag,
  MAX(OtherPathwayFlag) AS OtherPathwayFlag
  FROM CYP_SPELL_REF_PATHWAYS
+ GROUP BY SpellID
+
+# COMMAND ----------
+
+ %sql
+ --Create view to be able to just analyse this at spell level
+ CREATE OR REPLACE TEMPORARY VIEW CYP_SPELL_PATHWAYS_MAX_12m AS
+ SELECT SpellID, 
+ MAX(GenderIdentityPathwayFlag) AS GenderIdentityPathwayFlag,
+ MAX(NeurodevelopmentalPathwayFlag) AS NeurodevelopmentalPathwayFlag,
+ MAX(AutismPathwayFlag) AS AutismPathwayFlag,
+ MAX(OtherPathwayFlag) AS OtherPathwayFlag
+ FROM CYP_SPELL_REF_PATHWAYS_12m
  GROUP BY SpellID
 
 # COMMAND ----------
@@ -1218,6 +1459,26 @@
 
  %sql
  OPTIMIZE $db_output.cyp_4ww_spell_long_pathways
+
+# COMMAND ----------
+
+ %sql
+ --Add flags to the final table
+ CREATE OR REPLACE TABLE $db_output.cyp_4ww_spell_long_pathways_12m AS 
+ SELECT a.*, 
+ b.GenderIdentityPathwayFlag, 
+ b.NeurodevelopmentalPathwayFlag, 
+ b.AutismPathwayFlag,
+ b.OtherPathwayFlag,
+ CASE WHEN (b.OtherPathwayFlag == 'Y' AND (b.GenderIdentityPathwayFlag == 'Y' OR b.NeurodevelopmentalPathwayFlag == 'Y' OR b.AutismPathwayFlag == 'Y')) THEN 'Y' ELSE 'N' END AS MultiPathwayFlag
+ FROM $db_output.cyp_4ww_spell_master_long_12m AS a
+ LEFT JOIN CYP_SPELL_PATHWAYS_MAX_12m AS b
+ ON a.SpellID == b.SpellID
+
+# COMMAND ----------
+
+ %sql
+ OPTIMIZE $db_output.cyp_4ww_spell_long_pathways_12m
 
 # COMMAND ----------
 
@@ -1435,3 +1696,220 @@
 
  %sql
  OPTIMIZE $db_output.cyp_4ww_spell_master_long_pathway
+
+# COMMAND ----------
+
+ %sql
+ INSERT OVERWRITE TABLE $db_output.cyp_4ww_spell_master_long_12m_pathway
+ SELECT ReportingPeriodStartDate,
+ ReportingPeriodEndDate,
+ Person_ID,
+ OrgIDProv,
+ Provider_Name,
+ CCG_Code,
+ CCG_Name,
+ STP_Code,
+ STP_Name,
+ Region_Code,
+ Region_Name,
+ IMD_Core20,
+ SpellID,
+ StartDate,
+ EndDate,
+ Der_Open,
+ Time_start_to_end_rp,
+ Weeks_To_End_RP,
+ First_contact,
+ First_outcome_pathway,
+ First_Care_Plan_or_Intervention_pathway,
+ Pathway_ClockStop,
+ Time_to_clock_stop,
+ Spell_start,
+ Spell_closed,
+ Spell_inactive,
+ Spell_Open,
+ 1st_contact_in_RP,
+ With_1st_contact,
+ Outcome_in_RP,
+ With_outcome,
+ Intervention_or_CP_in_RP,
+ With_Intervention_or_CP,
+ Clock_stop_in_RP,
+ With_clock_stop,
+ "a" AS Pathway,
+ "Spells with at least one referral with a primary reason for referral - Gender Discomfort issues" AS PathwayDesc
+ FROM $db_output.cyp_4ww_spell_long_pathways_12m
+ WHERE GenderIdentityPathwayFlag == 'Y'
+  
+ UNION
+  
+ SELECT ReportingPeriodStartDate,
+ ReportingPeriodEndDate,
+ Person_ID,
+ OrgIDProv,
+ Provider_Name,
+ CCG_Code,
+ CCG_Name,
+ STP_Code,
+ STP_Name,
+ Region_Code,
+ Region_Name,
+ IMD_Core20,
+ SpellID,
+ StartDate,
+ EndDate,
+ Der_Open,
+ Time_start_to_end_rp,
+ Weeks_To_End_RP,
+ First_contact,
+ First_outcome_pathway,
+ First_Care_Plan_or_Intervention_pathway,
+ Pathway_ClockStop,
+ Time_to_clock_stop,
+ Spell_start,
+ Spell_closed,
+ Spell_inactive,
+ Spell_Open,
+ 1st_contact_in_RP,
+ With_1st_contact,
+ Outcome_in_RP,
+ With_outcome,
+ Intervention_or_CP_in_RP,
+ With_Intervention_or_CP,
+ Clock_stop_in_RP,
+ With_clock_stop,
+ "b" AS Pathway,
+ "Spells with at least one referral with a primary reason for referral - Neurodevelopmental Conditions, excluding Autism or a referral to a Neurodevelopmental Team" AS PathwayDesc
+ FROM $db_output.cyp_4ww_spell_long_pathways_12m
+ WHERE NeurodevelopmentalPathwayFlag == 'Y'
+  
+ UNION
+  
+ SELECT ReportingPeriodStartDate,
+ ReportingPeriodEndDate,
+ Person_ID,
+ OrgIDProv,
+ Provider_Name,
+ CCG_Code,
+ CCG_Name,
+ STP_Code,
+ STP_Name,
+ Region_Code,
+ Region_Name,
+ IMD_Core20,
+ SpellID,
+ StartDate,
+ EndDate,
+ Der_Open,
+ Time_start_to_end_rp,
+ Weeks_To_End_RP,
+ First_contact,
+ First_outcome_pathway,
+ First_Care_Plan_or_Intervention_pathway,
+ Pathway_ClockStop,
+ Time_to_clock_stop,
+ Spell_start,
+ Spell_closed,
+ Spell_inactive,
+ Spell_Open,
+ 1st_contact_in_RP,
+ With_1st_contact,
+ Outcome_in_RP,
+ With_outcome,
+ Intervention_or_CP_in_RP,
+ With_Intervention_or_CP,
+ Clock_stop_in_RP,
+ With_clock_stop,
+ "c" AS Pathway,
+ "Spells with at least one referral with a primary reason for referral - Suspected Autism or Diagnosed Autism or a referral to an Autism Service" AS PathwayDesc
+ FROM $db_output.cyp_4ww_spell_long_pathways_12m
+ WHERE AutismPathwayFlag == 'Y'
+  
+ UNION
+  
+ SELECT ReportingPeriodStartDate,
+ ReportingPeriodEndDate,
+ Person_ID,
+ OrgIDProv,
+ Provider_Name,
+ CCG_Code,
+ CCG_Name,
+ STP_Code,
+ STP_Name,
+ Region_Code,
+ Region_Name,
+ IMD_Core20,
+ SpellID,
+ StartDate,
+ EndDate,
+ Der_Open,
+ Time_start_to_end_rp,
+ Weeks_To_End_RP,
+ First_contact,
+ First_outcome_pathway,
+ First_Care_Plan_or_Intervention_pathway,
+ Pathway_ClockStop,
+ Time_to_clock_stop,
+ Spell_start,
+ Spell_closed,
+ Spell_inactive,
+ Spell_Open,
+ 1st_contact_in_RP,
+ With_1st_contact,
+ Outcome_in_RP,
+ With_outcome,
+ Intervention_or_CP_in_RP,
+ With_Intervention_or_CP,
+ Clock_stop_in_RP,
+ With_clock_stop,
+ "d" AS Pathway,
+ "Spells with at least one 'other' referral not identified as related to autism, neurodevelopmental or gender identity" AS PathwayDesc
+ FROM $db_output.cyp_4ww_spell_long_pathways_12m
+ WHERE OtherPathwayFlag == 'Y'
+  
+ UNION
+  
+ SELECT ReportingPeriodStartDate,
+ ReportingPeriodEndDate,
+ Person_ID,
+ OrgIDProv,
+ Provider_Name,
+ CCG_Code,
+ CCG_Name,
+ STP_Code,
+ STP_Name,
+ Region_Code,
+ Region_Name,
+ IMD_Core20,
+ SpellID,
+ StartDate,
+ EndDate,
+ Der_Open,
+ Time_start_to_end_rp,
+ Weeks_To_End_RP,
+ First_contact,
+ First_outcome_pathway,
+ First_Care_Plan_or_Intervention_pathway,
+ Pathway_ClockStop,
+ Time_to_clock_stop,
+ Spell_start,
+ Spell_closed,
+ Spell_inactive,
+ Spell_Open,
+ 1st_contact_in_RP,
+ With_1st_contact,
+ Outcome_in_RP,
+ With_outcome,
+ Intervention_or_CP_in_RP,
+ With_Intervention_or_CP,
+ Clock_stop_in_RP,
+ With_clock_stop,
+ "e" AS Pathway,
+ "Spells with at least one referral identified as related to autism, neurodevelopmental or gender identity; and at least one 'other' referral not identified as related to autism, neurodevelopmental or gender identity" AS PathwayDesc
+ FROM $db_output.cyp_4ww_spell_long_pathways_12m
+ WHERE MultiPathwayFlag == 'Y'
+
+# COMMAND ----------
+
+ %sql
+ OPTIMIZE $db_output.cyp_4ww_spell_master_long_12m_pathway

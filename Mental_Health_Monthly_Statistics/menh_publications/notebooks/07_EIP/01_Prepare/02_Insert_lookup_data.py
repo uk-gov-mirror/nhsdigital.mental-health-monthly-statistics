@@ -14,6 +14,8 @@
  import os
 
  db_output = dbutils.widgets.get("db_output")
+ month_id = dbutils.widgets.get("month_id")
+ month_id_chgover = dbutils.widgets.get("month_id_chgover")
 
 # COMMAND ----------
 
@@ -24,6 +26,9 @@
  INSERT INTO $db_output.AWT_breakdown_values VALUES
  ('England'),
  ('England; Ethnicity'),
+ ('England; Age'),
+ ('England; Gender'),
+ ('England; IMD Decile'),
  ('CCG - GP Practice or Residence'),
  ('CCG - GP Practice or Residence; Ethnicity'),
  ('Provider'),
@@ -71,6 +76,72 @@
    'NONE' as secondary_level_desc,
    'Commissioning Region' as breakdown
    from $db_output.STP_Region_mapping_post_2020
+   
+ /* Age group breakdowns for ED32 England level only */  
+ UNION ALL
+ SELECT 'England' as level, 'England' as level_desc, '0 to 5' as secondary_level, '0 to 5' as secondary_level_desc, 'England; Age' as breakdown
+ UNION ALL
+ SELECT 'England' as level, 'England' as level_desc, '6 to 10' as secondary_level, '6 to 10' as secondary_level_desc,'England; Age' as breakdown
+ UNION ALL
+ SELECT 'England' as level, 'England' as level_desc, '11 to 15' as secondary_level, '11 to 15' as secondary_level_desc,'England; Age' as breakdown
+ UNION ALL
+ SELECT 'England' as level, 'England' as level_desc, '16' as secondary_level, '16' as secondary_level_desc, 'England; Age' as breakdown
+ UNION ALL
+ SELECT 'England' as level, 'England' as level_desc, '17' as secondary_level, '17' as secondary_level_desc, 'England; Age' as breakdown
+ UNION ALL
+   
+ /* Gender breakdowns for ED32 England level only */  
+ SELECT 'England' as level, 'England' as level_desc, '1' as secondary_level, 'Male (including trans man)' as secondary_level_desc,
+   'England; Gender' as breakdown
+ UNION ALL
+ SELECT 'England' as level, 'England' as level_desc, '2' as secondary_level, 'Female (including trans woman)' as secondary_level_desc,
+   'England; Gender' as breakdown
+ UNION ALL
+ SELECT 'England' as level, 'England' as level_desc, '3' as secondary_level, 'Non-binary' as secondary_level_desc, 'England; Gender' as breakdown
+ UNION ALL
+ SELECT 'England' as level, 'England' as level_desc, '9' as secondary_level, 'Indeterminate (unable to be classified as either male or female)' as secondary_level_desc, 'England; Gender' as breakdown
+ UNION ALL
+ SELECT 'England' as level, 'England' as level_desc, '4' as secondary_level, 'Other (not listed)' as secondary_level_desc, 
+ 'England; Gender' as breakdown
+ UNION ALL
+ SELECT 'England' as level, 'England' as level_desc, 'UNKNOWN' as secondary_level, 'UNKNOWN' as secondary_level_desc, 'England; Gender' as breakdown
+ UNION ALL
+  
+ /* IMD Decile breakdowns for ED32 England level only */  
+ SELECT 'England' as level, 'England' as level_desc, '01 Most deprived' as secondary_level, '01 Most deprived' as secondary_level_desc,
+   'England; IMD Decile' as breakdown
+ UNION ALL  
+ SELECT 'England' as level, 'England' as level_desc, '02 More deprived' as secondary_level, '02 More deprived' as secondary_level_desc,
+   'England; IMD Decile' as breakdown
+ UNION ALL  
+ SELECT 'England' as level, 'England' as level_desc, '03 More deprived' as secondary_level, '03 More deprived' as secondary_level_desc,
+   'England; IMD Decile' as breakdown
+ UNION ALL  
+ SELECT 'England' as level, 'England' as level_desc, '04 More deprived' as secondary_level, '04 More deprived' as secondary_level_desc,
+   'England; IMD Decile' as breakdown
+ UNION ALL  
+ SELECT 'England' as level, 'England' as level_desc, '05 More deprived' as secondary_level, '05 More deprived' as secondary_level_desc,
+   'England; IMD Decile' as breakdown
+ UNION ALL  
+ SELECT 'England' as level, 'England' as level_desc, '06 Less deprived' as secondary_level, '06 Less deprived' as secondary_level_desc,
+   'England; IMD Decile' as breakdown
+ UNION ALL  
+ SELECT 'England' as level, 'England' as level_desc, '07 Less deprived' as secondary_level, '07 Less deprived' as secondary_level_desc,
+   'England; IMD Decile' as breakdown
+ UNION ALL  
+ SELECT 'England' as level, 'England' as level_desc, '08 Less deprived' as secondary_level, '08 Less deprived' as secondary_level_desc,
+   'England; IMD Decile' as breakdown
+ UNION ALL  
+ SELECT 'England' as level, 'England' as level_desc, '09 Less deprived' as secondary_level, '09 Less deprived' as secondary_level_desc,
+   'England; IMD Decile' as breakdown
+ UNION ALL  
+ SELECT 'England' as level, 'England' as level_desc, '10 Least deprived' as secondary_level, '10 Least deprived' as secondary_level_desc,
+   'England; IMD Decile' as breakdown
+ UNION ALL  
+ SELECT 'England' as level, 'England' as level_desc, 'UNKNOWN' as secondary_level, 'UNKNOWN' as secondary_level_desc,
+   'England; IMD Decile' as breakdown
+   
+ /* Ethnicity breakdowns for England level */    
  UNION ALL
  SELECT 'England' as level, 'England' as level_desc, 'White' as secondary_level, 'White' as secondary_level_desc, 'England; Ethnicity' as breakdown
  UNION ALL
@@ -185,6 +256,11 @@
    , ('EIP69a', 'Number of open Referrals with any valid SNOMED-CT activity submitted that were linked to an EIP team in the reporting period')
    , ('EIP69b', 'Number of open Referrals with any NICE concordant EIP SNOMED-CT activity submitted that were linked to an EIP team in the reporting period')
    , ('MHS32', 'New referrals');
+   
+ /* Change metric name when month_id >= change over for CYP methodology */
+ UPDATE $db_output.AWT_metric_values
+ SET metric_name = 'New referrals with eating disorder issues, aged 0 to 17'
+ WHERE metric = 'ED32' and $month_id >= $month_id_chgover;
 
 # COMMAND ----------
 

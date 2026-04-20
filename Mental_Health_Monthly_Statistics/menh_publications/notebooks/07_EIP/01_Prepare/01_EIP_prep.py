@@ -864,31 +864,75 @@ spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output
  %sql
  /* EIP32/ED32_common - this is used by both metrics simply by applying a different filter prior to aggregation.
    These metrics do not have age breakdowns */
-   
-   
+  
  TRUNCATE TABLE $db_output.EIP32_ED32_common;
-
+  
  INSERT INTO TABLE $db_output.EIP32_ED32_common
- SELECT	A.UniqServReqID,
- 		A.OrgIDProv,
- 		CCG.IC_Rec_CCG,
+ SELECT    A.UniqServReqID,
+         A.OrgIDProv,
+         CCG.IC_Rec_CCG,
          PrimReasonReferralMH,
-         AgeServReferRecDate 
- FROM global_temp.MHS101Referral_LATEST AS A	
+         AgeServReferRecDate,
+         CASE WHEN A.AgeServReferRecDate between 0 and 5 then '0 to 5'
+              WHEN A.AgeServReferRecDate between 6 and 10 then '6 to 10'
+              WHEN A.AgeServReferRecDate between 11 and 15 then '11 to 15'
+              WHEN A.AgeServReferRecDate = 16 then '16'
+              WHEN A.AgeServReferRecDate = 17 then '17'
+              ELSE '18 or over' END as Age_Group,
+     CASE WHEN GenderIDcode = '1' THEN '1'
+              WHEN GenderIDcode = '2' THEN '2'
+              WHEN GenderIDcode = '3' THEN '3'
+              WHEN GenderIDcode = '4' THEN '4'
+              WHEN Gender = '1' THEN '1'
+              WHEN Gender = '2' THEN '2'
+              WHEN Gender = '9' THEN '9'
+              ELSE 'UNKNOWN' END As Gender,
+         CASE WHEN GenderIDcode = '1' THEN 'Male (including trans man)'
+              WHEN GenderIDcode = '2' THEN 'Female (including trans woman)'
+              WHEN GenderIDcode = '3' THEN 'Non-binary'
+              WHEN GenderIDcode = '4' THEN 'Other (not listed)'
+              WHEN Gender = '1' THEN 'Male (including trans man)'
+              WHEN Gender = '2' THEN 'Female (including trans woman)'
+              WHEN Gender = '9' THEN 'Indeterminate (unable to be classified as either male or female)'
+              ELSE 'UNKNOWN' END As GenderDesc, 
+         CASE WHEN E.NHSDEthnicity IN ('A', 'B', 'C') THEN 'White'
+               WHEN E.NHSDEthnicity IN ('D', 'E', 'F', 'G') THEN 'Mixed'
+               WHEN E.NHSDEthnicity IN ('H', 'J', 'K', 'L') THEN 'Asian or Asian British'
+               WHEN E.NHSDEthnicity IN ('M', 'N', 'P') THEN 'Black or Black British'
+               WHEN E.NHSDEthnicity IN ('R', 'S') THEN 'Other Ethnic Groups'
+               WHEN E.NHSDEthnicity = 'Z' THEN 'Not Stated'
+               WHEN E.NHSDEthnicity = '99' THEN 'Unknown'
+               Else 'Unknown'
+               END AS EthnicityHigher,
+          CASE WHEN dep.DECI_IMD = 10 THEN '10 Least deprived'
+               WHEN dep.DECI_IMD = 9 THEN '09 Less deprived'
+               WHEN dep.DECI_IMD = 8 THEN '08 Less deprived'
+               WHEN dep.DECI_IMD = 7 THEN '07 Less deprived'
+               WHEN dep.DECI_IMD = 6 THEN '06 Less deprived'
+               WHEN dep.DECI_IMD = 5 THEN '05 More deprived'
+               WHEN dep.DECI_IMD = 4 THEN '04 More deprived'
+               WHEN dep.DECI_IMD = 3 THEN '03 More deprived'
+               WHEN dep.DECI_IMD = 2 THEN '02 More deprived'
+               WHEN dep.DECI_IMD = 1 THEN '01 Most deprived'
+               ELSE 'UNKNOWN' 
+               END AS IMD_Decile  
+ FROM global_temp.MHS101Referral_LATEST AS A    
  LEFT OUTER JOIN global_temp.MHS001MPI_PATMRECINRP_FIX AS E
- 		ON A.Person_ID = E.Person_ID 
+         ON A.Person_ID = E.Person_ID 
          AND E.UniqMonthID = A.UniqMonthID
  LEFT OUTER JOIN (SELECT m.Person_ID,
                      CCG.IC_Rec_CCG AS IC_Rec_CCG
                 FROM global_temp.MHS001MPI_PATMRECINRP_FIX AS m
                 INNER JOIN $db_output.MHS001_CCG_LATEST AS CCG
                     ON CCG.Person_ID = m.Person_ID) AS CCG
- 		ON CCG.Person_ID = E.Person_ID					
- WHERE	ReferralRequestReceivedDate >= '$rp_startdate_quarterly'
- 		AND ReferralRequestReceivedDate <= '$rp_enddate'
- 		AND (((A.ServDischDate IS NULL OR A.ServDischDate > '$rp_enddate') 
+         ON CCG.Person_ID = E.Person_ID              
+ LEFT OUTER JOIN $reference_data.ENGLISH_INDICES_OF_DEP_V02 dep on E.LSOA2011 = dep.LSOA_CODE_2011 and dep.IMD_Year = '2019'      
+ WHERE    ReferralRequestReceivedDate >= '$rp_startdate_quarterly'
+         AND ReferralRequestReceivedDate <= '$rp_enddate'
+         AND (((A.ServDischDate IS NULL OR A.ServDischDate > '$rp_enddate') 
                AND A.UniqMonthID = $month_id) 
              OR A.ServDischDate <= '$rp_enddate')
+         AND E.PatMRecInRP = 'True'
 
 # COMMAND ----------
 

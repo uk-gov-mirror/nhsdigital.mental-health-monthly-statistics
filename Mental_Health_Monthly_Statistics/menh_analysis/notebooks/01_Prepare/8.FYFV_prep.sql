@@ -270,7 +270,7 @@ CREATE OR REPLACE GLOBAL TEMPORARY VIEW ContPer_Quarterly AS
            FROM global_temp.FirstPersQtr s
 INNER JOIN global_temp.first_contacts f 
            ON ((f.UniqServReqID = s.UniqServReqID AND f.Person_ID = s.Person_ID) 
-           OR (s.OrgIDProv in ('DFC','S9X2N') AND f.UniqServReqID = s.UniqServReqID))
+           OR (s.OrgIDProv in ('DFC','S9X2N','F9R5H') AND f.UniqServReqID = s.UniqServReqID))
      WHERE QtrRN=1
 
 -- COMMAND ----------

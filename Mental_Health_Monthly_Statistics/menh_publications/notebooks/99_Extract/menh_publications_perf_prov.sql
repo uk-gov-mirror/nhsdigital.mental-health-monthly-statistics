@@ -64,7 +64,7 @@
 
 
  # db_output1 = 'menh_publications' #dbutils.widgets.get("menh_publications") #----------
- # menh_publications_source = 'mhsds_database' #dbutils.widgets.get("mhsds_database") #-----------
+ # menh_publications_source = 'mhsds_db' #dbutils.widgets.get("mhsds_db") #-----------
 
 
 

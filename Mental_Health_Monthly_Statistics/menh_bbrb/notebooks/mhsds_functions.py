@@ -9,6 +9,7 @@ from dateutil.relativedelta import relativedelta
 from pyspark.sql.column import Column
 from functools import reduce
 from pyspark.sql import DataFrame as df
+import pyspark.sql.window as W
 
 # COMMAND ----------
 
@@ -243,12 +244,12 @@ def get_financial_yr_start(rp_startdate: str) -> str:
   
 def get_year_of_count(rp_startdate):
   '''
-  This function returns the year_of_count which should be used to extract data from reference_db.ONS_POPULATION_V2.  
-  If the financial_yr_start is greater than the existing max(current_year) in reference_db.ONS_POPULATION_V2 then use
+  This function returns the year_of_count which should be used to extract data from reference_data.ONS_POPULATION_V2.  
+  If the financial_yr_start is greater than the existing max(current_year) in reference_data.ONS_POPULATION_V2 then use
   current_year = max(current_year).
   '''
   current_year = get_financial_yr_start(rp_startdate)[0:4]
-  max_year_of_count = spark.sql(f"select max(year_of_count) AS year_of_count from reference_db.ONS_POPULATION_V2 where GEOGRAPHIC_GROUP_CODE = 'E38'")
+  max_year_of_count = spark.sql(f"select max(year_of_count) AS year_of_count from reference_data.ONS_POPULATION_V2 where GEOGRAPHIC_GROUP_CODE = 'E38'")
   max_year_of_count_value = max_year_of_count.first()["year_of_count"]
   year_of_count = current_year
   if (year_of_count > max_year_of_count_value):
@@ -275,7 +276,7 @@ class MHRunParameters:
   rp_startdate_12m: str = field(init=False)
   financial_year_start: str = field(init=False)
   year_of_count: int = field(init=False)
-  reference_db: str = "reference_db"
+  reference_data: str = "reference_data"
    
   def __post_init__(self):
     self.pub_month = get_pub_month(self.rp_startdate, self.status)
@@ -1494,6 +1495,10 @@ def mhsds_suppression_mean_dev_and_stan_rates_diff(df: df, suppression_type: str
     & (F.col("REPORTING_PERIOD_END") == rp_enddate)
     & (F.col("STATUS") == status)
     & (F.col("SOURCE_DB") == db_source)
+    & ((F.col("SECONDARY_LEVEL") != "Missing/invalid")
+       & (F.col("SECONDARY_LEVEL") != "UNKNOWN")
+       & (F.col("SECONDARY_LEVEL") != "Not Known")
+       & (F.col("SECONDARY_LEVEL") != "Not Stated"))
   )
   .select(
     F.col("BREAKDOWN"), F.col("PRIMARY_LEVEL"), F.when(F.col("SECONDARY_LEVEL") == "NONE", F.lit("England")).otherwise(F.col("SECONDARY_LEVEL")).alias("SECONDARY_LEVEL"), F.col("MEASURE_ID").alias("NUMERATOR_ID"), F.col("MEASURE_VALUE").alias("NUMERATOR_VALUE")
@@ -1521,12 +1526,25 @@ def mhsds_suppression_mean_dev_and_stan_rates_diff(df: df, suppression_type: str
   )
  
   perc_num_comb_flag = perc_num_comb_supp_df.withColumn("Suppression_Flag", F.when(F.col("MEASURE_VALUE") == "*", F.lit(1)).otherwise(F.lit(0)))
+
+  perc_num_comb_flag = perc_num_comb_flag.select("*",F.row_number().over(W.Window
+                                                        .partitionBy(F.col('BREAKDOWN'), F.col('PRIMARY_LEVEL'), F.col('SECONDARY_LEVEL'), F.col('MEASURE_ID'))
+                                                        .orderBy(F.col('Suppression_Flag').desc())).alias("RN"))
  
-  exclude_cols = ["NUMERATOR_ID", "NUMERATOR_VALUE", "NUMERATOR_VALUE_SUPP", "Suppression_Flag"]
-  group_cols = [col for col in perc_num_comb_flag.columns if col not in exclude_cols]
-  perc_num_comb_part = perc_num_comb_flag.groupBy(group_cols).agg(F.max("Suppression_Flag").alias("Any_Suppressed")) # how to group by on all except one column
- 
-  supp_df = perc_num_comb_part.withColumn("MEASURE_VALUE", F.when(F.col("Any_Suppressed") == 1, F.lit("*")).otherwise(F.col("MEASURE_VALUE"))).drop("Any_Suppressed")                 
+  supp_df = (perc_num_comb_flag.filter(F.col("RN") == 1)
+                             .select(F.col("REPORTING_PERIOD_START"),
+                                     F.col("REPORTING_PERIOD_END"),
+                                     F.col("STATUS"),
+                                     F.col("BREAKDOWN"),
+                                     F.col("PRIMARY_LEVEL"),
+                                     F.col("PRIMARY_LEVEL_DESCRIPTION"),
+                                     F.col("SECONDARY_LEVEL"),
+                                     F.col("SECONDARY_LEVEL_DESCRIPTION"),
+                                     F.col("MEASURE_ID"),
+                                     F.col("MEASURE_NAME"),
+                                     F.col("MEASURE_VALUE"),
+                                     F.col("SOURCE_DB"))
+                             )                  
   
   return supp_df
  

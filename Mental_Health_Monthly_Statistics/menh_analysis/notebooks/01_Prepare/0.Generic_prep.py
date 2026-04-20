@@ -1625,7 +1625,7 @@ spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output
 # DBTITLE 1,ward_type_list_RPstart - for testing - can use derivation
  %sql
   
- /** User note: updated for v4.1 when CAMHSTier removed **/
+ /** USER: updated for v4.1 when CAMHSTier removed **/
   
   CREATE OR REPLACE GLOBAL TEMPORARY VIEW ward_type_list_RPstart AS
   SELECT DISTINCT CASE --WHEN CAMHSTier IN ('4','9') THEN 'Y'

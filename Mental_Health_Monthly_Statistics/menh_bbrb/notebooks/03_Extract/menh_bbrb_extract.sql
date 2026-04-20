@@ -57,10 +57,10 @@
  # status = "Performance"
  # rp_enddate =  "2020-12-31"
  # rp_startdate = "2020-12-01"
- # reference_db =  "reference_db"
+ # reference_data =  "reference_data"
 
 
- # db_source = "mh_v5_pre_pseudo_d1" 
+ # db_source = "mhsds_database" 
 
 
  # print(f'db_output is {db_output}; \
@@ -156,6 +156,7 @@
                                    AND SOURCE_DB = '{db_source}'                                  
                                    AND MEASURE_ID NOT LIKE "%OAP%"
                                    AND MEASURE_ID NOT LIKE "%MRS%"
+                                   AND MEASURE_ID NOT LIKE "%MHSPOP%"
                                    AND MEASURE_ID NOT LIKE "%ADD%"
                                    AND MEASURE_ID NOT LIKE "%BED%"
                                    AND MEASURE_ID NOT LIKE "%DISCH%"
@@ -203,12 +204,13 @@
                                        AND MEASURE_VALUE != 0
                                        AND MEASURE_ID LIKE "%OAP%"
                                        AND MEASURE_ID NOT LIKE "%MHSPOP%"
+                                       AND RIGHT(MEASURE_ID, 1) = 'a'
                                        ORDER BY REPORTING_PERIOD_START, REPORTING_PERIOD_END, STATUS, BREAKDOWN, PRIMARY_LEVEL, SECONDARY_LEVEL, MEASURE_ID""")
   
  #to help with local testing and avoiding the commenting and uncommenting the code
   
  if(os.environ.get('env') == 'prod'):
-   mhsds_monthly_raw_csv = f'MHSDS Data_OAPs{file_part_name}_RAW.csv' 
+   mhsds_monthly_raw_csv = f'MHSDS Data_OAPs_acute{file_part_name}_RAW.csv' 
    local_id = mhsds_monthly_raw_csv #use filename here for new LEAD_MESH process
  #   request_id = cp_s3_send(spark, df_mhsds_monthly_raw_csv, mhsds_monthly_raw_csv, local_id)
    try:
@@ -220,7 +222,7 @@
    display(df_mhsds_monthly_raw_csv)
   
  ##############################################################
- #              Extract the CSV of OAPs product (MHSDS Data)  ## RAW##unrounded,unsp
+ #              Extract the CSV of OAPs product (MHSDS Data)  ## ROUNDED
  ##############################################################
  spark.sql(f"OPTIMIZE {db_output}.bbrb_final")
  df_mhsds_monthly_csv = spark.sql(f"""SELECT DISTINCT
@@ -240,10 +242,93 @@
                                    AND STATUS = '{status}'  
                                    AND SOURCE_DB = '{db_source}'                                  
                                    AND MEASURE_ID LIKE "%OAP%"
+                                   AND RIGHT(MEASURE_ID, 1) = 'a'
                                    ORDER BY REPORTING_PERIOD_START, REPORTING_PERIOD_END, STATUS, BREAKDOWN, PRIMARY_LEVEL, SECONDARY_LEVEL, MEASURE_ID""")
   
  if(os.environ.get('env') == 'prod'):
-   mhsds_monthly_csv = f'MHSDS Data_OAPs{file_part_name}.csv' 
+   mhsds_monthly_csv = f'MHSDS Data_OAPs_acute{file_part_name}.csv' 
+   local_id = mhsds_monthly_csv #use filename here for new LEAD_MESH process
+ #   request_id = cp_s3_send(spark, df_mhsds_monthly_csv, mhsds_monthly_csv, local_id)
+   try:
+     request_id = cp_mesh_send(spark, df_mhsds_monthly_csv, mailbox_to, workflow_id, mhsds_monthly_csv, local_id)
+     print(f"{mhsds_monthly_csv} file has been pushed to MESH with request id {request_id}. \n")
+   except Exception as ex:
+     print(ex, 'MESH exception on SPARK 3 can be ignored, file will be delivered in the destined path') 
+ else:
+   display(df_mhsds_monthly_csv)
+
+-- COMMAND ----------
+
+ %python
+  
+ print(f'Second part of file name: {file_part_name}')
+  
+ ##############################################################
+ #              Extract the CSV of OAPs product (MHSDS Data)  ## RAW##unrounded,unsp
+ ##############################################################
+ spark.sql(f"OPTIMIZE {db_output}.bbrb_final_raw")
+ df_mhsds_monthly_raw_csv = spark.sql(f"""SELECT DISTINCT
+                                       REPORTING_PERIOD_START,
+                                       REPORTING_PERIOD_END,
+                                       STATUS,
+                                       BREAKDOWN,
+                                       PRIMARY_LEVEL,
+                                       PRIMARY_LEVEL_DESCRIPTION,
+                                       SECONDARY_LEVEL,
+                                       SECONDARY_LEVEL_DESCRIPTION,
+                                       MEASURE_ID,
+                                       MEASURE_NAME,
+                                       MEASURE_VALUE    
+                                       FROM {db_output}.bbrb_final_raw
+                                       WHERE REPORTING_PERIOD_END = '{rp_enddate}'
+                                       AND STATUS = '{status}'     
+                                       AND SOURCE_DB = '{db_source}'
+                                       AND MEASURE_VALUE != 0
+                                       AND MEASURE_ID LIKE "%OAP%"
+                                       AND MEASURE_ID NOT LIKE "%MHSPOP%"
+                                       AND RIGHT(MEASURE_ID, 1) <> 'a'
+                                       ORDER BY REPORTING_PERIOD_START, REPORTING_PERIOD_END, STATUS, BREAKDOWN, PRIMARY_LEVEL, SECONDARY_LEVEL, MEASURE_ID""")
+  
+ #to help with local testing and avoiding the commenting and uncommenting the code
+  
+ if(os.environ.get('env') == 'prod'):
+   mhsds_monthly_raw_csv = f'MHSDS Data_OAPs_non_acute{file_part_name}_RAW.csv' 
+   local_id = mhsds_monthly_raw_csv #use filename here for new LEAD_MESH process
+ #   request_id = cp_s3_send(spark, df_mhsds_monthly_raw_csv, mhsds_monthly_raw_csv, local_id)
+   try:
+     request_id = cp_mesh_send(spark, df_mhsds_monthly_raw_csv, mailbox_to, workflow_id, mhsds_monthly_raw_csv, local_id)
+     print(f"{mhsds_monthly_raw_csv} file has been pushed to MESH with request id {request_id}. \n")
+   except Exception as ex:
+     print(ex, 'MESH exception on SPARK 3 can be ignored, file will be delivered in the destined path') 
+ else:
+   display(df_mhsds_monthly_raw_csv)
+  
+ ##############################################################
+ #              Extract the CSV of OAPs product (MHSDS Data)  ## ROUNDED
+ ##############################################################
+ spark.sql(f"OPTIMIZE {db_output}.bbrb_final")
+ df_mhsds_monthly_csv = spark.sql(f"""SELECT DISTINCT
+                                   REPORTING_PERIOD_START,
+                                   REPORTING_PERIOD_END,
+                                   STATUS,
+                                   BREAKDOWN,
+                                   PRIMARY_LEVEL,
+                                   PRIMARY_LEVEL_DESCRIPTION,
+                                   SECONDARY_LEVEL,
+                                   SECONDARY_LEVEL_DESCRIPTION,
+                                   MEASURE_ID,
+                                   MEASURE_NAME,
+                                   MEASURE_VALUE    
+                                   FROM {db_output}.bbrb_final
+                                   WHERE REPORTING_PERIOD_END = '{rp_enddate}'
+                                   AND STATUS = '{status}'  
+                                   AND SOURCE_DB = '{db_source}'                                  
+                                   AND MEASURE_ID LIKE "%OAP%"
+                                   AND RIGHT(MEASURE_ID, 1) <> 'a'
+                                   ORDER BY REPORTING_PERIOD_START, REPORTING_PERIOD_END, STATUS, BREAKDOWN, PRIMARY_LEVEL, SECONDARY_LEVEL, MEASURE_ID""")
+  
+ if(os.environ.get('env') == 'prod'):
+   mhsds_monthly_csv = f'MHSDS Data_OAPs_non_acute{file_part_name}.csv' 
    local_id = mhsds_monthly_csv #use filename here for new LEAD_MESH process
  #   request_id = cp_s3_send(spark, df_mhsds_monthly_csv, mhsds_monthly_csv, local_id)
    try:
@@ -301,7 +386,7 @@
    display(df_mhsds_monthly_raw_csv)
   
  ##############################################################
- #              Extract the CSV of OAPs product (MHSDS Data)  ## RAW##unrounded,unsp
+ #              Extract the CSV of 4-week waits product (MHSDS Data)  ## ROUNDED
  ##############################################################
  spark.sql(f"OPTIMIZE {db_output}.bbrb_final")
  df_mhsds_monthly_csv = spark.sql(f"""SELECT DISTINCT

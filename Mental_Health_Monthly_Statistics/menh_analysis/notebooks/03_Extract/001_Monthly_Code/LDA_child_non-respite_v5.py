@@ -16,7 +16,7 @@
 # DBTITLE 1,LDAflag derivation from SQL - for reference - commented out
 # %sql
 
-# /* User note: this is the Stored Procedure code for LDAFlag from SQL for reference 
+# /* USER: this is the Stored Procedure code for LDAFlag from SQL for reference 
 
 
 # USE [MENH_MHSDS]
@@ -276,7 +276,7 @@
 
  %sql
   
- -- /* User note: this cell collects together all the LDA individuals into one table */
+ -- /* USER: this cell collects together all the LDA individuals into one table */
  -- /* NB includes duplicate records */
   
  CREATE OR REPLACE TEMPORARY VIEW LD_cohort_dups AS
@@ -307,11 +307,11 @@
 # COMMAND ----------
 
  %sql
- -- User note: this cell replaces LDAflag
- -- User note: instead of updating a column in mhs001mpi this populates a new table with just the Person_ID of the LDA cohort in it
+ -- USER: this cell replaces LDAflag
+ -- USER: instead of updating a column in mhs001mpi this populates a new table with just the Person_ID of the LDA cohort in it
  -- i.e. it just uses an equivalent to the temp table created in the original code and joins to this in future code rather than amending the source data table
     
- -- User note: this creates an ordere, distinct version of the LDA cohort
+ -- USER: this creates an ordere, distinct version of the LDA cohort
  -- need to refer to this table as global_temp.LD_cohort
 
 
@@ -541,12 +541,12 @@
                      OR (RES.EndDateRestrictiveIntType BETWEEN '$rp_startdate' AND '$rp_enddate')
                      OR (RES.EndDateRestrictiveIntType is null)) AND RES.UniqMonthID = '$month_id' -- and RES.ic_use_submission_flag = 'y' -- needed for testing  in hue
          WHERE  M.UniqMonthID = '$month_id' AND M.PatMRecInRP = True 
- --User note: LDAFlag doesn't exist in v4.1
+ --USER: LDAFlag doesn't exist in v4.1
          --M.LDAFlag = True AND 
          AND M.Person_ID IN
          (SELECT LD.Person_ID from global_temp.LD_cohort LD)
     
- --User note added in for under 18 output
+ --USER added in for under 18 output
        -- AND M.AgeRepPeriodEnd < 18 
         
   
@@ -742,7 +742,7 @@
  WHERE M.UniqMonthID = '$month_id' 
  --and LD.IC_Use_Submission_Flag = 'Y'
  --and LD.LDAFlag = True 
- --User note: LDAFlag doesn't exist in v4.1 - replaced with 2 lines below
+ --USER: LDAFlag doesn't exist in v4.1 - replaced with 2 lines below
          
          AND M.Person_ID IN
          (SELECT LD.Person_ID from global_temp.LD_cohort LD)
@@ -770,7 +770,7 @@
  M.UniqMonthID = '$month_id' 
  -- and LD.ic_Use_Submission_Flag = 'Y'  
  --and LD.LDAFlag = True 
- --User note: LDAFlag doesn't exist in v4.1 - replaced with 2 lines below
+ --USER: LDAFlag doesn't exist in v4.1 - replaced with 2 lines below
          
          AND M.Person_ID IN
          (SELECT LD.Person_ID from global_temp.LD_cohort LD)
@@ -840,7 +840,7 @@
  and ((CR.EndDateCommTreatOrdRecall is null and B.DischDateHospProvSpell is null) or (CR.StartDateCommTreatOrdRecall <= B.DischDateHospProvSpell and  CR.EndDateCommTreatOrdRecall >= B.DischDateHospProvSpell))
  WHERE
  --A.LDAFlag = True 
- --User note: LDAFlag doesn't exist in v4.1 - replaced with 2 lines below
+ --USER: LDAFlag doesn't exist in v4.1 - replaced with 2 lines below
          
         M.Person_ID IN
          (SELECT LD.Person_ID from global_temp.LD_cohort LD)
@@ -938,11 +938,11 @@
  2 AS TableNumber,
  'Age' AS PrimaryMeasure,
 
- --User note: add this bit in for U18 output
+ --USER: add this bit in for U18 output
  --  AgeRepPeriodEnd AS PrimaryMeasureNumber,
  --  AgeRepPeriodEnd AS PrimarySplit,
 
- --User note: take this bit out for U18 output
+ --USER: take this bit out for U18 output
  CASE
         WHEN AgeRepPeriodEnd between 0 and 17 then '1'
  	   WHEN AgeRepPeriodEnd between 18 and 24 then '2'
@@ -963,7 +963,7 @@
  	   WHEN AgeRepPeriodEnd > 64 then '65 and Over'
         ELSE 'Unknown'
         END AS PrimarySplit,
- --User note: up to here
+ --USER: up to here
 
  '' as SecondaryMeasure,
  '' as SecondaryMeasureNumber,

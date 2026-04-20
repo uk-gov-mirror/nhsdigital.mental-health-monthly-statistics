@@ -26,49 +26,48 @@ TRUNCATE TABLE $db_output.dq_stg_integrity;
 -- COMMAND ----------
 
 -- DBTITLE 1,V6 Changes for Service team type
- %sql
- DROP TABLE IF EXISTS $db_output.ServiceTeamType;
- CREATE TABLE IF NOT EXISTS $db_output.ServiceTeamType AS
- ----MHS102 All
- SELECT
- s.UniqMonthID,
- s.OrgIDProv,
- s.Person_ID,
- s.UniqServReqID,
- COALESCE(s.UniqCareProfTeamID, s.UniqOtherCareProfTeamLocalID) as UniqCareProfTeamID,
- s.ServTeamTypeRefToMH as ServTeamTypeMH,
- s.ServTeamIntAgeGroup,
- s.ReferClosureDate,
- s.ReferClosReason,
- s.ReferRejectionDate,
- s.ReferRejectReason,
- s.RecordNumber,
- s.RecordStartDate,
- s.RecordEndDate
- from $dbm.mhs102otherservicetype s
- UNION ALL
- ----MHS101 v6
- SELECT
- r.UniqMonthID,
- r.OrgIDProv,
- r.Person_ID,
- r.UniqServReqID,
- r.UniqCareProfTeamLocalID as UniqCareProfTeamID,
- r.ServTeamType as ServTeamTypeMH, 
- r.ServTeamIntAgeGroup,
- r.ServDischDate as ReferClosureDate,
- r.ReferClosReason,
- r.ReferRejectionDate,
- r.ReferRejectReason,
- r.RecordNumber,
- r.RecordStartDate,
- r.RecordEndDate
- from $dbm.mhs101referral r
- where UniqMonthID > 1488
+DROP TABLE IF EXISTS $db_output.ServiceTeamType;
+CREATE TABLE IF NOT EXISTS $db_output.ServiceTeamType AS
+----MHS102 All
+SELECT
+s.UniqMonthID,
+s.OrgIDProv,
+s.Person_ID,
+s.UniqServReqID,
+COALESCE(s.UniqCareProfTeamID, s.UniqOtherCareProfTeamLocalID) as UniqCareProfTeamID,
+s.ServTeamTypeRefToMH as ServTeamTypeMH,
+s.ServTeamIntAgeGroup,
+s.ReferClosureDate,
+s.ReferClosReason,
+s.ReferRejectionDate,
+s.ReferRejectReason,
+s.RecordNumber,
+s.RecordStartDate,
+s.RecordEndDate
+from $dbm.mhs102otherservicetype s
+UNION ALL
+----MHS101 v6
+SELECT
+r.UniqMonthID,
+r.OrgIDProv,
+r.Person_ID,
+r.UniqServReqID,
+r.UniqCareProfTeamLocalID as UniqCareProfTeamID,
+r.ServTeamType as ServTeamTypeMH, 
+r.ServTeamIntAgeGroup,
+r.ServDischDate as ReferClosureDate,
+r.ReferClosReason,
+r.ReferRejectionDate,
+r.ReferRejectReason,
+r.RecordNumber,
+r.RecordStartDate,
+r.RecordEndDate
+from $dbm.mhs101referral r
+where UniqMonthID > 1488
 
 -- COMMAND ----------
 
-/** User note: added to support code needed for v4.1 when CAMHSTier removed **/
+/** USER: added to support code needed for v4.1 when CAMHSTier removed **/
 
 CREATE OR REPLACE GLOBAL TEMPORARY VIEW REFS AS 
  
@@ -90,7 +89,7 @@ WHERE a.UniqMonthID = '$month_id'
 
 -- COMMAND ----------
 
-/** User note: added to support code needed for v4.1 when CAMHSTier removed **/
+/** USER: added to support code needed for v4.1 when CAMHSTier removed **/
 
 CREATE OR REPLACE GLOBAL TEMPORARY VIEW TEAMTYPE AS
  
@@ -107,7 +106,7 @@ GROUP BY r.UniqCareProfTeamID
 -- COMMAND ----------
 
 -- DBTITLE 1,Referrals to CYP-MH services starting in RP
-/** User note: updated for v4.1 when CAMHSTier removed **/
+/** USER: updated for v4.1 when CAMHSTier removed **/
 
 WITH Referral
 AS

@@ -2,15 +2,15 @@
 # dbutils.widgets.removeAll()
 
 # dbutils.widgets.text("db_output", "menh_publications", "db_output")
-# dbutils.widgets.text("mhsds_database", "mhsds_database", "Input database")
+# dbutils.widgets.text("mhsds_db", "mhsds_db", "Input database")
 
 db_output = dbutils.widgets.get("db_output")
 print(db_output)
 assert db_output
 
-mhsds_database = dbutils.widgets.get("mhsds_database")
-print(mhsds_database)
-assert mhsds_database
+mhsds_db = dbutils.widgets.get("mhsds_db")
+print(mhsds_db)
+assert mhsds_db
 
 # COMMAND ----------
 

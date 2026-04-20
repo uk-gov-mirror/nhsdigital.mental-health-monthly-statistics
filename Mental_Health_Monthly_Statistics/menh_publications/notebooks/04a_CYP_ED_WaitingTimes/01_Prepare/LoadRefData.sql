@@ -13,6 +13,11 @@
 TRUNCATE TABLE $db_output.cyp_ed_wt_breakdown_values;
 INSERT INTO $db_output.cyp_ed_wt_breakdown_values VALUES
   ('England'),
+  ('England; Age'),
+  ('England; Gender'),
+  ('England; Ethnicity'),
+  ('England; IMD Decile'),
+  ('England; Intervention'),
   ('CCG - GP Practice or Residence'),
   ('Provider'),
   ('STP - GP Practice or Residence'),
@@ -30,6 +35,112 @@ SELECT
   'NONE' as secondary_level,
   'NONE' as secondary_level_desc,
   'England' as breakdown
+  
+/* Age group breakdowns for England level only */
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '0 to 5' as secondary_level, '0 to 5' as secondary_level_desc, 'England; Age' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '6 to 10' as secondary_level, '6 to 10' as secondary_level_desc, 'England; Age' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '11 to 15' as secondary_level, '11 to 15' as secondary_level_desc, 'England; Age' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '16' as secondary_level, '16' as secondary_level_desc, 'England; Age' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '17' as secondary_level, '17' as secondary_level_desc, 'England; Age' as breakdown
+  
+/* Gender breakdowns for England level only */
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '1' as secondary_level, 'Male (including trans man)' as secondary_level_desc, 
+'England; Gender' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '2' as secondary_level, 'Female (including trans woman)' as secondary_level_desc, 
+'England; Gender' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '3' as secondary_level, 'Non-binary' as secondary_level_desc, 'England; Gender' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '9' as secondary_level, 'Indeterminate (unable to be classified as either male or female)' as secondary_level_desc, 'England; Gender' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '4' as secondary_level, 'Other (not listed)' as secondary_level_desc, 
+'England; Gender' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'UNKNOWN' as secondary_level, 'UNKNOWN' as secondary_level_desc, 'England; Gender' as breakdown
+  
+/* IMD Decile breakdowns for England level only */
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '01 Most deprived' as secondary_level, '01 Most deprived' as secondary_level_desc, 
+'England; IMD Decile' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '02 More deprived' as secondary_level, '02 More deprived' as secondary_level_desc, 
+'England; IMD Decile' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '03 More deprived' as secondary_level, '03 More deprived' as secondary_level_desc, 
+'England; IMD Decile' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '04 More deprived' as secondary_level, '04 More deprived' as secondary_level_desc, 
+'England; IMD Decile' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '05 More deprived' as secondary_level, '05 More deprived' as secondary_level_desc, 
+'England; IMD Decile' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '06 Less deprived' as secondary_level, '06 Less deprived' as secondary_level_desc, 
+'England; IMD Decile' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '07 Less deprived' as secondary_level, '07 Less deprived' as secondary_level_desc, 
+'England; IMD Decile' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '08 Less deprived' as secondary_level, '08 Less deprived' as secondary_level_desc, 
+'England; IMD Decile' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '09 Less deprived' as secondary_level, '09 Less deprived' as secondary_level_desc, 
+'England; IMD Decile' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, '10 Least deprived' as secondary_level, '10 Least deprived' as secondary_level_desc, 
+'England; IMD Decile' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'UNKNOWN' as secondary_level, 'UNKNOWN' as secondary_level_desc, 
+'England; IMD Decile' as breakdown
+  
+/* Interventions breakdowns for England level only */
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'Family therapy' as secondary_level, 'Family therapy' as secondary_level_desc, 
+'England; Intervention' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'Cognitive behavioural therapy for eating disorders (valid up to March 2026)' as secondary_level, 'Cognitive behavioural therapy for eating disorders (valid up to March 2026)'  as secondary_level_desc, 'England; Intervention' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'Interpersonal psychotherapy' as secondary_level, 'Interpersonal psychotherapy' as secondary_level_desc, 'England; Intervention' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'Guided self-help cognitive behavioral therapy' as secondary_level, 'Guided self-help cognitive behavioral therapy' as secondary_level_desc, 'England; Intervention' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'Eating-disorder-focused focal psychodynamic therapy' as secondary_level, 'Eating-disorder-focused focal psychodynamic therapy' as secondary_level_desc, 'England; Intervention' as breakdown
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'Group cognitive behavioural therapy for eating disorder' as secondary_level, 'Group cognitive behavioural therapy for eating disorder' as secondary_level_desc, 'England; Intervention' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'Adolescent-focused psychotherapy for anorexia nervosa' as secondary_level, 'Adolescent-focused psychotherapy for anorexia nervosa' as secondary_level_desc, 'England; Intervention' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'Guided self-help for bulimia nervosa' as secondary_level, 'Guided self-help for bulimia nervosa' as secondary_level_desc, 'England; Intervention' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'Shared care' as secondary_level, 'Shared care' as secondary_level_desc, 'England; Intervention' as breakdown
+--OLD CODES, REMOVE IN APRIL 2027
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'Cognitive behavioural therapy for eating disorders (valid up to March 2026)' as secondary_level, 'Cognitive behavioural therapy for eating disorders (valid up to March 2026)' as secondary_level_desc, 'England; Intervention' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'Focal psychodynamic therapy (valid up to March 2026)' as secondary_level, 'Focal psychodynamic therapy (valid up to March 2026)' as secondary_level_desc, 'England; Intervention' as breakdown
+  
+/* Ethnicity breakdowns for England level only */
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'White' as secondary_level, 'White' as secondary_level_desc, 'England; Ethnicity' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'Mixed' as secondary_level, 'Mixed' as secondary_level_desc, 'England; Ethnicity' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'Asian or Asian British' as secondary_level, 'Asian or Asian British' as secondary_level_desc, 'England; Ethnicity' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'Black or Black British' as secondary_level, 'Black or Black British' as secondary_level_desc, 'England; Ethnicity' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'Other Ethnic Groups' as secondary_level, 'Other Ethnic Groups' as secondary_level_desc, 'England; Ethnicity' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'Not Stated' as secondary_level, 'Not Stated' as secondary_level_desc, 'England; Ethnicity' as breakdown
+UNION ALL
+SELECT 'England' as primary_level, 'England' as primary_level_desc, 'UNKNOWN' as secondary_level, 'UNKNOWN' as secondary_level_desc, 'England; Ethnicity' as breakdown
+
 UNION ALL
 SELECT DISTINCT
   ORG_CODE as primary_level, 
@@ -121,6 +232,6 @@ INSERT INTO $db_output.cyp_ed_wt_metric_values VALUES
 ('ED102', 'Median waiting time from first to second contact for referrals receiving a second contact in the RP, with eating disorder issues categorized as urgent, aged 0-17'),
 ('ED103', '90th percentile waiting time from first to second contact for referrals receiving a second contact in the RP, with eating disorder issues categorized as routine, aged 0-17'),
 ('ED104', '90th percentile waiting time from first to second contact for referrals receiving a second contact in the RP, with eating disorder issues categorized as urgent, aged 0-17'),
-('ED105', 'People with eating disorder issues still waiting for treatment at the end of the RP that turned 18'),
-('ED106', 'Median waiting time of referrals with eating disorder issues still waiting for treatment at the end of the RP that turned 18'),
-('ED107', '90th percentile waiting time of referrals with eating disorder issues still waiting for treatment at the end of the RP that turned 18')
+('ED105', 'People with eating disorder issues still waiting for treatment at the end of the RP aged 18 or over'),
+('ED106', 'Median waiting time of referrals with eating disorder issues still waiting for treatment at the end of the RP aged 18 or over'),
+('ED107', '90th percentile waiting time of referrals with eating disorder issues still waiting for treatment at the end of the RP aged 18 or over')

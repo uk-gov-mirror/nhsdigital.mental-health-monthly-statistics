@@ -31,7 +31,7 @@
  %sql
  INSERT OVERWRITE TABLE $db_output.OAPS_In_Scope
  SELECT ORG_CODE
- FROM $reference_db.ORG_DAILY
+ FROM $reference_data.ORG_DAILY
  WHERE (BUSINESS_END_DATE >= add_months('$rp_enddate', 1) OR ISNULL(BUSINESS_END_DATE))
    AND BUSINESS_START_DATE <= add_months('$rp_enddate', 1)
    AND ORG_CODE in ('NQL','NR5','R1A','R1C','R1F','R1L','RAT','RDY','RGD','RH5','RHA','RJ8','RKL','RLY','RMY','RNN',
@@ -453,7 +453,7 @@
  left join $db_output.bbrb_org_daily subm_prov
    on oaps.OrgIDReferring = subm_prov.ORG_CODE
     
- left join $reference_db.english_indices_of_dep_v02 imd_ref
+ left join $reference_data.english_indices_of_dep_v02 imd_ref
    on mpi.LSOA2011 = imd_ref.LSOA_CODE_2011 
    and imd_ref.IMD_YEAR = '2019' 
    
@@ -472,11 +472,11 @@
  left join $db_output.ethnicity_desc eth
    on mpi.NHSDEthnicity = eth.LowerEthnicityCode and '$end_month_id' >= eth.FirstMonth and (eth.LastMonth is null or '$end_month_id' <= eth.LastMonth)
    
- left join $reference_db.datadictionarycodes dd_reasonoat 
+ left join $reference_data.datadictionarycodes dd_reasonoat 
    on oaps.ReasonOAT = dd_reasonoat.PrimaryCode
    and dd_reasonoat.ItemName = 'REASON_FOR_OUT_OF_AREA_REFERRAL_FOR_ADULT_ACUTE_MENTAL_HEALTH'
    
- left join $reference_db.datadictionarycodes dd_reasonref
+ left join $reference_data.datadictionarycodes dd_reasonref
    on OAPs.PrimReasonReferralMH = dd_reasonref.PrimaryCode
    and dd_reasonref.ItemName = 'REASON_FOR_REFERRAL_TO_MENTAL_HEALTH' 
   
@@ -663,7 +663,7 @@
  left join $db_output.bbrb_org_daily subm_prov
    on oaps.OrgIDReferring = subm_prov.ORG_CODE
     
- left join $reference_db.english_indices_of_dep_v02 imd_ref
+ left join $reference_data.english_indices_of_dep_v02 imd_ref
    on mpi.LSOA2011 = imd_ref.LSOA_CODE_2011 
    and imd_ref.IMD_YEAR = '2019' 
    
@@ -682,11 +682,11 @@
  left join $db_output.ethnicity_desc eth
    on mpi.NHSDEthnicity = eth.LowerEthnicityCode and '$end_month_id' >= eth.FirstMonth and (eth.LastMonth is null or '$end_month_id' <= eth.LastMonth)
    
- left join $reference_db.datadictionarycodes dd_reasonoat 
+ left join $reference_data.datadictionarycodes dd_reasonoat 
    on oaps.ReasonOAT = dd_reasonoat.PrimaryCode
    and dd_reasonoat.ItemName = 'REASON_FOR_OUT_OF_AREA_REFERRAL_FOR_ADULT_ACUTE_MENTAL_HEALTH'
    
- left join $reference_db.datadictionarycodes dd_reasonref
+ left join $reference_data.datadictionarycodes dd_reasonref
    on OAPs.PrimReasonReferralMH = dd_reasonref.PrimaryCode
    and dd_reasonref.ItemName = 'REASON_FOR_REFERRAL_TO_MENTAL_HEALTH' 
   
@@ -875,7 +875,7 @@
  left join $db_output.bbrb_org_daily subm_prov
    on oaps.OrgIDReferring = subm_prov.ORG_CODE
     
- left join $reference_db.english_indices_of_dep_v02 imd_ref
+ left join $reference_data.english_indices_of_dep_v02 imd_ref
    on mpi.LSOA2011 = imd_ref.LSOA_CODE_2011 
    and imd_ref.IMD_YEAR = '2019' 
    
@@ -894,11 +894,11 @@
  left join $db_output.ethnicity_desc eth
    on mpi.NHSDEthnicity = eth.LowerEthnicityCode and '$end_month_id' >= eth.FirstMonth and (eth.LastMonth is null or '$end_month_id' <= eth.LastMonth)
    
- left join $reference_db.datadictionarycodes dd_reasonoat 
+ left join $reference_data.datadictionarycodes dd_reasonoat 
    on oaps.ReasonOAT = dd_reasonoat.PrimaryCode
    and dd_reasonoat.ItemName = 'REASON_FOR_OUT_OF_AREA_REFERRAL_FOR_ADULT_ACUTE_MENTAL_HEALTH'
    
- left join $reference_db.datadictionarycodes dd_reasonref
+ left join $reference_data.datadictionarycodes dd_reasonref
    on OAPs.PrimReasonReferralMH = dd_reasonref.PrimaryCode
    and dd_reasonref.ItemName = 'REASON_FOR_REFERRAL_TO_MENTAL_HEALTH' 
   
@@ -995,7 +995,7 @@
  left join $db_output.bbrb_stp_mapping stp
    on ccg.SubICBGPRes = stp.CCG_Code
     
- left join $reference_db.english_indices_of_dep_v02 imd_ref
+ left join $reference_data.english_indices_of_dep_v02 imd_ref
    on mpi.LSOA2011 = imd_ref.LSOA_CODE_2011 
    and imd_ref.IMD_YEAR = '2019' 
    
@@ -1100,7 +1100,7 @@
  left join $db_output.bbrb_stp_mapping stp
    on ccg.SubICBGPRes = stp.CCG_Code
     
- left join $reference_db.english_indices_of_dep_v02 imd_ref
+ left join $reference_data.english_indices_of_dep_v02 imd_ref
    on mpi.LSOA2011 = imd_ref.LSOA_CODE_2011 
    and imd_ref.IMD_YEAR = '2019' 
    
@@ -1206,7 +1206,7 @@
  left join $db_output.bbrb_stp_mapping stp
    on ccg.SubICBGPRes = stp.CCG_Code
     
- left join $reference_db.english_indices_of_dep_v02 imd_ref
+ left join $reference_data.english_indices_of_dep_v02 imd_ref
    on mpi.LSOA2011 = imd_ref.LSOA_CODE_2011 
    and imd_ref.IMD_YEAR = '2019' 
    

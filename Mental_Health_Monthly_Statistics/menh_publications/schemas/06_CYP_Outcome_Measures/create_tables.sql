@@ -8,9 +8,9 @@
  db_output=dbutils.widgets.get("db_output")
  print(db_output)
  assert db_output
- mhsds_database=dbutils.widgets.get("mhsds_database")
- print(mhsds_database)
- assert mhsds_database
+ mhsds_db=dbutils.widgets.get("mhsds_db")
+ print(mhsds_db)
+ assert mhsds_db
 
 -- COMMAND ----------
 

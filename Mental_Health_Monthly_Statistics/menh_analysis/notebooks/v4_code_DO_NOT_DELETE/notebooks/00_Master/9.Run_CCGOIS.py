@@ -50,9 +50,8 @@ dbutils.notebook.run("../02_Aggregate/9.CCGOIS_3-17", 0, params)
 # COMMAND ----------
 
 # DBTITLE 1,Optimize output table for performance
- %python
 
- import os
+import os
 
- if os.environ['env'] == 'prod':
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CCGOIS_unformatted'))
+if os.environ['env'] == 'prod':
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CCGOIS_unformatted'))

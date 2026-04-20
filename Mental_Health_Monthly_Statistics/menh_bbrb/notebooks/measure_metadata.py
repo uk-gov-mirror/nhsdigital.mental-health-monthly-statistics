@@ -462,6 +462,96 @@ los_measure_ids = {
   "breakdowns": [eng_bd, prov_bd, ccg_prac_res_bd, stp_prac_res_bd, comm_region_bd],
   "output_table": "bbrb_final_raw"
 },
+"MHS156c": {
+  "freq": "Q", 
+  "name": "Number of discharges in the RP for people aged 18 and over from adult acute and PICU beds",
+  "source_table": "distinct_spells_adult_acute_PICU",
+  "filter_clause": "",
+  "aggregate_field": "COALESCE(COUNT(DISTINCT UniqHospProvSpellID),0)",
+  "aggregate_function": produce_agg_df,
+  "numerator_id": "MHS156c",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "hospital_spells",
+  "suppression": "count",
+  "breakdowns": [eng_bd, prov_bd, ccg_prac_res_bd, stp_prac_res_bd, comm_region_bd],
+  "output_table": "bbrb_final_raw"
+},
+"MHS156d": {
+  "freq": "Q", 
+  "name": "Total bed days for discharges in the RP for people aged 18 and over from adult acute and PICU beds",
+  "source_table": "distinct_spells_adult_acute_PICU",
+  "filter_clause": "",
+  "aggregate_field": "COALESCE(SUM(HOSP_LOS),0)",
+  "aggregate_function": produce_agg_df,
+  "numerator_id": "MHS156d",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "bed days",
+  "suppression": "count",
+  "breakdowns": [eng_bd, prov_bd, ccg_prac_res_bd, stp_prac_res_bd, comm_region_bd],
+  "output_table": "bbrb_final_raw"
+},
+"MHS156e": {
+  "freq": "Q", 
+  "name": "Mean Length of stay for discharges in the RP for people aged 18 and over from adult acute and PICU beds",
+  "source_table": "distinct_spells_adult_acute_PICU",
+  "filter_clause": "",
+  "aggregate_field": "COALESCE(ROUND(AVG(HOSP_LOS),0),0)",
+  "aggregate_function": produce_agg_df,
+  "numerator_id": "MHS156d",
+  "denominator": "MHS156c",  
+  "crude_rate": 0,
+  "related_to": "mean",
+  "suppression": "percent",
+  "breakdowns": [eng_bd, prov_bd, ccg_prac_res_bd, stp_prac_res_bd, comm_region_bd],
+  "output_table": "bbrb_final_raw"
+},
+"MHS156f": {
+  "freq": "Q", 
+  "name": "Number of discharges in the RP for people aged 18 and over from older adult acute beds",
+  "source_table": "distinct_spells_older_adult_acute",
+  "filter_clause": "",
+  "aggregate_field": "COALESCE(COUNT(DISTINCT UniqHospProvSpellID),0)",
+  "aggregate_function": produce_agg_df,
+  "numerator_id": "MHS156f",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "hospital_spells",
+  "suppression": "count",
+  "breakdowns": [eng_bd, prov_bd, ccg_prac_res_bd, stp_prac_res_bd, comm_region_bd],
+  "output_table": "bbrb_final_raw"
+},
+"MHS156g": {
+  "freq": "Q", 
+  "name": "Total bed days for discharges in the RP for people aged 18 and over from older adult acute beds",
+  "source_table": "distinct_spells_older_adult_acute",
+  "filter_clause": "",
+  "aggregate_field": "COALESCE(SUM(HOSP_LOS),0)",
+  "aggregate_function": produce_agg_df,
+  "numerator_id": "MHS156g",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "bed days",
+  "suppression": "count",
+  "breakdowns": [eng_bd, prov_bd, ccg_prac_res_bd, stp_prac_res_bd, comm_region_bd],
+  "output_table": "bbrb_final_raw"
+},
+"MHS156h": {
+  "freq": "Q", 
+  "name": "Mean Length of stay for discharges in the RP for people aged 18 and over from older adult acute beds",
+  "source_table": "distinct_spells_older_adult_acute",
+  "filter_clause": "",
+  "aggregate_field": "COALESCE(ROUND(AVG(HOSP_LOS),0),0)",
+  "aggregate_function": produce_agg_df,
+  "numerator_id": "MHS156g",
+  "denominator": "MHS156f",  
+  "crude_rate": 0,
+  "related_to": "mean",
+  "suppression": "percent",
+  "breakdowns": [eng_bd, prov_bd, ccg_prac_res_bd, stp_prac_res_bd, comm_region_bd],
+  "output_table": "bbrb_final_raw"
+},
 }
 
 # COMMAND ----------
@@ -471,6 +561,21 @@ four_ww_measure_ids = {
   "freq": "Q", 
   "name": "Number of CMH referral-spells receiving a full clock stop in the RP",
   "source_table": "cmh_4ww_spell_master_long",
+  "filter_clause": "",
+  "aggregate_field": "COUNT(DISTINCT CASE WHEN PATHWAY_CLOCKSTOP BETWEEN REPORTINGPERIODSTARTDATE AND REPORTINGPERIODENDDATE THEN SpellID ELSE NULL END)",
+  "aggregate_function": produce_agg_df,
+  "numerator_id": "MRS01",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "patient spells",
+  "suppression": "count",
+  "breakdowns": [eng_bd, prov_bd, ccg_prac_res_bd, stp_prac_res_bd, comm_region_bd, imd_core20_bd, stp_prac_res_imd_core20_bd, comm_region_imd_core20_bd],
+  "output_table": "bbrb_final_raw"
+},
+   "MRS01Y": {
+  "freq": "12M", 
+  "name": "Number of CMH referral-spells receiving a full clock stop in the RP",
+  "source_table": "cmh_4ww_spell_master_long_12m",
   "filter_clause": "",
   "aggregate_field": "COUNT(DISTINCT CASE WHEN PATHWAY_CLOCKSTOP BETWEEN REPORTINGPERIODSTARTDATE AND REPORTINGPERIODENDDATE THEN SpellID ELSE NULL END)",
   "aggregate_function": produce_agg_df,
@@ -801,6 +906,22 @@ four_ww_measure_ids = {
   "freq": "Q", 
   "name": "Number of CYP referral-spells receiving a full clock stop in the RP",
   "source_table": "cyp_4ww_spell_master_long",
+  "filter_clause": "",
+  "aggregate_field": "COUNT(DISTINCT CASE WHEN PATHWAY_CLOCKSTOP BETWEEN REPORTINGPERIODSTARTDATE AND REPORTINGPERIODENDDATE THEN SpellID ELSE NULL END)",
+  "aggregate_function": produce_4ww_agg_df,
+  "numerator_id": "MRS08",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "patient spells",
+  "suppression": "count",
+  "breakdowns": [eng_bd, prov_bd, ccg_prac_res_bd, stp_prac_res_bd, comm_region_bd, imd_core20_bd, stp_prac_res_imd_core20_bd, comm_region_imd_core20_bd,
+                pathway_bd, prov_pathway_bd, ccg_prac_res_pathway_bd, stp_prac_res_pathway_bd, comm_region_pathway_bd],
+  "output_table": "bbrb_final_raw"
+},
+  "MRS08Y": {
+  "freq": "12M", 
+  "name": "Number of CYP referral-spells receiving a full clock stop in the RP",
+  "source_table": "cyp_4ww_spell_master_long_12m",
   "filter_clause": "",
   "aggregate_field": "COUNT(DISTINCT CASE WHEN PATHWAY_CLOCKSTOP BETWEEN REPORTINGPERIODSTARTDATE AND REPORTINGPERIODENDDATE THEN SpellID ELSE NULL END)",
   "aggregate_function": produce_4ww_agg_df,
@@ -1568,21 +1689,21 @@ cyp_peri_measure_ids = {
                  comm_region_upper_eth_bd, comm_region_wnw_eth_bd, comm_region_imd_quintile_bd, comm_region_imd_core20_bd],
   "output_table": "bbrb_final_raw"
 },
-# "MHS95d": {
-#   "freq": "12M", 
-#   "name": "Absolute mean deviation between White and other upper ethnicities of direct standardised rate per 100,000 of CYP aged under 18 supported through NHS funded mental health with at least one contact (12 month rolling)",
-#   "source_table": "firstcont_final",
-#   "filter_clause": (F.col("Metric") == "MHS95"),
-#   "aggregate_field": "SUM(MeanAbsoluteDeviation) * 100000",
-#   "aggregate_function": produce_absolute_mean_deviation_white_vs_non_white_upper_ethnicites_df,
-#   "numerator_id": "MHS95",
-#   "denominator": 0,  
-#   "crude_rate": 0,
-#   "related_to": "people",
-#   "suppression": "percent",
-#   "breakdowns": [upper_eth_mean_dev_bd, stp_prac_res_upper_eth_mean_dev_bd, comm_region_upper_eth_mean_dev_bd],
-#   "output_table": "bbrb_final_raw"
-# },
+"MHS95d": {
+   "freq": "12M", 
+   "name": "Absolute mean deviation between White and other upper ethnicities of direct standardised rate per 100,000 of CYP aged under 18 supported through NHS Funded mental health with at least one contact (12 month rolling)",
+   "source_table": "firstcont_final",
+   "filter_clause": (F.col("Metric") == "MHS95"),
+   "aggregate_field": "SUM(MeanAbsoluteDeviation) * 100000",
+   "aggregate_function": produce_absolute_mean_deviation_white_vs_non_white_upper_ethnicites_df,
+   "numerator_id": "MHS95",
+   "denominator": 0,  
+   "crude_rate": 0,
+   "related_to": "people",
+   "suppression": "percent",
+   "breakdowns": [upper_eth_mean_dev_bd, stp_prac_res_upper_eth_mean_dev_bd, comm_region_upper_eth_mean_dev_bd],
+   "output_table": "bbrb_final_raw"
+},
 # "MHS95e": {
 #   "freq": "12M", 
 #   "name": "Weighted absolute mean deviation between White and other upper ethnicities of direct standardised rate per 100,000 of CYP aged under 18 supported through NHS funded mental health with at least one contact (12 month rolling)",
@@ -1746,6 +1867,24 @@ cyp_peri_measure_ids = {
   "related_to": "median",
   "suppression": "percent",
   "breakdowns": [eng_bd, prov_bd, ccg_prac_res_bd, stp_prac_res_bd, comm_region_bd],
+  "output_table": "bbrb_final_raw"
+},
+"MHS159": {
+  "freq": "12M", 
+  "name": "Number of CYP aged under 18 supported through NHS funded mental health with at least one contact with an education-based mental health support team (12 month rolling)",
+  "source_table": "firstcont_final",
+  "filter_clause": (F.col("Metric") == "MHS159"),
+  "aggregate_field": "COUNT(DISTINCT Person_ID)",
+  "aggregate_function": produce_access_filter_agg_df,
+  "numerator_id": "MHS159",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "people",
+  "suppression": "count",
+  "breakdowns": [eng_bd, prov_bd,
+                 ccg_prac_res_bd, 
+                 stp_prac_res_bd,
+                 comm_region_bd],
   "output_table": "bbrb_final_raw"
 },
 }
@@ -5146,14 +5285,15 @@ mha_measure_ids = {
   "crude_rate": 0,
   "related_to": "detentions",
   "suppression": "count",
-  "breakdowns": [eng_bd, age_band_mha_bd, gender_bd, upper_eth_bd, wnw_eth_bd, imd_decile_bd, imd_core20_bd,
+  "breakdowns": [eng_bd, age_band_mha_bd, gender_bd, upper_eth_bd, wnw_eth_bd, imd_decile_bd, imd_core20_bd, autism_status_bd, ld_status_bd,
                  prov_bd, 
                  ccg_prac_res_bd,
                  stp_prac_res_bd, stp_prac_res_age_band_mha_bd, stp_prac_res_upper_eth_bd, stp_prac_res_wnw_eth_bd, stp_prac_res_gender_bd, stp_prac_res_imd_decile_bd, stp_prac_res_imd_core20_bd,
-                 comm_region_bd, comm_region_age_band_mha_bd, comm_region_upper_eth_bd, comm_region_wnw_eth_bd, comm_region_gender_bd, comm_region_imd_decile_bd, comm_region_imd_core20_bd],
+                 comm_region_bd, comm_region_age_band_mha_bd, comm_region_upper_eth_bd, comm_region_wnw_eth_bd, comm_region_gender_bd, comm_region_imd_decile_bd, comm_region_imd_core20_bd
+  ],
   "output_table": "bbrb_final_raw"
 },  
-"MHS157a": {
+  "MHS157a": {
   "freq": "12M", 
   "name": "Crude rate per 100,000 of detentions in the reporting period (12 month rolling)",
   "source_table": "Detentions_yearly_filtered",
@@ -5207,7 +5347,71 @@ mha_measure_ids = {
                  comm_region_upper_eth_bd, comm_region_wnw_eth_bd, comm_region_imd_decile_bd, comm_region_imd_core20_bd
                 ],
   "output_table": "bbrb_final_raw"
-},  
+},
+  "MHS157d": {
+  "freq": "12M", 
+  "name": "Absolute mean deviation between White and other upper ethnicities of direct standardised rate per 100,000 of detentions in the reporting period (12 month rolling)",
+  "source_table": "Detentions_yearly_filtered",
+  "filter_clause": "",
+  "aggregate_field": "SUM(MeanAbsoluteDeviation) * 100000",
+  "aggregate_function": produce_absolute_mean_deviation_white_vs_non_white_upper_ethnicites_df,
+  "numerator_id": "MHS157",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "detentions",
+  "suppression": "percent",
+  "breakdowns": [upper_eth_mean_dev_bd, stp_prac_res_upper_eth_mean_dev_bd, comm_region_upper_eth_mean_dev_bd
+                ],
+   "output_table": "bbrb_final_raw"
+},
+#  "MHS157e": {
+#  "freq": "12M", 
+#  "name": "Weighted absolute mean deviation between White and other upper ethnicities of direct standardised rate per 100,000 of detentions in the reporting period #(12 month rolling)",
+#  "source_table": "Detentions_yearly_filtered",
+#  "filter_clause": "",
+#  "aggregate_field": "SUM(WeightedMeanAbsoluteDeviation) * 100000",
+#  "aggregate_function": produce_absolute_mean_deviation_white_vs_non_white_upper_ethnicites_df,
+#  "numerator_id": "MHS157",
+#  "denominator": 0,  
+#  "crude_rate": 0,
+#  "related_to": "detentions",
+#  "suppression": "percent",
+#  "breakdowns": [upper_eth_mean_dev_bd, stp_prac_res_upper_eth_mean_dev_bd, comm_region_upper_eth_mean_dev_bd
+#                ],
+#  "output_table": "bbrb_final_raw"
+#},
+  "MHS157f": {
+  "freq": "12M", 
+  "name": "Absolute difference between White and non-White ethnicity of direct standardised rate per 100,000 of detentions in the reporting period (12 month rolling)",
+  "source_table": "Detentions_yearly_filtered",
+  "filter_clause": "",
+  "aggregate_field": "SUM(AbsoluteDiffFromMain) * 100000",
+  "aggregate_function": produce_absolute_difference_between_two_standardised_rates_df,
+  "numerator_id": "MHS157",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "detentions",
+  "suppression": "percent",
+  "breakdowns": [wnw_eth_stan_rates_diff_bd, stp_prac_res_wnw_eth_stan_rates_diff_bd, comm_region_wnw_eth_stan_rates_diff_bd
+                ],
+  "output_table": "bbrb_final_raw"
+},
+  "MHS157g": {
+  "freq": "12M", 
+  "name": "Absolute difference between most deprived quintile and all other quintiles combined of direct standardised rate per 100,000 of detentions in the reporting period (12 month rolling)",
+  "source_table": "Detentions_yearly_filtered",
+  "filter_clause": "",
+  "aggregate_field": "SUM(AbsoluteDiffFromMain) * 100000",
+  "aggregate_function": produce_absolute_difference_between_two_standardised_rates_df,
+  "numerator_id": "MHS157",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "detentions",
+  "suppression": "percent",
+  "breakdowns": [imd_core20_stan_rates_diff_bd, stp_prac_res_imd_core20_stan_rates_diff_bd, comm_region_imd_core20_stan_rates_diff_bd
+                ],
+  "output_table": "bbrb_final_raw"
+},
   "MHS158": {
   "freq": "12M", 
   "name": "CTOs in the reporting period (12 month rolling)",
@@ -5220,11 +5424,12 @@ mha_measure_ids = {
   "crude_rate": 0,
   "related_to": "detentions",
   "suppression": "count",
-  "breakdowns": [eng_bd, age_band_mha_bd, gender_bd, upper_eth_bd, wnw_eth_bd, imd_decile_bd, imd_core20_bd,
+  "breakdowns": [eng_bd, age_band_mha_bd, gender_bd, upper_eth_bd, wnw_eth_bd, imd_decile_bd, imd_core20_bd,autism_status_bd, ld_status_bd,
                  prov_bd, 
                  ccg_prac_res_bd,
                  stp_prac_res_bd, stp_prac_res_age_band_mha_bd, stp_prac_res_upper_eth_bd, stp_prac_res_wnw_eth_bd, stp_prac_res_gender_bd, stp_prac_res_imd_decile_bd, stp_prac_res_imd_core20_bd,
-                 comm_region_bd, comm_region_age_band_mha_bd, comm_region_upper_eth_bd, comm_region_wnw_eth_bd, comm_region_gender_bd, comm_region_imd_decile_bd, comm_region_imd_core20_bd],
+                 comm_region_bd, comm_region_age_band_mha_bd, comm_region_upper_eth_bd, comm_region_wnw_eth_bd, comm_region_gender_bd, comm_region_imd_decile_bd, comm_region_imd_core20_bd
+                 ],
   "output_table": "bbrb_final_raw"
 },
   
@@ -5246,7 +5451,7 @@ mha_measure_ids = {
                  comm_region_bd, comm_region_age_band_mha_bd, comm_region_upper_eth_bd, comm_region_wnw_eth_bd, comm_region_gender_bd, comm_region_imd_decile_bd, comm_region_imd_core20_bd],
   "output_table": "bbrb_final_raw"
 },
-"MHS158b": {
+  "MHS158b": {
   "freq": "12M", 
   "name": "Direct standardised rate per 100,000 of CTOs in the reporting period (12 month rolling)",
   "source_table": "CTO_yearly",
@@ -5263,7 +5468,7 @@ mha_measure_ids = {
                  comm_region_upper_eth_bd, comm_region_wnw_eth_bd, comm_region_imd_decile_bd, comm_region_imd_core20_bd],
   "output_table": "bbrb_final_raw"
 },
-"MHS158c": {
+  "MHS158c": {
   "freq": "12M", 
   "name": "95% Confidence Interval (+/-) of direct standardised rate per 100,000 of CTOs in the reporting period (12 month rolling)",
   "source_table": "CTO_yearly",
@@ -5278,6 +5483,75 @@ mha_measure_ids = {
   "breakdowns": [upper_eth_bd, wnw_eth_bd, imd_decile_bd, imd_core20_bd,
                  stp_prac_res_upper_eth_bd, stp_prac_res_wnw_eth_bd, stp_prac_res_imd_decile_bd, stp_prac_res_imd_core20_bd,
                  comm_region_upper_eth_bd, comm_region_wnw_eth_bd, comm_region_imd_decile_bd, comm_region_imd_core20_bd],
+  "output_table": "bbrb_final_raw"
+},
+  "MHS158d": {
+  "freq": "12M", 
+  "name": "Absolute mean deviation between White and other upper ethnicities of direct standardised rate per 100,000 of CTOs in the reporting period (12 month rolling)",
+  "source_table": "CTO_yearly",
+  "filter_clause": "",
+  "aggregate_field": "SUM(MeanAbsoluteDeviation) * 100000",
+  "aggregate_function": produce_absolute_mean_deviation_white_vs_non_white_upper_ethnicites_df,
+  "numerator_id": "MHS158",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "detentions",
+  "suppression": "percent",
+  "breakdowns": [upper_eth_mean_dev_bd, stp_prac_res_upper_eth_mean_dev_bd, comm_region_upper_eth_mean_dev_bd
+                ],
+   "output_table": "bbrb_final_raw"
+},
+#  "MHS158e": {
+#  "freq": "12M", 
+#  "name": "Weighted absolute mean deviation between White and other upper ethnicities of direct standardised rate per 100,000 of CTOs in the reporting period (12 #month rolling)",
+#  "source_table": "CTO_yearly",
+#  "filter_clause": "",
+#  "aggregate_field": "SUM(WeightedMeanAbsoluteDeviation) * 100000",
+#  "aggregate_function": produce_absolute_mean_deviation_white_vs_non_white_upper_ethnicites_df,
+#  "numerator_id": "MHS158",
+#  "denominator": 0,  
+#  "crude_rate": 0,
+#  "related_to": "detentions",
+#  "suppression": "percent",
+#  "breakdowns": [upper_eth_mean_dev_bd, stp_prac_res_upper_eth_mean_dev_bd, comm_region_upper_eth_mean_dev_bd
+#                ],
+#  "output_table": "bbrb_final_raw"
+#},
+  "MHS158f": {
+  "freq": "12M", 
+  "name": "Absolute difference between White and non-White ethnicity of direct standardised rate per 100,000 of CTOs in the reporting period (12 month rolling)",
+  "source_table": "CTO_yearly",
+  "filter_clause": "",
+  "aggregate_field": "SUM(AbsoluteDiffFromMain) * 100000",
+  "aggregate_function": produce_absolute_difference_between_two_standardised_rates_df,
+  "numerator_id": "MHS158",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "detentions",
+  "suppression": "percent",
+  "breakdowns": [wnw_eth_stan_rates_diff_bd, stp_prac_res_wnw_eth_stan_rates_diff_bd, comm_region_wnw_eth_stan_rates_diff_bd
+ #   upper_eth_bd, wnw_eth_bd, imd_decile_bd, imd_core20_bd,
+  #               stp_prac_res_upper_eth_bd, stp_prac_res_wnw_eth_bd, stp_prac_res_imd_decile_bd, stp_prac_res_imd_core20_bd,
+   #              comm_region_upper_eth_bd, comm_region_wnw_eth_bd, comm_region_imd_decile_bd, comm_region_imd_core20_bd
+                ],
+  "output_table": "bbrb_final_raw"
+},
+  "MHS158g": {
+  "freq": "12M", 
+  "name": "Absolute difference between most deprived quintile and all other quintiles combined of direct standardised rate per 100,000 of CTOs in the reporting period (12 month rolling)",
+  "source_table": "CTO_yearly",
+  "filter_clause": "",
+  "aggregate_field": "SUM(AbsoluteDiffFromMain) * 100000",
+  "aggregate_function": produce_absolute_difference_between_two_standardised_rates_df,
+  "numerator_id": "MHS158",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "detentions",
+  "suppression": "percent",
+  "breakdowns": [imd_core20_stan_rates_diff_bd, stp_prac_res_imd_core20_stan_rates_diff_bd, comm_region_imd_core20_stan_rates_diff_bd#upper_eth_bd, wnw_eth_bd, imd_decile_bd, imd_core20_bd,
+                 #stp_prac_res_upper_eth_bd, stp_prac_res_wnw_eth_bd, stp_prac_res_imd_decile_bd, stp_prac_res_imd_core20_bd,
+                 #comm_region_upper_eth_bd, comm_region_wnw_eth_bd, comm_region_imd_decile_bd, comm_region_imd_core20_bd
+                ],
   "output_table": "bbrb_final_raw"
 }
 }

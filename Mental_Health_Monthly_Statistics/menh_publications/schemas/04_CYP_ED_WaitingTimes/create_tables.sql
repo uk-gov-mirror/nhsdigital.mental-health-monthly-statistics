@@ -3,9 +3,9 @@
  db_output=dbutils.widgets.get("db_output")
  print(db_output)
  assert db_output
- mhsds_database=dbutils.widgets.get("mhsds_database")
- print(mhsds_database)
- assert mhsds_database
+ mhsds_db=dbutils.widgets.get("mhsds_db")
+ print(mhsds_db)
+ assert mhsds_db
 
 -- COMMAND ----------
 
@@ -36,6 +36,12 @@
    OrgIDProv string,
    Person_ID string,
    ClinRespPriorityType string,
+   Age_Group string,
+   Gender string,
+   GenderDesc string,
+   EthnicityHigher string,
+   IMD_Decile string,
+   Intervention string,
    CareContDate date,
    ReferralRequestReceivedDate date,
    Priority_Type string,
@@ -68,6 +74,11 @@
    IC_Rec_CCG string,
    ReferralRequestReceivedDate date,
    ServDischDate date,
+   Age_Group string,
+   Gender string,
+   GenderDesc string,
+   EthnicityHigher string,
+   IMD_Decile string,
    Priority_Type string,
    waiting_time float,
    waiting_time_days float,
@@ -226,6 +237,6 @@ PARTITIONED BY (REPORTING_PERIOD_END, STATUS);
 -- # # update only needs doing once - DONE
 
 -- # for table, column in tableColumn.items():
--- #   action = """Update {db_output}.{table} SET {column} = '{mhsds_database}' where {column} is null""".format(db_output=db_output,table=table,column=column,mhsds_database=mhsds_database)
+-- #   action = """Update {db_output}.{table} SET {column} = '{mhsds_db}' where {column} is null""".format(db_output=db_output,table=table,column=column,mhsds_db=mhsds_db)
 -- #   print(action)
 -- #   spark.sql(action)

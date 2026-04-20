@@ -8,7 +8,7 @@
 
  # dbutils.widgets.text("dbtable", "MHS101Referral", "dbtable")
  # dbutils.widgets.text("db_output" , "charles_kelechi1_101304", "db_output")
- # dbutils.widgets.text("dbm" , "testdata_menh_dq_mhsds_database", "dbm")
+ # dbutils.widgets.text("dbm" , "testdata_menh_dq_mhsds_db", "dbm")
 
  # dbutils.widgets.text("month_id", "1462", "month_id")
  # dbutils.widgets.text("reference_data", "reference_data", "reference_data")

@@ -5,12 +5,12 @@
      r.UniqMonthID,
      r.OrgIDProv,
      CASE 
-       WHEN r.OrgIDProv in ('DFC','S9X2N') THEN CONCAT(r.OrgIDProv, r.LocalPatientID)
+       WHEN r.OrgIDProv in ('DFC','S9X2N','F9R5H') THEN CONCAT(r.OrgIDProv, r.LocalPatientID)
        ELSE r.Person_ID
        END AS Person_ID,
      r.RecordNumber,
      r.UniqServReqID,
-     Case when r.OrgIDProv in ('DFC','S9X2N') then r.OrgIDComm
+     Case when r.OrgIDProv in ('DFC','S9X2N','F9R5H') then r.OrgIDComm
           else r.IC_Rec_CCG end as Der_OrgComm,
      r.LADistrictAuth,
      r.AgeServReferRecDate,
@@ -36,6 +36,85 @@
  WHERE r.AgeServReferRecDate BETWEEN 0 AND 17 AND 
  r.UniqMonthID BETWEEN '$end_month_id' -11 AND '$end_month_id' 
  AND (r.LADistrictAuth LIKE 'E%' OR r.LADistrictAuth IS NULL OR r.LADistrictAuth = '')
+
+# COMMAND ----------
+
+ %sql
+
+ CREATE OR REPLACE TEMPORARY VIEW GP_PRACTICE_CCG AS
+
+ SELECT GP.UniqMonthID,
+        GP.Person_ID,
+        GP.OrgIDCCGGPPractice,
+        GP.OrgIDSubICBLocGP,
+        GP.RecordNumber
+ FROM $db_source.MHS002GP GP
+      INNER JOIN
+                 (
+                   SELECT UniqMonthID,
+                          Person_ID,
+                          MAX(RecordNumber) as RecordNumber
+                   FROM $db_source.MHS002GP
+                   WHERE GMPReg NOT IN ('V81999','V81998','V81997') AND EndDateGMPRegistration is NULL
+                 GROUP BY UniqMonthID, Person_ID
+                 ) max_GP
+                 ON GP.Person_ID = max_GP.Person_ID
+                 AND GP.RecordNumber = max_GP.recordnumber
+                 AND GP.UniqMonthID = max_GP.uniqmonthid
+ WHERE GMPReg NOT IN ('V81999','V81998','V81997') AND EndDateGMPRegistration is NULL
+
+# COMMAND ----------
+
+ %sql
+ CREATE OR REPLACE TEMPORARY VIEW Ref_filtF01 AS -- Need to recreate nhse_pre_proc_referral as missing ServTeamType variable
+ SELECT
+     r.UniqMonthID,
+     r.OrgIDProv,
+     CASE 
+       WHEN r.OrgIDProv in ('DFC','S9X2N','F9R5H') THEN CONCAT(r.OrgIDProv, r.LocalPatientID)
+       ELSE r.Person_ID
+       END AS Person_ID,
+     r.RecordNumber,
+     r.UniqServReqID,
+     Case when r.OrgIDProv in ('DFC','S9X2N','F9R5H') then r.OrgIDComm
+          WHEN m.UniqMonthID <= 1467 and gp.OrgIDCCGGPPractice is not null then gp.OrgIDCCGGPPractice
+          WHEN m.UniqMonthID > 1467 and gp.OrgIDSubICBLocGP is not null then gp.OrgIDSubICBLocGP
+          WHEN m.UniqMonthID <= 1467 then m.OrgIDCCGRes
+          WHEN m.UniqMonthID > 1467 then m.OrgIDSubICBLocResidence
+          ELSE 'ERROR' END as Der_OrgComm,
+     m.LADistrictAuth,
+     r.AgeServReferRecDate,
+     m.AgeRepPeriodEnd,
+     m.NHSDEthnicity,
+     mpi.LowerEthnicity,
+     mpi.LowerEthnicity_Desc,
+     mpi.UpperEthnicity,
+     mpi.WNW_Ethnicity,
+     mpi.Gender,
+     mpi.GenderIDCode,
+     mpi.Der_Gender, 
+     mpi.Der_Gender_Desc,
+     ab.Age_Group_CYP as Age_Band,
+     mpi.IMD_Decile,
+     mpi.IMD_Quintile,
+     mpi.IMD_Core20
+ FROM $db_source.mhs101referral r
+ INNER JOIN $db_source.mhs001mpi m
+ ON r.RecordNumber = m.RecordNumber
+ LEFT JOIN GP_Practice_CCG gp
+ ON r.Person_ID = gp.Person_ID
+ AND m.UniqMonthID = gp.UniqMonthID
+ LEFT JOIN $db_output.mhs001mpi_12_months_data mpi on r.Person_ID = mpi.Person_ID and r.RecordNumber = mpi.RecordNumber
+ LEFT JOIN $db_output.age_band_desc ab on r.AgeServReferRecDate = ab.AgeRepPeriodEnd and '$end_month_id' >= ab.FirstMonth and (ab.LastMonth is null or '$end_month_id' <= ab.LastMonth)
+ INNER JOIN $db_output.ServiceTeamType s
+ ON s.RecordNumber = r.RecordNumber
+ AND s.UniqServReqID = r.UniqServReqID
+ AND s.ServTeamTypeRefToMH in ('F01') --Education based services only 
+ and s.uniqmonthid between '$end_month_id'-11 AND '$end_month_id'
+  
+ WHERE r.AgeServReferRecDate BETWEEN 0 AND 17 AND 
+ r.UniqMonthID BETWEEN '$end_month_id' -11 AND '$end_month_id' 
+ AND (m.LADistrictAuth LIKE 'E%' OR m.LADistrictAuth IS NULL OR m.LADistrictAuth = '')
 
 # COMMAND ----------
 
@@ -107,6 +186,40 @@
   
  FROM Comb a
  INNER JOIN Ref r ON a.RecordNumber = r.RecordNumber AND a.UniqServReqID = r.UniqServReqID
+  
+ WHERE COALESCE(a.AgeCareContDate,r.AgeRepPeriodEnd) BETWEEN 0 AND 17
+
+# COMMAND ----------
+
+ %sql
+ CREATE OR REPLACE TEMPORARY VIEW Act_filtF01 AS 
+  
+ SELECT
+     r.UniqMonthID,
+     r.OrgIDProv,
+     r.Der_OrgComm,
+     r.LADistrictAuth,
+     r.Person_ID,
+     r.RecordNumber,
+     r.UniqServReqID,
+     COALESCE(a.AgeCareContDate,r.AgeRepPeriodEnd) AS Der_ContAge,
+     r.LowerEthnicity,
+     r.LowerEthnicity_Desc,
+     r.UpperEthnicity,
+     r.WNW_Ethnicity,
+     r.Gender,
+     r.GenderIDCode,
+     r.Der_Gender, 
+     r.Der_Gender_Desc,         
+     r.AgeRepPeriodEnd,
+     r.Age_Band,
+     r.IMD_Decile,
+     r.IMD_Quintile,
+     r.IMD_Core20,
+     a.Der_ContactDate
+  
+ FROM Comb a
+ INNER JOIN Ref_filtF01 r ON a.RecordNumber = r.RecordNumber AND a.UniqServReqID = r.UniqServReqID
   
  WHERE COALESCE(a.AgeCareContDate,r.AgeRepPeriodEnd) BETWEEN 0 AND 17
 
@@ -307,6 +420,48 @@
      'MHS95' AS Metric-- add metric id to table
   
  FROM Act as a
+ LEFT JOIN $db_output.CCG_MAPPING_2021 c on a.DER_ORGCOMM = C.CCG_UNMAPPED
+ LEFT JOIN $db_output.bbrb_org_daily_latest  o on a.OrgIDProv = o.ORG_CODE
+
+# COMMAND ----------
+
+ %sql
+ INSERT INTO $db_output.FirstCont_Final
+ SELECT
+     a.UniqMonthID,
+     a.OrgIDProv,
+     o.NAME AS Provider_Name,
+     COALESCE(c.CCG21CDH,'UNKNOWN') AS CCG_Code,
+     COALESCE(c.CCG21NM,'UNKNOWN') AS CCG_Name,
+     COALESCE(c.STP21CDH,'UNKNOWN') AS STP_Code,
+     COALESCE(c.STP21NM,'UNKNOWN') AS STP_Name,
+     COALESCE(c.NHSER21CDH,'UNKNOWN') AS Region_Code,
+     COALESCE(c.NHSER21NM,'UNKNOWN') AS Region_Name,
+     a.LADistrictAuth,
+     a.Person_ID,
+     a.RecordNumber,
+     a.UniqServReqID,
+     a.LowerEthnicity,
+     a.LowerEthnicity_Desc,
+     a.UpperEthnicity,    
+     a.WNW_Ethnicity,
+     a.Der_Gender,     
+     a.Der_Gender_Desc,
+     a.AgeRepPeriodEnd,
+     a.Age_Band,
+     a.IMD_Decile,
+     a.IMD_Quintile,
+     a.IMD_Core20,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, a.LADistrictAuth ORDER BY a.Der_ContactDate ASC) AS AccessLARN,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, c.CCG21CDH ORDER BY a.Der_ContactDate ASC) AS AccessCCGRN,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, c.CCG21CDH, a.OrgIDProv ORDER BY a.Der_ContactDate ASC) AS AccessCCGProvRN,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, a.OrgIDProv ORDER BY a.Der_ContactDate ASC) AS AccessProvRN,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID ORDER BY a.Der_ContactDate ASC) AS AccessEngRN,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, c.STP21CDH ORDER BY a.Der_ContactDate ASC) AS AccessSTPRN,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, c.NHSER21CDH ORDER BY a.Der_ContactDate ASC) AS AccessRegionRN,
+     'MHS159' AS Metric-- add metric id to table
+  
+ FROM Act_filtF01 as a
  LEFT JOIN $db_output.CCG_MAPPING_2021 c on a.DER_ORGCOMM = C.CCG_UNMAPPED
  LEFT JOIN $db_output.bbrb_org_daily_latest  o on a.OrgIDProv = o.ORG_CODE
 

@@ -67,7 +67,7 @@
  %sql
 
  -- removed 14/08/2019 due to being duplicated in final formatted CSV output - measure still in main monthly
- -- User note: 29-07-2021 - despite the comment above this code was still live (and also exists in main monthly) - commenting this one out as the England total is appearing twice in the unrounded outputs.
+ -- USER: 29-07-2021 - despite the comment above this code was still live (and also exists in main monthly) - commenting this one out as the England total is appearing twice in the unrounded outputs.
 
 
  -- INSERT INTO $db_output.CYP_monthly_unformatted

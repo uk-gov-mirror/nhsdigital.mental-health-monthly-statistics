@@ -245,16 +245,16 @@
 
  INSERT INTO $db_output.validcodes
  VALUES ('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '51484002', 1390, null)
- ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '1111811000000109', 1390, 1500)
+ ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '1111811000000109', 1390, 1512)
  ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '443730003', 1390, null)
  ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '444175001', 1390, null)
- ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '718023002', 1390, 1488)
- ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '984421000000104', 1390, 1488)
- ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '1323681000000103', 1477, null)
- ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '1362001000000104', 1477, null)
- ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '301781000000101', 1477, 1500)
- ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '1833251000000107', 1501, null)
- ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '1833011000000101', 1501, null)
+ ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '718023002', 1390, 1512)
+ ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '984421000000104', 1390, 1512)
+ ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '1323681000000103', 1513, null)
+ ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '1362001000000104', 1513, null)
+ ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '301781000000101', 1513, null)
+ ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '1833251000000107', 1513, null)
+ ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '1833011000000101', 1513, null)
 
 # COMMAND ----------
 
@@ -304,7 +304,7 @@
  ,('G', 'Independent/Voluntary Sector', 1429, null)
  ,('H', 'Acute Secondary Care', 1429, null)
  ,('I', 'Other Mental Health NHS Trust', 1429, null)
- ,('J', 'Internal referrals  from Community Mental Health Team (within own NHS Trust)', 1429, null)
+ ,('J', 'Internal referrals from Community Mental Health Team (within own NHS Trust)', 1429, null)
  ,('K', 'Internal referrals from Inpatient Service (within own NHS Trust)', 1429, null)
  ,('L', 'Transfer by graduation (within own NHS Trust)', 1429, null)
  ,('M', 'Other', 1429, null)

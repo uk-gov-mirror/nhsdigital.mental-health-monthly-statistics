@@ -3,7 +3,7 @@
 
 # COMMAND ----------
 
-# # run this if you want to drop all tables in your chosen database
+# run this if you want to drop all tables in your chosen database
 # db_output = dbutils.widgets.get("db")
 # views_meta_df = spark.sql(f"show views in {db_output}")
 # actual_views = [ r['viewName'] for r in views_meta_df.collect()]

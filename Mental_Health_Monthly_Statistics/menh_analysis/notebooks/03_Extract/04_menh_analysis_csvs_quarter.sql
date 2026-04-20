@@ -24,7 +24,7 @@
  status = dbutils.widgets.get("status")
  db_source = dbutils.widgets.get("db_source") #dbutils.widgets.get("mhsds_database") #----------
  # db_output1 = 'menh_publications' #dbutils.widgets.get("menh_publications") #----------
- # menh_publications_source = 'mhsds_database' #dbutils.widgets.get("mhsds_database") #-----------
+ # menh_publications_source = 'mhsds_db' #dbutils.widgets.get("mhsds_db") #-----------
  month_id = dbutils.widgets.get("month_id")
 
 

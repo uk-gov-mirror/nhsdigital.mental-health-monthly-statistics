@@ -3,11 +3,11 @@
 
  # Generic Prep assets used throughout Mental health menh_publications
  -- NP: only cells which have been added for CYP_ED_WT have been noted here
- -- User note: updated to include all tables prepared in this notebook
+ -- USER: updated to include all tables prepared in this notebook
 
  - RD_CCG_LATEST - TABLE
  - CCG_PRAC - view
- - CCG_prep_3months [User note changed from ed_CCG_prep as the tables are the same] - view
+ - CCG_prep_3months [USER changed from ed_CCG_prep as the tables are the same] - view
  - CCG_PREP - view
  - CCG - TABLE
  - RD_ORG_DAILY_LATEST - TABLE
@@ -19,7 +19,7 @@
  - org_relationship_daily - view
  - STP_Region_mapping_post_2020 - TABLE
  - MHS101Referral_LATEST - view
- - MHS001_CCG_LATEST - [User note changed from ED_CCG_LATEST] - TABLE
+ - MHS001_CCG_LATEST - [USER changed from ED_CCG_LATEST] - TABLE
  - MHS001_PATMRECINRP_201819_F_M - view
  - MHS001MPI_PATMRECINRP_FIX - view
 

@@ -28,8 +28,76 @@
 # COMMAND ----------
 
  %sql
+ DROP TABLE IF EXISTS $db_output.distinct_spells_filter;
+ CREATE TABLE IF NOT EXISTS $db_output.distinct_spells_filter 
+ (
+ Person_ID              STRING, 
+ UniqHospProvSpellID    STRING,
+ OrgIDProv              STRING,
+ Provider_Name          STRING,
+ StartDateHospProvSpell DATE,
+ DischDateHospProvSpell DATE,
+ HOSP_LOS               INT,
+ AgeRepPeriodEnd        INT,
+ CCG_Code               STRING,
+ CCG_Name               STRING,
+ Region_Code            STRING,
+ Region_Name            STRING,
+ STP_Code               STRING,
+ STP_Name               STRING,
+ Acute_Bed              STRING,
+ WS_Order_Desc          INT
+ ) USING DELTA
+
+# COMMAND ----------
+
+ %sql
  DROP TABLE IF EXISTS $db_output.distinct_spells;
  CREATE TABLE IF NOT EXISTS $db_output.distinct_spells 
+ (
+ Person_ID              STRING, 
+ UniqHospProvSpellID    STRING,
+ OrgIDProv              STRING,
+ Provider_Name          STRING,
+ StartDateHospProvSpell DATE,
+ DischDateHospProvSpell DATE,
+ HOSP_LOS               INT,
+ AgeRepPeriodEnd        INT,
+ CCG_Code               STRING,
+ CCG_Name               STRING,
+ Region_Code            STRING,
+ Region_Name            STRING,
+ STP_Code               STRING,
+ STP_Name               STRING
+ ) USING DELTA
+
+# COMMAND ----------
+
+ %sql
+ DROP TABLE IF EXISTS $db_output.distinct_spells_adult_acute_PICU;
+ CREATE TABLE IF NOT EXISTS $db_output.distinct_spells_adult_acute_PICU
+ (
+ Person_ID              STRING, 
+ UniqHospProvSpellID    STRING,
+ OrgIDProv              STRING,
+ Provider_Name          STRING,
+ StartDateHospProvSpell DATE,
+ DischDateHospProvSpell DATE,
+ HOSP_LOS               INT,
+ AgeRepPeriodEnd        INT,
+ CCG_Code               STRING,
+ CCG_Name               STRING,
+ Region_Code            STRING,
+ Region_Name            STRING,
+ STP_Code               STRING,
+ STP_Name               STRING
+ ) USING DELTA
+
+# COMMAND ----------
+
+ %sql
+ DROP TABLE IF EXISTS $db_output.distinct_spells_older_adult_acute;
+ CREATE TABLE IF NOT EXISTS $db_output.distinct_spells_older_adult_acute 
  (
  Person_ID              STRING, 
  UniqHospProvSpellID    STRING,

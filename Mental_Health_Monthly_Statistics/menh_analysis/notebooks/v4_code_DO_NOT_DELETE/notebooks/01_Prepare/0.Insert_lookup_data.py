@@ -9,11 +9,10 @@
 # COMMAND ----------
 
 # DBTITLE 1,Collect params for Python
- %python
 
- import os
+import os
 
- db_output = dbutils.widgets.get("db_output")
+db_output = dbutils.widgets.get("db_output")
 
 # COMMAND ----------
 
@@ -218,12 +217,11 @@
 # COMMAND ----------
 
 # DBTITLE 1,Optimize and vaccum tables
- %python
 
- if os.environ['env'] == 'prod':
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='STP_Region_mapping_post_2018'))
+if os.environ['env'] == 'prod':
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='STP_Region_mapping_post_2018'))
 
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='STP_Region_mapping_post_2018'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='STP_Region_mapping_post_2018'))
 
 # COMMAND ----------
 
@@ -394,16 +392,15 @@
 # COMMAND ----------
 
 # DBTITLE 1,Optimize and vaccum tables
- %python
 
- if os.environ['env'] == 'prod':
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Main_monthly_breakdown_values'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Main_monthly_level_values_1'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Main_monthly_metric_values'))
+if os.environ['env'] == 'prod':
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Main_monthly_breakdown_values'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Main_monthly_level_values_1'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Main_monthly_metric_values'))
 
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='Main_monthly_breakdown_values'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='Main_monthly_level_values_1'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='Main_monthly_metric_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='Main_monthly_breakdown_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='Main_monthly_level_values_1'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='Main_monthly_metric_values'))
 
 # COMMAND ----------
 
@@ -518,16 +515,15 @@
 # COMMAND ----------
 
 # DBTITLE 1,Optimize and vaccum tables
- %python
 
- if os.environ['env'] == 'prod':
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='AWT_breakdown_values'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='AWT_level_values'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='AWT_metric_values'))
+if os.environ['env'] == 'prod':
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='AWT_breakdown_values'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='AWT_level_values'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='AWT_metric_values'))
 
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='AWT_breakdown_values'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='AWT_level_values'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='AWT_metric_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='AWT_breakdown_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='AWT_level_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='AWT_metric_values'))
 
 # COMMAND ----------
 
@@ -602,16 +598,15 @@
 # COMMAND ----------
 
 # DBTITLE 1,Optimize and vaccum tables
- %python
 
- if os.environ['env'] == 'prod':
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CYP_2nd_contact_breakdown_values'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CYP_2nd_contact_level_values'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CYP_2nd_contact_metric_values'))
+if os.environ['env'] == 'prod':
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CYP_2nd_contact_breakdown_values'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CYP_2nd_contact_level_values'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CYP_2nd_contact_metric_values'))
 
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CYP_2nd_contact_breakdown_values'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CYP_2nd_contact_level_values'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CYP_2nd_contact_metric_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CYP_2nd_contact_breakdown_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CYP_2nd_contact_level_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CYP_2nd_contact_metric_values'))
 
 # COMMAND ----------
 
@@ -663,18 +658,17 @@
 # COMMAND ----------
 
 # DBTITLE 1,Optimize and vaccum tables
- %python
 
- if os.environ['env'] == 'prod':
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CaP_breakdown_values'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CaP_level_values'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CaP_cluster_values'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CaP_metric_values'))
+if os.environ['env'] == 'prod':
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CaP_breakdown_values'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CaP_level_values'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CaP_cluster_values'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CaP_metric_values'))
 
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CaP_breakdown_values'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CaP_level_values'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CaP_cluster_values'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CaP_metric_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CaP_breakdown_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CaP_level_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CaP_cluster_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CaP_metric_values'))
 
 # COMMAND ----------
 
@@ -878,22 +872,21 @@
 # COMMAND ----------
 
 # DBTITLE 1,Optimize and vaccum tables
- %python
 
- if os.environ['env'] == 'prod':
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CYP_monthly_breakdown_values'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='ConsMediumUsed'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='DNA_Reason'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Referral_Source'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CYP_monthly_level_values'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CYP_monthly_metric_values'))
+if os.environ['env'] == 'prod':
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CYP_monthly_breakdown_values'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='ConsMediumUsed'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='DNA_Reason'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Referral_Source'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CYP_monthly_level_values'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CYP_monthly_metric_values'))
 
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CYP_monthly_breakdown_values'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='ConsMediumUsed'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='DNA_Reason'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='Referral_Source'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CYP_monthly_level_values'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CYP_monthly_metric_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CYP_monthly_breakdown_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='ConsMediumUsed'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='DNA_Reason'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='Referral_Source'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CYP_monthly_level_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='CYP_monthly_metric_values'))
 
 # COMMAND ----------
 
@@ -939,16 +932,15 @@
 # COMMAND ----------
 
 # DBTITLE 1,Optimize and vaccum tables
- %python
 
- if os.environ['env'] == 'prod':
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Ascof_breakdown_values'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Ascof_level_values'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Ascof_metric_values'))
+if os.environ['env'] == 'prod':
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Ascof_breakdown_values'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Ascof_level_values'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Ascof_metric_values'))
 
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='Ascof_breakdown_values'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='Ascof_level_values'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='Ascof_metric_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='Ascof_breakdown_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='Ascof_level_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='Ascof_metric_values'))
 
 # COMMAND ----------
 
@@ -1013,13 +1005,12 @@
 
 # COMMAND ----------
 
- %python
 
- if os.environ['env'] == 'prod':
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='FYFV_Dashboard_breakdown_values'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='FYFV_Dashboard_level_values'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='FYFV_Dashboard_metric_values'))
+if os.environ['env'] == 'prod':
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='FYFV_Dashboard_breakdown_values'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='FYFV_Dashboard_level_values'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='FYFV_Dashboard_metric_values'))
 
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='FYFV_Dashboard_breakdown_values'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='FYFV_Dashboard_level_values'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='FYFV_Dashboard_metric_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='FYFV_Dashboard_breakdown_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='FYFV_Dashboard_level_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='FYFV_Dashboard_metric_values'))

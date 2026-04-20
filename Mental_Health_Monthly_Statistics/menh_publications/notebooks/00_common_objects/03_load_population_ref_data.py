@@ -9,7 +9,7 @@
 # db_output  = dbutils.widgets.get("db_output")
 # assert db_output
  
-# dbutils.widgets.text("db_source", "mhsds_database", "db_source")
+# dbutils.widgets.text("db_source", "mhsds_db", "db_source")
 # db_source = dbutils.widgets.get("db_source")
 # assert db_source
  
@@ -364,7 +364,7 @@ display(df1)
  from reference_data.ons_2021_census
  where area_type_group_code = "E38" ---Sub ICB grouping only
  and ons_date = (select max(ons_date) from reference_data.ons_2021_census where area_type_group_code = "E38")
- and ethnic_group_code != -8;
+ and ethnic_group_code != -8; 
   
  create or replace temporary view vw_ons_2021_census as
  SELECT c1.Age as Age1, c1.GenderCode, c1.Der_Gender, 

@@ -158,98 +158,96 @@ params = {
 # COMMAND ----------
 
 # DBTITLE 1,CYP_ED_WaitingTimes
- %python
 
- if month_id <= '9999':
-   spark.sql(f""" CREATE OR REPLACE GLOBAL TEMP VIEW cyp_ed_wt_expanded AS
-                 select 
-                   COALESCE(c.REPORTING_PERIOD_START, '{rp_startdate_quarterly}') as REPORTING_PERIOD_START, 
-                   COALESCE(c.REPORTING_PERIOD_END, '{rp_enddate}') as REPORTING_PERIOD_END,
-                   COALESCE(c.STATUS,'{status}') as STATUS,
-                   COALESCE(c.BREAKDOWN,d.BREAKDOWN,'UNKNOWN') as BREAKDOWN,
-                   COALESCE(c.PRIMARY_LEVEL,d.PRIMARY_LEVEL,'UNKNOWN') as PRIMARY_LEVEL,
-                   d.PRIMARY_LEVEL_DESC as PRIMARY_LEVEL_DESCRIPTION,
-                   COALESCE(c.SECONDARY_LEVEL,d.SECONDARY_LEVEL,'UNKNOWN') as SECONDARY_LEVEL,
-                   d.SECONDARY_LEVEL_DESC as SECONDARY_LEVEL_DESCRIPTION,
-                   COALESCE(c.METRIC,d.METRIC) as METRIC,
-                   d.METRIC_NAME AS METRIC_NAME,
-                   c.METRIC_VALUE AS METRIC_VALUE,
-                   COALESCE(c.SOURCE_DB, '{db_source}') AS SOURCE_DB
-                 from {db_output}.cyp_ed_wt_unformatted c
-                 right outer join global_temp.cyp_ed_wt_possible_metrics d 
-                           ON c.BREAKDOWN = d.BREAKDOWN
-                           AND  COALESCE(c.PRIMARY_LEVEL,'UNKNOWN') = d.primary_level
-                           AND c.SECONDARY_LEVEL = d.secondary_level
-                           AND c.METRIC = d.metric
-                           AND c.REPORTING_PERIOD_START = '{rp_startdate_quarterly}'
-                           AND c.REPORTING_PERIOD_END = '{rp_enddate}'
-                           AND c.STATUS = '{status}' 
-                           AND c.SOURCE_DB = '{db_source}' """.format(db_output =  ['db_output'],
-           month_id = params['month_id'],
-           status = params['status'],
-           rp_startdate = params['rp_startdate'],
-           rp_startdate_quarterly = params['rp_startdate_quarterly'],
-           rp_enddate = params['rp_enddate'],
-           db_source = params['db_source']))                     
- else:
-   spark.sql(f""" CREATE OR REPLACE GLOBAL TEMP VIEW cyp_ed_wt_expanded AS
-                 select 
-                   COALESCE(c.REPORTING_PERIOD_START, '{rp_startdate_quarterly}') as REPORTING_PERIOD_START, 
-                   COALESCE(c.REPORTING_PERIOD_END, '{rp_enddate}') as REPORTING_PERIOD_END,
-                   COALESCE(c.STATUS,'{status}') as STATUS,
-                   COALESCE(c.BREAKDOWN,d.BREAKDOWN,'UNKNOWN') as BREAKDOWN,
-                   COALESCE(c.PRIMARY_LEVEL,d.PRIMARY_LEVEL,'UNKNOWN') as PRIMARY_LEVEL,
-                   d.PRIMARY_LEVEL_DESC as PRIMARY_LEVEL_DESCRIPTION,
-                   COALESCE(c.SECONDARY_LEVEL,d.SECONDARY_LEVEL,'UNKNOWN') as SECONDARY_LEVEL,
-                   d.SECONDARY_LEVEL_DESC as SECONDARY_LEVEL_DESCRIPTION,
-                   COALESCE(c.METRIC,d.METRIC) as METRIC,
-                   d.METRIC_NAME AS METRIC_NAME,
-                   c.METRIC_VALUE AS METRIC_VALUE,
-                   COALESCE(c.SOURCE_DB, '{db_source}') AS SOURCE_DB
-                 from {db_output}.cyp_ed_wt_unformatted c
-                 right outer join global_temp.cyp_ed_wt_possible_metrics d 
-                           ON c.BREAKDOWN = d.BREAKDOWN
-                           AND  COALESCE(c.PRIMARY_LEVEL,'UNKNOWN') = d.primary_level
-                           AND c.SECONDARY_LEVEL = d.secondary_level
-                           AND c.METRIC = d.metric
-                           AND c.REPORTING_PERIOD_START = '{rp_startdate_quarterly}'
-                           AND c.REPORTING_PERIOD_END = '{rp_enddate}'
-                           AND c.STATUS = '{status}' 
-                           AND c.SOURCE_DB = '{db_source}'
+if month_id <= '1512':
+  spark.sql(f""" CREATE OR REPLACE GLOBAL TEMP VIEW cyp_ed_wt_expanded AS
+                select 
+                  COALESCE(c.REPORTING_PERIOD_START, '{rp_startdate_quarterly}') as REPORTING_PERIOD_START, 
+                  COALESCE(c.REPORTING_PERIOD_END, '{rp_enddate}') as REPORTING_PERIOD_END,
+                  COALESCE(c.STATUS,'{status}') as STATUS,
+                  COALESCE(c.BREAKDOWN,d.BREAKDOWN,'UNKNOWN') as BREAKDOWN,
+                  COALESCE(c.PRIMARY_LEVEL,d.PRIMARY_LEVEL,'UNKNOWN') as PRIMARY_LEVEL,
+                  d.PRIMARY_LEVEL_DESC as PRIMARY_LEVEL_DESCRIPTION,
+                  COALESCE(c.SECONDARY_LEVEL,d.SECONDARY_LEVEL,'UNKNOWN') as SECONDARY_LEVEL,
+                  d.SECONDARY_LEVEL_DESC as SECONDARY_LEVEL_DESCRIPTION,
+                  COALESCE(c.METRIC,d.METRIC) as METRIC,
+                  d.METRIC_NAME AS METRIC_NAME,
+                  c.METRIC_VALUE AS METRIC_VALUE,
+                  COALESCE(c.SOURCE_DB, '{db_source}') AS SOURCE_DB
+                from {db_output}.cyp_ed_wt_unformatted c
+                right outer join global_temp.cyp_ed_wt_possible_metrics d 
+                          ON c.BREAKDOWN = d.BREAKDOWN
+                          AND  COALESCE(c.PRIMARY_LEVEL,'UNKNOWN') = d.primary_level
+                          AND c.SECONDARY_LEVEL = d.secondary_level
+                          AND c.METRIC = d.metric
+                          AND c.REPORTING_PERIOD_START = '{rp_startdate_quarterly}'
+                          AND c.REPORTING_PERIOD_END = '{rp_enddate}'
+                          AND c.STATUS = '{status}' 
+                          AND c.SOURCE_DB = '{db_source}' """.format(db_output =  ['db_output'],
+          month_id = params['month_id'],
+          status = params['status'],
+          rp_startdate = params['rp_startdate'],
+          rp_startdate_quarterly = params['rp_startdate_quarterly'],
+          rp_enddate = params['rp_enddate'],
+          db_source = params['db_source']))                     
+else:
+  spark.sql(f""" CREATE OR REPLACE GLOBAL TEMP VIEW cyp_ed_wt_expanded AS
+                select 
+                  COALESCE(c.REPORTING_PERIOD_START, '{rp_startdate_quarterly}') as REPORTING_PERIOD_START, 
+                  COALESCE(c.REPORTING_PERIOD_END, '{rp_enddate}') as REPORTING_PERIOD_END,
+                  COALESCE(c.STATUS,'{status}') as STATUS,
+                  COALESCE(c.BREAKDOWN,d.BREAKDOWN,'UNKNOWN') as BREAKDOWN,
+                  COALESCE(c.PRIMARY_LEVEL,d.PRIMARY_LEVEL,'UNKNOWN') as PRIMARY_LEVEL,
+                  d.PRIMARY_LEVEL_DESC as PRIMARY_LEVEL_DESCRIPTION,
+                  COALESCE(c.SECONDARY_LEVEL,d.SECONDARY_LEVEL,'UNKNOWN') as SECONDARY_LEVEL,
+                  d.SECONDARY_LEVEL_DESC as SECONDARY_LEVEL_DESCRIPTION,
+                  COALESCE(c.METRIC,d.METRIC) as METRIC,
+                  d.METRIC_NAME AS METRIC_NAME,
+                  c.METRIC_VALUE AS METRIC_VALUE,
+                  COALESCE(c.SOURCE_DB, '{db_source}') AS SOURCE_DB
+                from {db_output}.cyp_ed_wt_unformatted c
+                right outer join global_temp.cyp_ed_wt_possible_metrics d 
+                          ON c.BREAKDOWN = d.BREAKDOWN
+                          AND  COALESCE(c.PRIMARY_LEVEL,'UNKNOWN') = d.primary_level
+                          AND c.SECONDARY_LEVEL = d.secondary_level
+                          AND c.METRIC = d.metric
+                          AND c.REPORTING_PERIOD_START = '{rp_startdate_quarterly}'
+                          AND c.REPORTING_PERIOD_END = '{rp_enddate}'
+                          AND c.STATUS = '{status}' 
+                          AND c.SOURCE_DB = '{db_source}'
 
-                 UNION ALL
+                UNION ALL
 
-                 select 
-                   COALESCE(c.REPORTING_PERIOD_START, '{rp_startdate_12m} as REPORTING_PERIOD_START, 
-                   COALESCE(c.REPORTING_PERIOD_END, '{rp_enddate}') as REPORTING_PERIOD_END,
-                   COALESCE(c.STATUS,'{status}') as STATUS,
-                   COALESCE(c.BREAKDOWN,d.BREAKDOWN,'UNKNOWN') as BREAKDOWN,
-                   COALESCE(c.PRIMARY_LEVEL,d.PRIMARY_LEVEL,'UNKNOWN') as PRIMARY_LEVEL,
-                   d.PRIMARY_LEVEL_DESC as PRIMARY_LEVEL_DESCRIPTION,
-                   COALESCE(c.SECONDARY_LEVEL,d.SECONDARY_LEVEL,'UNKNOWN') as SECONDARY_LEVEL,
-                   d.SECONDARY_LEVEL_DESC as SECONDARY_LEVEL_DESCRIPTION,
-                   COALESCE(c.METRIC,d.METRIC) as METRIC,
-                   d.METRIC_NAME AS METRIC_NAME,
-                   c.METRIC_VALUE AS METRIC_VALUE,
-                   COALESCE(c.SOURCE_DB, '{db_source}') AS SOURCE_DB
-                 from {db_output}.cyp_ed_wt_unformatted c
-                 right outer join global_temp.cyp_ed_wt_possible_metrics d 
-                           ON c.BREAKDOWN = d.BREAKDOWN
-                           AND  COALESCE(c.PRIMARY_LEVEL,'UNKNOWN') = d.primary_level
-                           AND c.SECONDARY_LEVEL = d.secondary_level
-                           AND c.METRIC = d.metric
-                           AND c.REPORTING_PERIOD_START = '{rp_startdate_12m}'
-                           AND c.REPORTING_PERIOD_END = '{rp_enddate}'
-                           AND c.STATUS = '{status}' 
-                           AND c.SOURCE_DB = '{db_source}'""".format(db_output =  params['db_output'],
-             month_id = params['month_id'],
-             status = params['status'],
-             rp_startdate = params['rp_startdate'],
-             rp_startdate_quarterly = params['rp_startdate_quarterly'],
-             rp_startdate_12m = params['rp_startdate_12m'],
-             rp_enddate = params['rp_enddate'],
-             db_source = params['db_source']))
-           
+                select 
+                  COALESCE(c.REPORTING_PERIOD_START, '{rp_startdate_12m} as REPORTING_PERIOD_START, 
+                  COALESCE(c.REPORTING_PERIOD_END, '{rp_enddate}') as REPORTING_PERIOD_END,
+                  COALESCE(c.STATUS,'{status}') as STATUS,
+                  COALESCE(c.BREAKDOWN,d.BREAKDOWN,'UNKNOWN') as BREAKDOWN,
+                  COALESCE(c.PRIMARY_LEVEL,d.PRIMARY_LEVEL,'UNKNOWN') as PRIMARY_LEVEL,
+                  d.PRIMARY_LEVEL_DESC as PRIMARY_LEVEL_DESCRIPTION,
+                  COALESCE(c.SECONDARY_LEVEL,d.SECONDARY_LEVEL,'UNKNOWN') as SECONDARY_LEVEL,
+                  d.SECONDARY_LEVEL_DESC as SECONDARY_LEVEL_DESCRIPTION,
+                  COALESCE(c.METRIC,d.METRIC) as METRIC,
+                  d.METRIC_NAME AS METRIC_NAME,
+                  c.METRIC_VALUE AS METRIC_VALUE,
+                  COALESCE(c.SOURCE_DB, '{db_source}') AS SOURCE_DB
+                from {db_output}.cyp_ed_wt_unformatted c
+                right outer join global_temp.cyp_ed_wt_possible_metrics d 
+                          ON c.BREAKDOWN = d.BREAKDOWN
+                          AND  COALESCE(c.PRIMARY_LEVEL,'UNKNOWN') = d.primary_level
+                          AND c.SECONDARY_LEVEL = d.secondary_level
+                          AND c.METRIC = d.metric
+                          AND c.REPORTING_PERIOD_START = '{rp_startdate_12m}'
+                          AND c.REPORTING_PERIOD_END = '{rp_enddate}'
+                          AND c.STATUS = '{status}' 
+                          AND c.SOURCE_DB = '{db_source}'""".format(db_output =  params['db_output'],
+            month_id = params['month_id'],
+            status = params['status'],
+            rp_startdate = params['rp_startdate'],
+            rp_startdate_quarterly = params['rp_startdate_quarterly'],
+            rp_startdate_12m = params['rp_startdate_12m'],
+            rp_enddate = params['rp_enddate'],
+            db_source = params['db_source']))
 
 # COMMAND ----------
 

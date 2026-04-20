@@ -41,7 +41,7 @@
 
 # DBTITLE 1,1. Expand Main monthly
   %sql
-  --User note reinstated this SQL version now that the need to restrict outputs for Provisional & Final has dropped
+  --USER reinstated this SQL version now that the need to restrict outputs for Provisional & Final has dropped
  --also Final is now Performance anyway!
 
  CREATE OR REPLACE GLOBAL TEMP VIEW Main_monthly_expanded AS
@@ -136,7 +136,7 @@
    COALESCE(m.SOURCE_DB, '$db_source') AS SOURCE_DB
    
  FROM $db_output.AWT_unformatted as m
- -- User note added in the SECONDARY_LEVEL line here becasue I think it's needed...
+ -- USER added in the SECONDARY_LEVEL line here becasue I think it's needed...
  RIGHT OUTER JOIN global_temp.AWT_possible_metrics as p
    ON m.BREAKDOWN = p.BREAKDOWN
    AND m.LEVEL = p.LEVEL
@@ -213,7 +213,7 @@
 # DBTITLE 1,4. Expand CAP
  %sql
 
- --User note reinstated this SQL version now that the need to restrict outputs for Provisional & Final has dropped
+ --USER reinstated this SQL version now that the need to restrict outputs for Provisional & Final has dropped
  --also Final is now Performance anyway!
 
  CREATE OR REPLACE GLOBAL TEMP VIEW CAP_expanded AS 
@@ -265,7 +265,7 @@
 
 # DBTITLE 1,5. CYP Monthly expanded
  %sql
- --User note reinstated this SQL version now that the need to restrict outputs for Provisional & Final has dropped
+ --USER reinstated this SQL version now that the need to restrict outputs for Provisional & Final has dropped
  --also Final is now Performance anyway!
 
 
@@ -340,7 +340,7 @@
 # DBTITLE 1,7. Expand Ascof
  %sql
 
- --User note reinstated this SQL version now that the need to restrict outputs for Provisional & Final has dropped
+ --USER reinstated this SQL version now that the need to restrict outputs for Provisional & Final has dropped
  --also Final is now Performance anyway!
 
  CREATE OR REPLACE GLOBAL TEMP VIEW Ascof_expanded AS
