@@ -1,4 +1,19 @@
 # Databricks notebook source
+ %sql
+ create widget text db default "ellie_hogan1_100239";
+ create widget text db_output default "ellie_hogan1_100239";
+ create widget text db_source default "mhsds_database";
+ create widget text mhsds_database default "mhsds_database";
+ create widget text mhsds_database default "mhsds_database";
+ create widget text status default "Adhoc";
+ create widget text rp_startdate default "2025-03-01";
+ create widget text rp_enddate default "2025-03-31";
+ create widget text product default "11_cmh_outcomes";
+ create widget text reference_data default "reference_data";
+ create widget text month_id default "1500"
+
+# COMMAND ----------
+
 # dbutils.widgets.removeAll()
 
 # COMMAND ----------
@@ -9,7 +24,7 @@ Code is left here for easy copying to other notebooks!  or for cases where widge
 dbutils.widgets.removeAll() above can be run to annihilate the existing widgets and then run these to create new ones'''
 
 # dbutils.widgets.text("db", "menh_bbrb", "Target database")
-# dbutils.widgets.text("mhsds_db", "testdata_menh_bbrb_mhsds_db", "Input database")
+# dbutils.widgets.text("mhsds_database", "testdata_menh_bbrb_mhsds_database", "Input database")
 # dbutils.widgets.text("status", "Performance", "status")
 # dbutils.widgets.text("reference_data", "reference_data", "reference_data")
 # dbutils.widgets.text(name='rp_startdate', defaultValue='2021-10-01', label='Reporting period start date')
@@ -58,17 +73,17 @@ import json
 db_output = dbutils.widgets.get("db")
 assert db_output
 
-# the parameter name of any source database(s) for a cp project is the same as the database name, i.e. the mhsds_db parameter is named mhsds_db!
+# the parameter name of any source database(s) for a cp project is the same as the database name, i.e. the mhsds_database parameter is named mhsds_database!
 # here this is renamed to the standard db_source for familiarity/consistency with other projects
 try:
-  db_source = dbutils.widgets.get("mhsds_db")
+  db_source = dbutils.widgets.get("mhsds_database")
 except:
-  print('mhsds_db is not defined')
+  print('mhsds_database is not defined')
   
 try:
-  db_source = dbutils.widgets.get("mhsds_db")
+  db_source = dbutils.widgets.get("mhsds_database")
 except:
-  print('mhsds_db is not defined')
+  print('mhsds_database is not defined')
 
 ###dbutils.widgets.text("reference_data","reference_data","Source Ref Database")
 reference_data = dbutils.widgets.get("reference_data")

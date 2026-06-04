@@ -4,20 +4,22 @@ print("72 hours create tables")
 db_output = dbutils.widgets.get("db_output")
 print(db_output)
 assert db_output
-mhsds_db = dbutils.widgets.get("mhsds_db")
-print(mhsds_db)
-assert mhsds_db
+mhsds_database = dbutils.widgets.get("mhsds_database")
+print(mhsds_database)
+assert mhsds_database
 
 
 # COMMAND ----------
 
 # DBTITLE 1,72hours_unrounded_stg
  %sql
+ DROP TABLE IF EXISTS $db_output.72hours_unrounded_stg;
  CREATE TABLE IF NOT EXISTS $db_output.72hours_unrounded_stg(
    UniqMonthID int,
    Status string,
    ResponsibleProv string,
-   CCG string,
+   IC_Rec_CCG string,
+   IC_Rec_CCG_Mapped string,
    EligibleDischFlag int,
    ElgibleDischFlag_Modified int,
    FollowedUp3Days int,
@@ -64,6 +66,6 @@ for table, column in tableColumn.items():
 # DBTITLE 1,Set SOURCE_DB to source database
 # update only needs doing once
 for table, column in tableColumn.items():
-  action = """Update {db_output}.{table} SET {column} = '{mhsds_db}' where {column} is null""".format(db_output=db_output,table=table,column=column,mhsds_db=mhsds_db)
+  action = """Update {db_output}.{table} SET {column} = '{mhsds_database}' where {column} is null""".format(db_output=db_output,table=table,column=column,mhsds_database=mhsds_database)
   print(action)
   spark.sql(action)

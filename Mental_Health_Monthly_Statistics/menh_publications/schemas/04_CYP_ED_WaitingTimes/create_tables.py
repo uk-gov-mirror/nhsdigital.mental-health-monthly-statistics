@@ -1,0 +1,247 @@
+# Databricks notebook source
+ %py
+ db_output=dbutils.widgets.get("db_output")
+ print(db_output)
+ assert db_output
+ mhsds_database=dbutils.widgets.get("mhsds_database")
+ print(mhsds_database)
+ assert mhsds_database
+
+# COMMAND ----------
+
+ %sql
+ DROP TABLE IF EXISTS $db_output.cyp_ed_wt_breakdown_values;
+ CREATE TABLE IF NOT EXISTS $db_output.cyp_ed_wt_breakdown_values (breakdown string) USING DELTA;
+
+ DROP TABLE IF EXISTS $db_output.cyp_ed_wt_level_values_1;
+ CREATE TABLE IF NOT EXISTS $db_output.cyp_ed_wt_level_values_1 (primary_level string, primary_level_desc string, secondary_level string, secondary_level_desc string, breakdown string) USING DELTA; --See above.
+
+ DROP TABLE IF EXISTS $db_output.cyp_ed_wt_metric_values;
+ CREATE TABLE IF NOT EXISTS $db_output.cyp_ed_wt_metric_values (metric string, metric_name string) USING DELTA;
+
+
+# COMMAND ----------
+
+# DBTITLE 1,create table cyp_ed_wt_step4
+ %sql
+
+ -- table can be dropped safely as it is truncated each run and holds no persisted data
+ DROP TABLE IF EXISTS $db_output.cyp_ed_wt_step4;
+
+ CREATE TABLE IF NOT EXISTS $db_output.cyp_ed_wt_step4
+ (
+   UniqMonthID int,
+   Status string,
+   UniqServReqID string,
+   OrgIDProv string,
+   Person_ID string,
+   ClinRespPriorityType string,
+   Age_Group string,
+   Gender string,
+   GenderDesc string,
+   EthnicityHigher string,
+   IMD_Decile string,
+   Intervention string,
+   CareContDate date,
+   ReferralRequestReceivedDate date,
+   Priority_Type string,
+   waiting_time float,
+   waiting_time_days float,
+   SOURCE_DB string,
+   SubmissionMonthID int,
+   rp_startdate_run date
+ )
+
+
+ USING DELTA;
+
+# COMMAND ----------
+
+# DBTITLE 1,create table cyp_ed_wt_STEP6
+ %sql
+
+ -- table can be dropped safely as it is truncated each run and holds no persisted data
+ DROP TABLE IF EXISTS $db_output.cyp_ed_wt_step6;
+
+ CREATE TABLE IF NOT EXISTS $db_output.cyp_ed_wt_step6
+ (
+   UniqMonthID int,
+   Status string,
+   UniqServReqID string,
+   OrgIDProv string,
+   Person_ID string,
+   ClinRespPriorityType string,
+   IC_Rec_CCG string,
+   IC_Rec_CCG_Mapped string,
+   ReferralRequestReceivedDate date,
+   ServDischDate date,
+   Age_Group string,
+   Gender string,
+   GenderDesc string,
+   EthnicityHigher string,
+   IMD_Decile string,
+   Priority_Type string,
+   waiting_time float,
+   waiting_time_days float,
+   SOURCE_DB string,
+   SubmissionMonthID int,
+   rp_startdate_run date
+ )
+
+
+ USING DELTA;
+
+# COMMAND ----------
+
+# DBTITLE 1,create table cyp_ed_wt_STEP8
+ %sql
+
+ -- table can be dropped safely as it is truncated each run and holds no persisted data
+ DROP TABLE IF EXISTS $db_output.cyp_ed_wt_step8;
+ CREATE TABLE IF NOT EXISTS $db_output.cyp_ed_wt_step8
+ (
+   UniqMonthID int,
+   Status string,
+   UniqServReqID string,
+   OrgIDProv string,
+   Person_ID string,
+   ClinRespPriorityType string,
+   FirstCareContDate date,
+   SecondCareContDate date,
+   ReferralRequestReceivedDate date,
+   Priority_Type string,
+   waiting_time float,
+   waiting_time_days float,
+   SOURCE_DB string,
+   SubmissionMonthID int,
+   rp_startdate_run date
+ )
+  USING DELTA;
+
+# COMMAND ----------
+
+# DBTITLE 1,create table cyp_ed_wt_STEP9
+ %sql
+
+ -- table can be dropped safely as it is truncated each run and holds no persisted data
+ DROP TABLE IF EXISTS $db_output.cyp_ed_wt_step9;
+ CREATE TABLE IF NOT EXISTS $db_output.cyp_ed_wt_step9
+ (
+   UniqMonthID int,
+   Status string,
+   UniqServReqID string,
+   OrgIDProv string,
+   Person_ID string,
+   ClinRespPriorityType string,
+   IC_Rec_CCG string,
+   IC_Rec_CCG_Mapped string,
+   AgeServReferRecDate string,
+   AgeRepPeriodEnd string,
+   ReferralRequestReceivedDate date,
+   ServDischDate date,
+   Priority_Type string,
+   SOURCE_DB string,
+   SubmissionMonthID int,
+   rp_startdate_run date
+ )
+  USING DELTA;
+
+# COMMAND ----------
+
+# DBTITLE 1,create table cyp_ed_wt_STEP10
+  %sql
+
+  -- table can be dropped safely as it is truncated each run and holds no persisted data
+  DROP TABLE IF EXISTS $db_output.cyp_ed_wt_step10;
+
+  CREATE TABLE IF NOT EXISTS $db_output.cyp_ed_wt_step10
+  (
+    UniqMonthID int,
+    Status string,
+    UniqServReqID string,
+    OrgIDProv string,
+    Person_ID string,
+    ClinRespPriorityType string,
+    IC_Rec_CCG string,
+    IC_Rec_CCG_Mapped string,
+    ReferralRequestReceivedDate date,
+    ServDischDate date,
+    Priority_Type string,
+    waiting_time float,
+    waiting_time_days float,
+    SOURCE_DB string,
+    SubmissionMonthID int,
+    rp_startdate_run date
+  )
+
+
+  USING DELTA;
+
+# COMMAND ----------
+
+ %sql
+  
+ CREATE TABLE IF NOT EXISTS $db_output.cyp_ed_wt_unformatted
+ (
+   MONTH_ID INT,
+   STATUS STRING,
+   REPORTING_PERIOD_START DATE,
+   REPORTING_PERIOD_END DATE,
+   BREAKDOWN STRING,
+   PRIMARY_LEVEL STRING,
+   PRIMARY_LEVEL_DESCRIPTION STRING,
+   SECONDARY_LEVEL STRING,
+   SECONDARY_LEVEL_DESCRIPTION STRING,
+   METRIC STRING,
+   METRIC_VALUE FLOAT,
+   SOURCE_DB string
+ )
+ USING DELTA
+ PARTITIONED BY (REPORTING_PERIOD_END, STATUS);
+
+# COMMAND ----------
+
+# DBTITLE 1,IsColumnInTable
+ %py
+ # does datebase.table contain column? 1=yes, 0=no
+ def IsColumnInTable(database_name, table_name, column_name):
+   try:
+     df = spark.table(f"{database_name}.{table_name}")
+     cols = df.columns
+     if column_name in cols:
+       return 1
+     else:
+       return 0
+   except:
+     return -1
+
+# COMMAND ----------
+
+ %py
+ # List of tables and column that needs adding to them
+ tableColumn = {'cyp_ed_wt_step4': 'SOURCE_DB', 'cyp_ed_wt_step6': 'SOURCE_DB', 'cyp_ed_wt_unformatted': 'SOURCE_DB'}
+
+# COMMAND ----------
+
+# DBTITLE 1,Add column to table if it doesn't exist
+ %py
+ for table, column in tableColumn.items():
+   print(table)
+   print(column)
+   exists = IsColumnInTable(db_output, table, column)
+   if exists == 0:
+     action = """ALTER TABLE {db_output}.{table} ADD COLUMNS ({column} STRING)""".format(db_output=db_output,table=table,column=column)
+     print(action)
+     spark.sql(action)
+
+# COMMAND ----------
+
+# DBTITLE 1,Set SOURCE_DB to source database
+ %sql
+ -- # %py
+ -- # # update only needs doing once - DONE
+
+ -- # for table, column in tableColumn.items():
+ -- #   action = """Update {db_output}.{table} SET {column} = '{mhsds_database}' where {column} is null""".format(db_output=db_output,table=table,column=column,mhsds_database=mhsds_database)
+ -- #   print(action)
+ -- #   spark.sql(action)

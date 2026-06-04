@@ -1,6 +1,8 @@
 # Databricks notebook source
+apr26_icb_swap_month_id = 1512
 provider_parent_breakdowns = ["Provider"]
 oaps_provider_parent_breakdowns = ["Sending Provider", "Receiving Provider"]
+icb_changes_parent_breakdowns = ["CCG", "STP", "Region"]
 multiple_geogs = ["CCG of Residence; Provider", "Sending Provider; Receiving Provider", "CCG of Residence; Receiving Provider", "CCG of GP Practice or Residence; Receiving Provider", "STP of Residence; Receiving Provider", "STP of GP Practice or Residence; Receiving Provider", "Commissioning Region; Receiving Provider"]
 
 # COMMAND ----------

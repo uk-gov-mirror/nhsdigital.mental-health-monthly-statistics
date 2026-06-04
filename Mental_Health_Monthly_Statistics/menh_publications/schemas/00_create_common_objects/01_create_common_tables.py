@@ -2,9 +2,9 @@
 db_output = dbutils.widgets.get("db_output")
 print(db_output)
 assert db_output
-mhsds_db = dbutils.widgets.get("mhsds_db")
-print(mhsds_db)
-assert mhsds_db
+mhsds_database = dbutils.widgets.get("mhsds_database")
+print(mhsds_database)
+assert mhsds_database
 
 # COMMAND ----------
 
@@ -42,6 +42,10 @@ assert mhsds_db
  - Ref_AgeBand
  - Ref_IMD_Decile
  - population_breakdowns
+
+ - OrgIDSubICBLocGP_Mapping
+ - OrgIDSubICBLocResidence_Mapping
+ - commissioning_org_mapping
 
 # COMMAND ----------
 
@@ -277,22 +281,24 @@ assert mhsds_db
 # DBTITLE 1,MHS001_CCG_LATEST 
  %sql
 
- --DROP TABLE IF EXISTS $db_output.mhs001_ccg_latest;
+ DROP TABLE IF EXISTS $db_output.mhs001_ccg_latest;
 
  CREATE TABLE IF NOT EXISTS $db_output.MHS001_CCG_LATEST 
          (Person_ID            STRING,
-          IC_Rec_CCG           STRING)
+          IC_Rec_CCG           STRING,
+          IC_Rec_CCG_Mapped    STRING)
  USING delta 
 
 # COMMAND ----------
 
  %sql
 
- --DROP TABLE IF EXISTS $db_output.mhs001_ccg_latest_12m;
+ DROP TABLE IF EXISTS $db_output.mhs001_ccg_latest_12m;
 
  CREATE TABLE IF NOT EXISTS $db_output.MHS001_CCG_LATEST_12m
          (Person_ID            STRING,
-          IC_Rec_CCG           STRING)
+          IC_Rec_CCG           STRING,
+          IC_Rec_CCG_Mapped    STRING)
  USING delta 
 
 # COMMAND ----------
@@ -300,7 +306,7 @@ assert mhsds_db
 # DBTITLE 1,MHS001MPI_latest_month_data
  %sql
 
- -- DROP TABLE IF EXISTS $db_output.mhs001mpi_latest_month_data;
+ DROP TABLE IF EXISTS $db_output.mhs001mpi_latest_month_data;
 
  -- NB just changing the name of a field here will not work as a v5 change
  -- also need to ensure the table is dropped to force the change to happen
@@ -590,3 +596,57 @@ assert mhsds_db
    SECONDARY_LEVEL_DESC string,
    METRIC_VALUE long
  )
+
+# COMMAND ----------
+
+ %sql
+ DROP TABLE IF EXISTS $db_output.OrgIDSubICBLocGP_Mapping;
+ CREATE TABLE IF NOT EXISTS $db_output.OrgIDSubICBLocGP_Mapping
+ (
+ OrganisationId STRING,
+ TargetOrganisationID STRING,
+ GP_StartDate DATE,
+ GP_EndDate DATE,
+ SubICB_StartDate DATE,
+ SubICB_EndDate DATE
+ ) USING DELTA
+
+# COMMAND ----------
+
+ %sql
+ DROP TABLE IF EXISTS $db_output.OrgIDSubICBLocGP_Mapping_preApr26;
+ CREATE TABLE IF NOT EXISTS $db_output.OrgIDSubICBLocGP_Mapping_preApr26
+ (
+ OrganisationId STRING,
+ TargetOrganisationID STRING,
+ GP_StartDate DATE,
+ GP_EndDate DATE,
+ SubICB_StartDate DATE,
+ SubICB_EndDate DATE
+ ) USING DELTA
+
+# COMMAND ----------
+
+ %sql
+ DROP TABLE IF EXISTS $db_output.OrgIDSubICBLocResidence_Mapping;
+ CREATE TABLE IF NOT EXISTS $db_output.OrgIDSubICBLocResidence_Mapping
+ (
+ PCDS STRING,
+ CCG STRING,
+ RECORD_START_DATE DATE,
+ RECORD_END_DATE DATE
+ ) USING DELTA
+
+# COMMAND ----------
+
+ %sql
+ DROP TABLE IF EXISTS $db_output.commissioning_org_mapping;
+ CREATE TABLE IF NOT EXISTS $db_output.commissioning_org_mapping
+ (
+ CCG_Code STRING,
+ CCG_Name STRING,
+ STP_Code STRING,
+ STP_Name STRING,
+ Region_Code STRING,
+ Region_Name STRING
+ ) USING DELTA

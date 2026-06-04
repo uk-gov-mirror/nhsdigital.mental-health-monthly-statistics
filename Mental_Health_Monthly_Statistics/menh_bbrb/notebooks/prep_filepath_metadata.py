@@ -42,6 +42,14 @@ pres_comp_notebook = "pres_comp_prep"
 mha_run_folder = "10_mha/"
 mha_prep_notebook = "mha_prep"
 
+#cmh proms
+cmh_out_run_folder = "11_cmh_outcomes/"
+cmh_proms_prep_notebook = "cmh_proms_prep"
+
+#readmissions
+readm_run_folder = "12_readmissions/"
+readm_prep_notebook = "readmissions_prep"
+
 # COMMAND ----------
 
 run_params = { 
@@ -64,5 +72,9 @@ run_params = {
 ### MENTAL HEALTH CURRENCIES
   "09_mhc_filepath": mhsds_run_folder_master + mhc_run_folder + pres_comp_notebook,
 ### MHA MEASURES
-  "10_mha_filepath": mhsds_run_folder_master + mha_run_folder + mha_prep_notebook 
+  "10_mha_filepath": mhsds_run_folder_master + mha_run_folder + mha_prep_notebook,
+### CMH PROMS MEASURES
+  "11_cmh_proms_filepath": mhsds_run_folder_master + cmh_out_run_folder + cmh_proms_prep_notebook,  
+### READMISSION MEASURES
+  "12_readm_filepath": mhsds_run_folder_master + readm_run_folder + readm_prep_notebook  
 }

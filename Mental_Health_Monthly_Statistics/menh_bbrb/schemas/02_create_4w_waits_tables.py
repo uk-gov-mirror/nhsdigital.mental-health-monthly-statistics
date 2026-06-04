@@ -1,6 +1,6 @@
 # Databricks notebook source
  %sql
- -- DROP TABLE IF EXISTS $db_output.cmh_4ww_referrals; 
+ DROP TABLE IF EXISTS $db_output.cmh_4ww_referrals; 
  CREATE TABLE IF NOT EXISTS $db_output.cmh_4ww_referrals 
  (
  ReportingPeriodStartDate date,
@@ -29,7 +29,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cmh_4ww_dates;
+ DROP TABLE IF EXISTS $db_output.cmh_4ww_dates;
  CREATE TABLE IF NOT EXISTS $db_output.cmh_4ww_dates 
  (
  Person_ID string,
@@ -42,7 +42,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cmh_4ww_cumf; 
+ DROP TABLE IF EXISTS $db_output.cmh_4ww_cumf; 
  CREATE TABLE IF NOT EXISTS $db_output.cmh_4ww_cumf 
  (
  Person_ID string, 
@@ -54,7 +54,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cmh_4ww_groups; 
+ DROP TABLE IF EXISTS $db_output.cmh_4ww_groups; 
  CREATE TABLE IF NOT EXISTS $db_output.cmh_4ww_groups
  (
  Person_ID string,
@@ -69,7 +69,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cmh_4ww_spell_rank; 
+ DROP TABLE IF EXISTS $db_output.cmh_4ww_spell_rank; 
  CREATE TABLE IF NOT EXISTS $db_output.cmh_4ww_spell_rank 
  (
  Person_ID string,
@@ -85,7 +85,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cmh_4ww_subs; 
+ DROP TABLE IF EXISTS $db_output.cmh_4ww_subs; 
  CREATE TABLE IF NOT EXISTS $db_output.cmh_4ww_subs 
  (
  Person_ID string,
@@ -100,7 +100,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cmh_4ww_subs_ranked; 
+ DROP TABLE IF EXISTS $db_output.cmh_4ww_subs_ranked; 
  CREATE TABLE IF NOT EXISTS $db_output.cmh_4ww_subs_ranked 
  (
  Person_ID string,
@@ -237,7 +237,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cyp_4ww_referrals; 
+ DROP TABLE IF EXISTS $db_output.cyp_4ww_referrals; 
  CREATE TABLE IF NOT EXISTS $db_output.cyp_4ww_referrals 
  (
  ReportingPeriodStartDate date,
@@ -266,7 +266,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cyp_4ww_dates; 
+ DROP TABLE IF EXISTS $db_output.cyp_4ww_dates; 
  CREATE TABLE IF NOT EXISTS $db_output.cyp_4ww_dates 
  (
  Person_ID string,
@@ -279,7 +279,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cyp_4ww_cumf; 
+ DROP TABLE IF EXISTS $db_output.cyp_4ww_cumf; 
  CREATE TABLE IF NOT EXISTS $db_output.cyp_4ww_cumf 
  (
  Person_ID string, 
@@ -291,7 +291,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cyp_4ww_groups; 
+ DROP TABLE IF EXISTS $db_output.cyp_4ww_groups; 
  CREATE TABLE IF NOT EXISTS $db_output.cyp_4ww_groups
  (
  Person_ID string,
@@ -306,7 +306,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cyp_4ww_spell_contacts; 
+ DROP TABLE IF EXISTS $db_output.cyp_4ww_spell_contacts; 
  CREATE TABLE IF NOT EXISTS $db_output.cyp_4ww_spell_contacts 
  (
  Der_Activity_Type string,
@@ -322,7 +322,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cyp_4ww_indirect_activity; 
+ DROP TABLE IF EXISTS $db_output.cyp_4ww_indirect_activity; 
  CREATE TABLE IF NOT EXISTS $db_output.cyp_4ww_indirect_activity 
  (
  Person_ID string,
@@ -336,7 +336,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cyp_4ww_spell_rank; 
+ DROP TABLE IF EXISTS $db_output.cyp_4ww_spell_rank; 
  CREATE TABLE IF NOT EXISTS $db_output.cyp_4ww_spell_rank 
  (
  Person_ID string,
@@ -352,7 +352,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cyp_4ww_subs; 
+ DROP TABLE IF EXISTS $db_output.cyp_4ww_subs; 
  CREATE TABLE IF NOT EXISTS $db_output.cyp_4ww_subs 
  (
  Person_ID string,
@@ -367,7 +367,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cyp_4ww_subs_ranked; 
+ DROP TABLE IF EXISTS $db_output.cyp_4ww_subs_ranked; 
  CREATE TABLE IF NOT EXISTS $db_output.cyp_4ww_subs_ranked 
  (
  Person_ID string,

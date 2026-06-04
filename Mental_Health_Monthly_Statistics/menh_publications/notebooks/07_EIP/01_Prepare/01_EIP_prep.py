@@ -92,7 +92,8 @@
             r.ServDischDate,
             r.AgeServReferRecDate,
             E.NHSDEthnicity,
-            CCG.IC_Rec_CCG
+            CCG.IC_Rec_CCG,
+            CCG.IC_Rec_CCG_Mapped
        FROM $db_source.MHS101Referral AS r
        left join global_temp.MHS001MPI_PATMRECINRP_FIX AS E 
            ON r.Person_ID = E.Person_ID 
@@ -396,6 +397,7 @@
  				END as AGE_GROUP,        
  		A.UniqServReqID,
          CCG.IC_Rec_CCG,
+         CCG.IC_Rec_CCG_Mapped,
          CASE WHEN E.NHSDEthnicity IN ('A', 'B', 'C') THEN 'White'
                WHEN E.NHSDEthnicity IN ('D', 'E', 'F', 'G') THEN 'Mixed'
                WHEN E.NHSDEthnicity IN ('H', 'J', 'K', 'L') THEN 'Asian or Asian British'
@@ -428,7 +430,7 @@
    AND B.ServTeamTypeRefToMH = 'A14' 
    AND ((((B.ReferClosureDate IS NULL OR B.ReferClosureDate > '$rp_enddate') AND (B.ReferRejectionDate IS NULL OR B.ReferRejectionDate > '$rp_enddate')) AND B.UniqMonthID = A.UniqMonthID)
         OR B.ReferClosureDate <= '$rp_enddate' 
-        OR B.ReferRejectionDate <= '$rp_enddate')            
+        OR B.ReferRejectionDate <= '$rp_enddate')              
 
 # COMMAND ----------
 
@@ -528,6 +530,7 @@ spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output
                    END As AGE_GROUP, 
               A.UniqServReqID,
               CCG.IC_Rec_CCG,
+              CCG.IC_Rec_CCG_Mapped,
               CASE WHEN A.NHSDEthnicity IN ('A', 'B', 'C') THEN 'White'
                  WHEN A.NHSDEthnicity IN ('D', 'E', 'F', 'G') THEN 'Mixed'
                  WHEN A.NHSDEthnicity IN ('H', 'J', 'K', 'L') THEN 'Asian or Asian British'
@@ -655,6 +658,7 @@ spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output
                   END AS AGE_GROUP,
              a.UniqServReqID,
              a.IC_Rec_CCG,
+             a.IC_Rec_CCG_Mapped,
              CASE WHEN a.NHSDEthnicity IN ('A', 'B', 'C') THEN 'White'
                WHEN a.NHSDEthnicity IN ('D', 'E', 'F', 'G') THEN 'Mixed'
                WHEN a.NHSDEthnicity IN ('H', 'J', 'K', 'L') THEN 'Asian or Asian British'
@@ -772,6 +776,7 @@ spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output
  CREATE OR REPLACE GLOBAL TEMP VIEW EIP23g_common AS
       SELECT a.UniqServReqID,
              IC_Rec_CCG,
+             IC_Rec_CCG_Mapped,
              a.OrgIDProv,
              c.CareContDate
         FROM global_temp.EIP_MHS101Referral_LATEST AS a
@@ -805,6 +810,7 @@ spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output
  CREATE OR REPLACE GLOBAL TEMP VIEW EIP23h_common AS
       SELECT a.UniqServReqID,
             IC_Rec_CCG,
+            IC_Rec_CCG_Mapped,
              d.StartDateAssCareCoord
         FROM global_temp.EIP_MHS101Referral_LATEST AS a
    INNER JOIN global_temp.MHS102ServiceTypeReferredTo_LATEST AS b
@@ -871,6 +877,7 @@ spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output
  SELECT    A.UniqServReqID,
          A.OrgIDProv,
          CCG.IC_Rec_CCG,
+         CCG.IC_Rec_CCG_Mapped,
          PrimReasonReferralMH,
          AgeServReferRecDate,
          CASE WHEN A.AgeServReferRecDate between 0 and 5 then '0 to 5'
@@ -921,7 +928,8 @@ spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output
          ON A.Person_ID = E.Person_ID 
          AND E.UniqMonthID = A.UniqMonthID
  LEFT OUTER JOIN (SELECT m.Person_ID,
-                     CCG.IC_Rec_CCG AS IC_Rec_CCG
+                     CCG.IC_Rec_CCG AS IC_Rec_CCG,
+                     CCG.IC_Rec_CCG_Mapped
                 FROM global_temp.MHS001MPI_PATMRECINRP_FIX AS m
                 INNER JOIN $db_output.MHS001_CCG_LATEST AS CCG
                     ON CCG.Person_ID = m.Person_ID) AS CCG
@@ -962,6 +970,7 @@ spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output
  SELECT	A.UniqServReqID,
  		A.OrgIDProv,
          IC_Rec_CCG,
+         IC_Rec_CCG_Mapped,
             CASE   WHEN A.NHSDEthnicity = '99' THEN 'Unknown'
           WHEN A.NHSDEthnicity IN ('A', 'B', 'C') THEN 'White'
                WHEN A.NHSDEthnicity IN ('D', 'E', 'F', 'G') THEN 'Mixed'
@@ -1049,6 +1058,7 @@ spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output
  		A.OrgIDProv, -- will be used for Prov
  		A.UniqServReqID,
  		IC_Rec_CCG, -- will also be used for CCG
+ 		IC_Rec_CCG_Mapped,
  		a.ReferralRequestReceivedDate, -- used for EIP66 and EIP65
  		GREATEST(C.CareContDate, D.StartDateAssCareCoord) AS CLOCK_STOP
  FROM	global_temp.EIP_MHS101Referral_LATEST as A

@@ -122,6 +122,10 @@
              WHEN a.UniqMonthID <= 1488 AND a.MHAdmittedPatientClass IN ('10','11','12') THEN 'Y'
              ELSE 'N'
              END AS Acute_Bed,
+        CASE WHEN a.UniqMonthID > 1488 AND a.MHAdmittedPatientClass IN ('205','209','212','213') THEN 'Y'
+             WHEN a.UniqMonthID <= 1488 AND a.MHAdmittedPatientClass IN ('15','22','17','35','36','38','37') THEN 'Y'
+             ELSE 'N'
+             END AS NOF_Bed_Flag,            
         a.RecordStartDate,
         a.RecordEndDate
        
@@ -132,7 +136,7 @@
 
  %sql
  INSERT OVERWRITE TABLE $db_output.oaps_wardstay
-  
+
  select a.UniqWardStayID,
         COALESCE(bt.MHAdmittedPatientClass, 'UNKNOWN') AS MHAdmittedPatientClass,
         COALESCE(bt.MHAdmittedPatientClassName, 'UNKNOWN') AS MHAdmittedPatientClassName,
@@ -146,8 +150,8 @@
         b.ReportingPeriodEndDate,
         a.StartDateWardStay,
         a.EndDateWardStay,
-        a.Acute_Bed
-       
+        a.Acute_Bed,
+       a.NOF_Bed_Flag
  from oaps_wardstay_prep as a
  inner join $db_output.months as b
     on a.UniqMonthID = b.UniqMonthID
@@ -321,6 +325,10 @@
                 WHEN WS.UniqHospProvSpellID is not NULL THEN WS.Acute_Bed
                 ELSE 'UNKNOWN'
                 END AS Acute_Bed
+           , CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
+                WHEN WS.UniqHospProvSpellID is not NULL THEN WS.NOF_Bed_Flag
+                ELSE 'UNKNOWN'
+                END AS NOF_Bed_Flag    
           ,CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
                 WHEN WS_Start.UniqHospProvSpellID is not NULL THEN WS_Start.MHAdmittedPatientClass
                 ELSE 'UNKNOWN'
@@ -444,9 +452,11 @@
  left join $db_output.OAPS_In_Scope isc
    on LEFT(OAPs.OrgIDReferring,3) = isc.ORG_CODE
    
- left join $db_output.bbrb_stp_mapping stp
-   on ccg.IC_Rec_CCG = stp.CCG_Code
-   
+  
+  left join $db_output.bbrb_stp_mapping stp
+   on ccg.IC_Rec_CCG = stp.CCG_Code 
+
+
  left join $db_output.bbrb_org_daily rec_prov
    on oaps.OrgIDProv = rec_prov.ORG_CODE
   
@@ -496,13 +506,13 @@
          oaps.UniqMonthID,
          oaps.Person_ID,
          oaps.OrgIDProv,        
-         ccg.SubICBGPRes,
-         COALESCE(stp.CCG_Code, 'UNKNOWN') as CCG_Code,
-         COALESCE(stp.CCG_Name, 'UNKNOWN') as CCG_Name,
-         COALESCE(stp.STP_Code, 'UNKNOWN') as STP_Code,
-         COALESCE(stp.STP_Name, 'UNKNOWN') as STP_Name,
-         COALESCE(stp.Region_Code, 'UNKNOWN') as Region_Code,
-         COALESCE(stp.Region_Name, 'UNKNOWN') as Region_Name,
+         ccg.SubICBGPRes_Mapped AS SubICBGPRes,
+         COALESCE(stp.CCG_Code,co.CCG_Code ,'UNKNOWN') as CCG_Code,
+         COALESCE(stp.CCG_Name, co.CCG_Name,'UNKNOWN') as CCG_Name,
+         COALESCE(stp.STP_Code,co.STP_Code, 'UNKNOWN') as STP_Code,
+         COALESCE(stp.STP_Name, co.STP_Name,'UNKNOWN') as STP_Name,
+         COALESCE(stp.Region_Code, co.Region_Code,'UNKNOWN') as Region_Code,
+         COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') as Region_Name,
          coalesce(gen.Der_Gender, "UNKNOWN") AS Der_Gender,
          coalesce(gen.Der_Gender_Desc, "UNKNOWN") as Der_Gender_Desc,
          mpi.AgeRepPeriodEnd,
@@ -535,6 +545,10 @@
                 WHEN WS.UniqHospProvSpellID is not NULL THEN WS.Acute_Bed
                 ELSE 'UNKNOWN'
                 END AS Acute_Bed
+           ,CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
+                WHEN WS.UniqHospProvSpellID is not NULL THEN WS.NOF_Bed_Flag
+                ELSE 'UNKNOWN'
+                END AS NOF_Bed_Flag    
           ,CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
                 WHEN WS_Start.UniqHospProvSpellID is not NULL THEN WS_Start.MHAdmittedPatientClass
                 ELSE 'UNKNOWN'
@@ -655,7 +669,9 @@
    on LEFT(OAPs.OrgIDReferring,3) = isc.ORG_CODE
    
  left join $db_output.bbrb_stp_mapping stp
-   on ccg.SubICBGPRes = stp.CCG_Code
+   on ccg.SubICBGPRes = stp.CCG_Code AND $end_month_id < $apr26_icb_swap_month_id
+
+ LEFT JOIN $db_output.commissioning_org_mapping co ON ccg.SubICBGPRes_Mapped = co.CCG_Code and $end_month_id >= $apr26_icb_swap_month_id
    
  left join $db_output.bbrb_org_daily rec_prov
    on oaps.OrgIDProv = rec_prov.ORG_CODE
@@ -707,13 +723,13 @@
          oaps.UniqMonthID,
          oaps.Person_ID,
          oaps.OrgIDProv,        
-         ccg.SubICBGPRes,
-         COALESCE(stp.CCG_Code, 'UNKNOWN') as CCG_Code,
-         COALESCE(stp.CCG_Name, 'UNKNOWN') as CCG_Name,
-         COALESCE(stp.STP_Code, 'UNKNOWN') as STP_Code,
-         COALESCE(stp.STP_Name, 'UNKNOWN') as STP_Name,
-         COALESCE(stp.Region_Code, 'UNKNOWN') as Region_Code,
-         COALESCE(stp.Region_Name, 'UNKNOWN') as Region_Name,
+         ccg.SubICBGPRes_Mapped AS SubICBGPRes,
+         COALESCE(stp.CCG_Code,co.CCG_Code ,'UNKNOWN') as CCG_Code,
+         COALESCE(stp.CCG_Name, co.CCG_Name,'UNKNOWN') as CCG_Name,
+         COALESCE(stp.STP_Code,co.STP_Code, 'UNKNOWN') as STP_Code,
+         COALESCE(stp.STP_Name, co.STP_Name,'UNKNOWN') as STP_Name,
+         COALESCE(stp.Region_Code, co.Region_Code,'UNKNOWN') as Region_Code,
+         COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') as Region_Name,
          coalesce(gen.Der_Gender, "UNKNOWN") AS Der_Gender,
          coalesce(gen.Der_Gender_Desc, "UNKNOWN") as Der_Gender_Desc,
          mpi.AgeRepPeriodEnd,
@@ -746,6 +762,10 @@
                 WHEN WS.UniqHospProvSpellID is not NULL THEN WS.Acute_Bed
                 ELSE 'UNKNOWN'
                 END AS Acute_Bed
+          ,CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
+                WHEN WS.UniqHospProvSpellID is not NULL THEN WS.NOF_Bed_Flag
+                ELSE 'UNKNOWN'
+                END AS NOF_Beg_Flag              
           ,CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
                 WHEN WS_Start.UniqHospProvSpellID is not NULL THEN WS_Start.MHAdmittedPatientClass
                 ELSE 'UNKNOWN'
@@ -867,7 +887,9 @@
    on LEFT(OAPs.OrgIDReferring,3) = isc.ORG_CODE
    
  left join $db_output.bbrb_stp_mapping stp
-   on ccg.SubICBGPRes = stp.CCG_Code
+   on ccg.SubICBGPRes = stp.CCG_Code AND $end_month_id < $apr26_icb_swap_month_id
+
+ LEFT JOIN $db_output.commissioning_org_mapping co ON ccg.SubICBGPRes_Mapped = co.CCG_Code and $end_month_id >= $apr26_icb_swap_month_id
    
  left join $db_output.bbrb_org_daily rec_prov
    on oaps.OrgIDProv = rec_prov.ORG_CODE
@@ -950,7 +972,11 @@
           ,CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
                 WHEN WS.UniqHospProvSpellID is not NULL THEN WS.Acute_Bed
                 ELSE 'UNKNOWN'
-                END AS Acute_Bed,
+                END AS Acute_Bed
+           ,CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
+                WHEN WS.UniqHospProvSpellID is not NULL THEN WS.NOF_Bed_Flag
+                ELSE 'UNKNOWN'
+                END AS NOF_Bed_Flag,      
          ws.StartDateWardStay,
          ws.EndDateWardStay,
          CASE WHEN hs.UniqHospProvSpellID is NULL THEN 0
@@ -1027,12 +1053,12 @@
  select  hs.UniqMonthID,
          hs.UniqHospProvSpellID,
          ws.UniqWardStayID,
-         COALESCE(stp.CCG_Code, 'UNKNOWN') as CCG_Code,
-         COALESCE(stp.CCG_Name, 'UNKNOWN') as CCG_Name,
-         COALESCE(stp.STP_Code, 'UNKNOWN') as STP_Code,
-         COALESCE(stp.STP_Name, 'UNKNOWN') as STP_Name,
-         COALESCE(stp.Region_Code, 'UNKNOWN') as Region_Code,
-         COALESCE(stp.Region_Name, 'UNKNOWN') as Region_Name,
+         COALESCE(stp.CCG_Code,co.CCG_Code ,'UNKNOWN') as CCG_Code,
+         COALESCE(stp.CCG_Name, co.CCG_Name,'UNKNOWN') as CCG_Name,
+         COALESCE(stp.STP_Code,co.STP_Code, 'UNKNOWN') as STP_Code,
+         COALESCE(stp.STP_Name, co.STP_Name,'UNKNOWN') as STP_Name,
+         COALESCE(stp.Region_Code, co.Region_Code,'UNKNOWN') as Region_Code,
+         COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') as Region_Name,
          coalesce(gen.Der_Gender, "UNKNOWN") AS Der_Gender,
          coalesce(gen.Der_Gender_Desc, "UNKNOWN") as Der_Gender_Desc,
          mpi.AgeRepPeriodEnd,
@@ -1047,15 +1073,19 @@
          coalesce(ld1.LDStatus_desc, "UNKNOWN") as LDStatus_desc,
          CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
                 WHEN WS.UniqHospProvSpellID is not NULL THEN WS.MHAdmittedPatientClass
-                ELSE 'UNKNOWN' END AS MHAdmittedPatientClass
-          ,CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
+                ELSE 'UNKNOWN' END AS MHAdmittedPatientClass,
+          CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
                 WHEN WS.UniqHospProvSpellID is not NULL THEN WS.MHAdmittedPatientClassName
                 ELSE 'UNKNOWN'
-                END AS MHAdmittedPatientClassName
-          ,CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
+                END AS MHAdmittedPatientClassName,
+          CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
                 WHEN WS.UniqHospProvSpellID is not NULL THEN WS.Acute_Bed
                 ELSE 'UNKNOWN'
                 END AS Acute_Bed,
+          CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
+                WHEN WS.UniqHospProvSpellID is not NULL THEN WS.NOF_Bed_Flag
+                ELSE 'UNKNOWN'
+                END AS NOF_Bed_Flag,               
          ws.StartDateWardStay,
          ws.EndDateWardStay,
          CASE WHEN hs.UniqHospProvSpellID is NULL THEN 0
@@ -1098,7 +1128,9 @@
    on mpi.Person_ID = ccg.Person_ID
      
  left join $db_output.bbrb_stp_mapping stp
-   on ccg.SubICBGPRes = stp.CCG_Code
+   on ccg.SubICBGPRes = stp.CCG_Code AND $end_month_id < $apr26_icb_swap_month_id
+
+ LEFT JOIN $db_output.commissioning_org_mapping co ON ccg.SubICBGPRes_Mapped = co.CCG_Code and $end_month_id >= $apr26_icb_swap_month_id
     
  left join $reference_data.english_indices_of_dep_v02 imd_ref
    on mpi.LSOA2011 = imd_ref.LSOA_CODE_2011 
@@ -1133,12 +1165,12 @@
  select  hs.UniqMonthID,
          hs.UniqHospProvSpellID,
          ws.UniqWardStayID,
-         COALESCE(stp.CCG_Code, 'UNKNOWN') as CCG_Code,
-         COALESCE(stp.CCG_Name, 'UNKNOWN') as CCG_Name,
-         COALESCE(stp.STP_Code, 'UNKNOWN') as STP_Code,
-         COALESCE(stp.STP_Name, 'UNKNOWN') as STP_Name,
-         COALESCE(stp.Region_Code, 'UNKNOWN') as Region_Code,
-         COALESCE(stp.Region_Name, 'UNKNOWN') as Region_Name,
+         COALESCE(stp.CCG_Code,co.CCG_Code ,'UNKNOWN') as CCG_Code,
+         COALESCE(stp.CCG_Name, co.CCG_Name,'UNKNOWN') as CCG_Name,
+         COALESCE(stp.STP_Code,co.STP_Code, 'UNKNOWN') as STP_Code,
+         COALESCE(stp.STP_Name, co.STP_Name,'UNKNOWN') as STP_Name,
+         COALESCE(stp.Region_Code, co.Region_Code,'UNKNOWN') as Region_Code,
+         COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') as Region_Name,
          coalesce(gen.Der_Gender, "UNKNOWN") AS Der_Gender,
          coalesce(gen.Der_Gender_Desc, "UNKNOWN") as Der_Gender_Desc,
          mpi.AgeRepPeriodEnd,
@@ -1153,15 +1185,19 @@
          coalesce(ld1.LDStatus_desc, "UNKNOWN") as LDStatus_desc,
          CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
                 WHEN WS.UniqHospProvSpellID is not NULL THEN WS.MHAdmittedPatientClass
-                ELSE 'UNKNOWN' END AS MHAdmittedPatientClass
-          ,CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
+                ELSE 'UNKNOWN' END AS MHAdmittedPatientClass,
+          CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
                 WHEN WS.UniqHospProvSpellID is not NULL THEN WS.MHAdmittedPatientClassName
                 ELSE 'UNKNOWN'
-                END AS MHAdmittedPatientClassName
-          ,CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
+                END AS MHAdmittedPatientClassName,
+          CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
                 WHEN WS.UniqHospProvSpellID is not NULL THEN WS.Acute_Bed
                 ELSE 'UNKNOWN'
                 END AS Acute_Bed,
+          CASE WHEN HS.UniqHospProvSpellID is NULL THEN 'No Hospital Spell'
+                WHEN WS.UniqHospProvSpellID is not NULL THEN WS.NOF_Bed_Flag
+                ELSE 'UNKNOWN'
+                END AS NOF_Bed_Flag,               
          ws.StartDateWardStay,
          ws.EndDateWardStay,
          CASE WHEN hs.UniqHospProvSpellID is NULL THEN 0
@@ -1204,7 +1240,9 @@
    on mpi.Person_ID = ccg.Person_ID
      
  left join $db_output.bbrb_stp_mapping stp
-   on ccg.SubICBGPRes = stp.CCG_Code
+   on ccg.SubICBGPRes = stp.CCG_Code AND $end_month_id < $apr26_icb_swap_month_id
+
+ LEFT JOIN $db_output.commissioning_org_mapping co ON ccg.SubICBGPRes_Mapped = co.CCG_Code and $end_month_id >= $apr26_icb_swap_month_id
     
  left join $reference_data.english_indices_of_dep_v02 imd_ref
    on mpi.LSOA2011 = imd_ref.LSOA_CODE_2011 

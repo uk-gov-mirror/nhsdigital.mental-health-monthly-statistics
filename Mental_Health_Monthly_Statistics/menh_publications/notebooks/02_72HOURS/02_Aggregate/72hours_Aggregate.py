@@ -24,6 +24,7 @@ assert rp_enddate
         '$status' AS Status,
         f.ResponsibleProv AS ResponsibleProv,
         ccg.IC_Rec_CCG AS CCG,
+        ccg.IC_Rec_CCG_Mapped AS CCG_Mapped,
         f.ElgibleDischFlag,
         (CASE WHEN f.DiedBeforeFollowUp = 0 AND f.AcuteBed = 1  THEN f.ElgibleDischFlag ELSE 0 END) AS ElgibleDischFlag_Modified,
         (CASE WHEN f.ElgibleDischFlag = 1 AND f.AcuteBed = 1 AND f.DiedBeforeFollowUp = 0 THEN f.FollowedUp3Days ELSE 0 END) AS FollowedUp3Days,
@@ -190,7 +191,7 @@ assert rp_enddate
  ,'$rp_startdate' AS REPORTING_PERIOD_START
  ,'$rp_enddate' AS REPORTING_PERIOD_END
  ,'CCG - GP Practice or Residence' AS BREAKDOWN
- ,CCG AS PRIMARY_LEVEL
+ ,$ccg_agg_field AS PRIMARY_LEVEL
  ,'NONE' AS PRIMARY_LEVEL_DESCRIPTION
  ,'NONE' AS SECONDARY_LEVEL
  ,'NONE' AS SECONDARY_LEVEL_DESCRIPTION
@@ -202,7 +203,7 @@ assert rp_enddate
  WHERE  UniqMonthID = '$month_id'
  AND    Status = '$status'
   AND SOURCE_DB = '$db_source'
- GROUP  BY CCG
+ GROUP BY $ccg_agg_field
 
 
 # COMMAND ----------
@@ -216,7 +217,7 @@ assert rp_enddate
  ,'$rp_startdate' AS REPORTING_PERIOD_START
  ,'$rp_enddate' AS REPORTING_PERIOD_END
  ,'CCG - GP Practice or Residence' AS BREAKDOWN
- ,CCG AS PRIMARY_LEVEL
+ ,$ccg_agg_field AS PRIMARY_LEVEL
  ,'NONE' AS PRIMARY_LEVEL_DESCRIPTION
  ,'NONE' AS SECONDARY_LEVEL
  ,'NONE' AS SECONDARY_LEVEL_DESCRIPTION
@@ -228,7 +229,7 @@ assert rp_enddate
  WHERE  UniqMonthID = '$month_id'
  AND    Status = '$status'
   AND SOURCE_DB = '$db_source'
- GROUP  BY CCG
+ GROUP BY $ccg_agg_field
 
 # COMMAND ----------
 
@@ -241,7 +242,7 @@ assert rp_enddate
  ,'$rp_startdate' AS REPORTING_PERIOD_START
  ,'$rp_enddate' AS REPORTING_PERIOD_END
  ,'CCG - GP Practice or Residence' AS BREAKDOWN
- ,CCG AS PRIMARY_LEVEL
+ ,$ccg_agg_field AS PRIMARY_LEVEL
  ,'NONE' AS PRIMARY_LEVEL_DESCRIPTION
  ,'NONE' AS SECONDARY_LEVEL
  ,'NONE' AS SECONDARY_LEVEL_DESCRIPTION
@@ -253,7 +254,7 @@ assert rp_enddate
  WHERE  UniqMonthID = '$month_id'
  AND    Status = '$status'
   AND SOURCE_DB = '$db_source'
- GROUP  BY CCG
+ GROUP BY $ccg_agg_field
 
 # COMMAND ----------
 
@@ -267,7 +268,7 @@ assert rp_enddate
  ,'$rp_startdate' AS REPORTING_PERIOD_START
  ,'$rp_enddate' AS REPORTING_PERIOD_END
  ,'CCG - GP Practice or Residence; Provider of Responsibility' AS BREAKDOWN
- ,CCG AS PRIMARY_LEVEL
+ ,$ccg_agg_field AS PRIMARY_LEVEL
  ,'NONE' AS PRIMARY_LEVEL_DESCRIPTION
  ,ResponsibleProv AS SECONDARY_LEVEL
  ,'NONE' AS SECONDARY_LEVEL_DESCRIPTION
@@ -279,7 +280,7 @@ assert rp_enddate
  WHERE  UniqMonthID = '$month_id'
  AND    Status = '$status'
   AND SOURCE_DB = '$db_source'
- GROUP  BY CCG, ResponsibleProv
+ GROUP BY $ccg_agg_field, ResponsibleProv
 
 # COMMAND ----------
 
@@ -293,7 +294,7 @@ assert rp_enddate
  ,'$rp_startdate' AS REPORTING_PERIOD_START
  ,'$rp_enddate' AS REPORTING_PERIOD_END
  ,'CCG - GP Practice or Residence; Provider of Responsibility' AS BREAKDOWN
- ,CCG AS PRIMARY_LEVEL
+ ,$ccg_agg_field AS PRIMARY_LEVEL
  ,'NONE' AS PRIMARY_LEVEL_DESCRIPTION
  ,ResponsibleProv AS SECONDARY_LEVEL
  ,'NONE' AS SECONDARY_LEVEL_DESCRIPTION
@@ -305,7 +306,7 @@ assert rp_enddate
  WHERE  UniqMonthID = '$month_id'
  AND    Status = '$status'
   AND SOURCE_DB = '$db_source'
- GROUP  BY CCG, ResponsibleProv
+ GROUP BY $ccg_agg_field, ResponsibleProv
 
 # COMMAND ----------
 
@@ -317,7 +318,7 @@ assert rp_enddate
  ,'$rp_startdate' AS REPORTING_PERIOD_START
  ,'$rp_enddate' AS REPORTING_PERIOD_END
  ,'CCG - GP Practice or Residence; Provider of Responsibility' AS BREAKDOWN
- ,CCG AS PRIMARY_LEVEL
+ ,$ccg_agg_field AS PRIMARY_LEVEL
  ,'NONE' AS PRIMARY_LEVEL_DESCRIPTION
  ,ResponsibleProv AS SECONDARY_LEVEL
  ,'NONE' AS SECONDARY_LEVEL_DESCRIPTION
@@ -329,4 +330,4 @@ assert rp_enddate
  WHERE  UniqMonthID = '$month_id'
  AND    Status = '$status'
   AND SOURCE_DB = '$db_source'
- GROUP  BY CCG, ResponsibleProv
+ GROUP BY $ccg_agg_field, ResponsibleProv

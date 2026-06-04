@@ -9,7 +9,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.bbrb_final_raw;
+ DROP TABLE IF EXISTS $db_output.bbrb_final_raw;
  CREATE TABLE IF NOT EXISTS $db_output.bbrb_final_raw 
  (
  REPORTING_PERIOD_START date,
@@ -29,7 +29,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.bbrb_final_suppressed;
+ DROP TABLE IF EXISTS $db_output.bbrb_final_suppressed;
  CREATE TABLE IF NOT EXISTS $db_output.bbrb_final_suppressed 
  (
  REPORTING_PERIOD_START date,
@@ -49,7 +49,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.bbrb_final;
+ DROP TABLE IF EXISTS $db_output.bbrb_final;
  CREATE TABLE IF NOT EXISTS $db_output.bbrb_final
  (
  REPORTING_PERIOD_START date,
@@ -69,7 +69,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.audit_menh_bbrb;
+ DROP TABLE IF EXISTS $db_output.audit_menh_bbrb;
  CREATE TABLE IF NOT EXISTS $db_output.audit_menh_bbrb 
  (
  MONTH_ID int,
@@ -90,7 +90,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.bbrb_breakdown_values;
+ DROP TABLE IF EXISTS $db_output.bbrb_breakdown_values;
  CREATE TABLE IF NOT EXISTS $db_output.bbrb_breakdown_values 
  (
  BREAKDOWN STRING
@@ -99,7 +99,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.bbrb_level_values;
+ DROP TABLE IF EXISTS $db_output.bbrb_level_values;
  CREATE TABLE IF NOT EXISTS $db_output.bbrb_level_values 
  (
  BREAKDOWN STRING,
@@ -112,7 +112,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.bbrb_csv_lookup;
+ DROP TABLE IF EXISTS $db_output.bbrb_csv_lookup;
  CREATE TABLE IF NOT EXISTS $db_output.bbrb_csv_lookup
  (
  REPORTING_PERIOD_START date,
@@ -136,7 +136,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.bbrb_ccg_latest;                                 
+ DROP TABLE IF EXISTS $db_output.bbrb_ccg_latest;                                 
  CREATE TABLE IF NOT EXISTS $db_output.bbrb_ccg_latest 
  (
  original_ORG_CODE STRING,
@@ -148,7 +148,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.bbrb_ccg_in_month;                                 
+ DROP TABLE IF EXISTS $db_output.bbrb_ccg_in_month;                                 
  CREATE TABLE IF NOT EXISTS $db_output.bbrb_ccg_in_month
  (
  Person_ID   STRING,
@@ -159,29 +159,46 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.bbrb_ccg_in_quarter;                                 
+ DROP TABLE IF EXISTS $db_output.bbrb_ccg_in_quarter;                                 
  CREATE TABLE IF NOT EXISTS $db_output.bbrb_ccg_in_quarter
  (
- Person_ID   STRING,
- SubICBGPRes STRING,
- NAME        STRING
+ Person_ID           STRING,
+ SubICBGPRes         STRING,
+ NAME                STRING,
+ SubICBGPRes_Mapped  STRING,
+ NAME_Mapped         STRING
  ) USING DELTA
 
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.bbrb_ccg_in_year;                                 
+ DROP TABLE IF EXISTS $db_output.bbrb_ccg_in_4month;                                 
+ CREATE TABLE IF NOT EXISTS $db_output.bbrb_ccg_in_4month
+ (
+ Person_ID           STRING,
+ SubICBGPRes         STRING,
+ NAME                STRING,
+ SubICBGPRes_Mapped  STRING,
+ NAME_Mapped         STRING
+ ) USING DELTA
+
+# COMMAND ----------
+
+ %sql
+ DROP TABLE IF EXISTS $db_output.bbrb_ccg_in_year;                                 
  CREATE TABLE IF NOT EXISTS $db_output.bbrb_ccg_in_year 
  (
- Person_ID   STRING,
- SubICBGPRes STRING,
- NAME        STRING
+ Person_ID           STRING,
+ SubICBGPRes         STRING,
+ NAME                STRING,
+ SubICBGPRes_Mapped  STRING,
+ NAME_Mapped         STRING
  ) USING DELTA
 
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.bbrb_org_daily_in_year;                                 
+ DROP TABLE IF EXISTS $db_output.bbrb_org_daily_in_year;                                 
  CREATE TABLE IF NOT EXISTS $db_output.bbrb_org_daily_in_year 
  (
  ORG_CODE STRING,
@@ -191,7 +208,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.bbrb_org_daily_latest;                                 
+ DROP TABLE IF EXISTS $db_output.bbrb_org_daily_latest;                                 
  CREATE TABLE IF NOT EXISTS $db_output.bbrb_org_daily_latest 
  (
  ORG_CODE STRING,
@@ -201,7 +218,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.bbrb_org_daily_latest_mhsds_providers;                                 
+ DROP TABLE IF EXISTS $db_output.bbrb_org_daily_latest_mhsds_providers;                                 
  CREATE TABLE IF NOT EXISTS $db_output.bbrb_org_daily_latest_mhsds_providers 
  (
  ORG_CODE STRING,
@@ -211,7 +228,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.bbrb_org_daily_past_12_months_mhsds_providers;                                 
+ DROP TABLE IF EXISTS $db_output.bbrb_org_daily_past_12_months_mhsds_providers;                                 
  CREATE TABLE IF NOT EXISTS $db_output.bbrb_org_daily_past_12_months_mhsds_providers
  (
  ORG_CODE STRING,
@@ -221,7 +238,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.bbrb_org_daily_past_quarter_mhsds_providers;                                 
+ DROP TABLE IF EXISTS $db_output.bbrb_org_daily_past_quarter_mhsds_providers;                                 
  CREATE TABLE IF NOT EXISTS $db_output.bbrb_org_daily_past_quarter_mhsds_providers 
  (
  ORG_CODE STRING,
@@ -231,7 +248,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.ccg_mapping_2021;
+ DROP TABLE IF EXISTS $db_output.ccg_mapping_2021;
  CREATE TABLE IF NOT EXISTS $db_output.ccg_mapping_2021
  (
  CCG_UNMAPPED STRING, 
@@ -246,7 +263,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.bbrb_org_daily;
+ DROP TABLE IF EXISTS $db_output.bbrb_org_daily;
  CREATE TABLE IF NOT EXISTS $db_output.bbrb_org_daily
  (
  ORG_CODE STRING,
@@ -261,7 +278,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.bbrb_org_relationship_daily;
+ DROP TABLE IF EXISTS $db_output.bbrb_org_relationship_daily;
  CREATE TABLE IF NOT EXISTS $db_output.bbrb_org_relationship_daily 
  (
  REL_TYPE_CODE STRING,
@@ -274,7 +291,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.bbrb_stp_mapping;
+ DROP TABLE IF EXISTS $db_output.bbrb_stp_mapping;
  CREATE TABLE IF NOT EXISTS $db_output.bbrb_stp_mapping
  (
  STP_CODE STRING, 
@@ -288,7 +305,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.mhs001mpi_latest_month_data; 
+ DROP TABLE IF EXISTS $db_output.mhs001mpi_latest_month_data; 
  CREATE TABLE IF NOT EXISTS $db_output.mhs001mpi_latest_month_data 
  (
  AgeDeath bigint,
@@ -368,7 +385,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.eng_pop;
+ DROP TABLE IF EXISTS $db_output.eng_pop;
  CREATE TABLE IF NOT EXISTS $db_output.eng_pop
  (
  Age_Group STRING,
@@ -399,7 +416,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.gender_pop;
+ DROP TABLE IF EXISTS $db_output.gender_pop;
  CREATE TABLE IF NOT EXISTS $db_output.gender_pop
  (
  Age_Group STRING,
@@ -456,7 +473,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.commissioner_pop;
+ DROP TABLE IF EXISTS $db_output.commissioner_pop;
  CREATE TABLE IF NOT EXISTS $db_output.commissioner_pop
  (
  Age_Group STRING,
@@ -472,7 +489,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.age_gender_std_eth_pop;
+ DROP TABLE IF EXISTS $db_output.age_gender_std_eth_pop;
  CREATE TABLE IF NOT EXISTS $db_output.age_gender_std_eth_pop
  (
  Der_Gender string,
@@ -500,7 +517,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.age_gender_std_imd_pop;
+ DROP TABLE IF EXISTS $db_output.age_gender_std_imd_pop;
  CREATE TABLE IF NOT EXISTS $db_output.age_gender_std_imd_pop
  (
  Der_Gender string,
@@ -532,7 +549,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.mh_ass;
+ DROP TABLE IF EXISTS $db_output.mh_ass;
  CREATE TABLE IF NOT EXISTS $db_output.mh_ass 
  (
  Category STRING,
@@ -545,6 +562,21 @@
  CYPMH STRING,
  EIP STRING,
  Rater STRING
+ ) USING DELTA
+
+# COMMAND ----------
+
+ %sql
+ DROP TABLE IF EXISTS $db_output.cmh_proms_ass;
+ CREATE TABLE IF NOT EXISTS $db_output.cmh_proms_ass 
+ (
+ Category STRING,
+ Assessment_Tool_Name STRING,
+ Preferred_Term_SNOMED STRING,
+ Active_Concept_ID_SNOMED BIGINT,
+ SNOMED_Version STRING,
+ Lower_Range INT,
+ Upper_Range INT
  ) USING DELTA
 
 # COMMAND ----------
@@ -567,7 +599,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.nhse_pre_proc_referral;
+ DROP TABLE IF EXISTS $db_output.nhse_pre_proc_referral;
  CREATE TABLE IF NOT EXISTS $db_output.nhse_pre_proc_referral 
  (
  Der_FY STRING,
@@ -599,6 +631,7 @@
  MHS001UniqID BIGINT,
  OrgIDCCGRes string,
  IC_Rec_CCG string,
+ IC_Rec_CCG_Mapped string,
  OrgIDEduEstab string,
  EthnicCategory string,
  EthnicCategory2021 string,
@@ -628,7 +661,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.nhse_pre_proc_distinct_indirect_activity;
+ DROP TABLE IF EXISTS $db_output.nhse_pre_proc_distinct_indirect_activity;
  CREATE TABLE IF NOT EXISTS $db_output.nhse_pre_proc_distinct_indirect_activity
  (
  UniqSubmissionID string,
@@ -650,7 +683,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.nhse_pre_proc_activity;
+ DROP TABLE IF EXISTS $db_output.nhse_pre_proc_activity;
  CREATE TABLE IF NOT EXISTS $db_output.nhse_pre_proc_activity 
  (
  Der_FY string,
@@ -673,7 +706,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.der_nhse_pre_proc_activity;
+ DROP TABLE IF EXISTS $db_output.der_nhse_pre_proc_activity;
  CREATE TABLE IF NOT EXISTS $db_output.der_nhse_pre_proc_activity 
  (
  Der_FY string,
@@ -698,7 +731,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.nhse_pre_proc_inpatients;
+ DROP TABLE IF EXISTS $db_output.nhse_pre_proc_inpatients;
  CREATE TABLE IF NOT EXISTS $db_output.nhse_pre_proc_inpatients 
  (
  Der_FY STRING,
@@ -752,7 +785,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.der_nhse_pre_proc_inpatients;
+ DROP TABLE IF EXISTS $db_output.der_nhse_pre_proc_inpatients;
  CREATE TABLE IF NOT EXISTS $db_output.der_nhse_pre_proc_inpatients 
  (
  Der_FY STRING,
@@ -809,7 +842,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.prep_nhse_pre_proc_assessments;
+ DROP TABLE IF EXISTS $db_output.prep_nhse_pre_proc_assessments;
  CREATE TABLE IF NOT EXISTS $db_output.prep_nhse_pre_proc_assessments
  (
  Der_AssTable string,
@@ -834,7 +867,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.nhse_pre_proc_assessments;
+ DROP TABLE IF EXISTS $db_output.nhse_pre_proc_assessments;
  CREATE TABLE IF NOT EXISTS $db_output.nhse_pre_proc_assessments
  (
  ReportingPeriodStartDate date,
@@ -870,7 +903,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.nhse_pre_proc_assessments_unique;
+ DROP TABLE IF EXISTS $db_output.nhse_pre_proc_assessments_unique;
  CREATE TABLE IF NOT EXISTS $db_output.nhse_pre_proc_assessments_unique
  (
  ReportingPeriodStartDate date,
@@ -903,7 +936,41 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.nhse_pre_proc_assessments_unique_valid;
+ DROP TABLE IF EXISTS $db_output.nhse_pre_proc_assessments_unique_outcomes;
+ CREATE TABLE IF NOT EXISTS $db_output.nhse_pre_proc_assessments_unique_outcomes
+ (
+ ReportingPeriodStartDate date,
+ ReportingPeriodEndDate date,
+ Der_FY string,
+ UniqSubmissionID string,
+ UniqMonthID string,
+ OrgIDProv string,
+ Person_ID string,
+ RecordNumber string,
+ UniqServReqID string,
+ UniqCareContID string,
+ UniqCareActID string,
+ CodedAssToolType string,
+ PersScore string,
+ Der_AssUniqID string,
+ Der_AssTable string,
+ Der_AssToolCompDate string,
+ Der_AgeAssessTool string,
+ Der_AssessmentToolName string,
+ Der_PreferredTermSNOMED string,
+ Der_SNOMEDCodeVersion string,
+ Der_LowerRange int,
+ Der_UpperRange int,
+ Der_ValidScore string,
+ Der_AssessmentCategory string,
+ Der_AssKey string,
+ Der_ValidScoreOutcomes string
+ ) USING DELTA
+
+# COMMAND ----------
+
+ %sql
+ DROP TABLE IF EXISTS $db_output.nhse_pre_proc_assessments_unique_valid;
  CREATE TABLE IF NOT EXISTS $db_output.nhse_pre_proc_assessments_unique_valid
  (
  ReportingPeriodStartDate date,
@@ -940,7 +1007,42 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.nhse_pre_proc_interventions;
+ DROP TABLE IF EXISTS $db_output.nhse_pre_proc_assessments_unique_valid_outcomes;
+ CREATE TABLE IF NOT EXISTS $db_output.nhse_pre_proc_assessments_unique_valid_outcomes
+ (
+ ReportingPeriodStartDate date,
+ ReportingPeriodEndDate date,
+ Der_FY string,
+ UniqSubmissionID string,
+ UniqMonthID string,
+ OrgIDProv string,
+ Person_ID string,
+ RecordNumber string,
+ UniqServReqID string,
+ UniqCareContID string,
+ UniqCareActID string,
+ CodedAssToolType string,
+ PersScore string,
+ Der_AssUniqID string,
+ Der_AssTable string,
+ Der_AssToolCompDate string,
+ Der_AgeAssessTool string,
+ Der_AssessmentToolName string,
+ Der_PreferredTermSNOMED string,
+ Der_SNOMEDCodeVersion string,
+ Der_LowerRange int,
+ Der_UpperRange int,
+ Der_ValidScore string,
+ Der_AssessmentCategory string,
+ Der_AssOrderAsc int,
+ Der_AssOrderDesc int,
+ Der_AssKey string
+ ) USING DELTA
+
+# COMMAND ----------
+
+ %sql
+ DROP TABLE IF EXISTS $db_output.nhse_pre_proc_interventions;
  CREATE TABLE IF NOT EXISTS $db_output.nhse_pre_proc_interventions
  (
  RecordNumber string,
@@ -966,7 +1068,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.eng_desc;
+ DROP TABLE IF EXISTS $db_output.eng_desc;
  CREATE TABLE IF NOT EXISTS $db_output.eng_desc
  (
  England STRING,
@@ -984,7 +1086,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.gender_desc;
+ DROP TABLE IF EXISTS $db_output.gender_desc;
  CREATE TABLE IF NOT EXISTS $db_output.gender_desc
  (
  Der_Gender STRING,
@@ -1017,6 +1119,7 @@
  Age_Group_IPS STRING,
  Age_Group_MHA STRING,
  Age_Group_CYP STRING,
+ Age_Group_Higher_Level_2 STRING,
  FirstMonth INT,
  LastMonth INT
  ) USING DELTA
@@ -1035,7 +1138,9 @@ AgeCat = {
   "Age_Group_MHA": ["Under 18", "18 to 19", "20 to 24", "25 to 29", "30 to 34", "35 to 39", "40 to 44", "45 to 49", "50 to 54", "55 to 59", "60 to 64", "65 to 69" , "70 to 74",
                     "75 to 79", "80 to 84", "85 to 89", "90 and over"],
    #CYP_Outcome_Measures
-  "Age_Group_CYP": ["0 to 5", "6 to 10", "11 to 14", "15", "16", "17"]
+  "Age_Group_CYP": ["0 to 5", "6 to 10", "11 to 14", "15", "16", "17"],
+  #CMH_Outcome_Measures
+  "Age_Group_Higher_Level_2": ["Under 18", "18 to 64", "65 and over"]
 }
  
 AgeCat1 = {key: {x1: x for x in AgeCat[key] for x1 in mapage(x)} for key in AgeCat}
@@ -1044,7 +1149,7 @@ AgeData = [[i] + [AgeCat1[key][i] if i in AgeCat1[key] else "NA" for key in AgeC
 lh = ["Age int"] + [f"{x} string" for x in AgeCat]
 schema1 = ', '.join(lh)
 df1 = spark.createDataFrame(AgeData, schema = schema1)
-unknown_row = spark.createDataFrame([("UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN")], df1.columns)
+unknown_row = spark.createDataFrame([("UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN")], df1.columns)
 df1 = df1.union(unknown_row)
 df1 = df1.select(
   "*",
@@ -1056,7 +1161,7 @@ df1.write.insertInto(f"{db_output}.age_band_desc", overwrite=True)
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.ethnicity_desc;
+ DROP TABLE IF EXISTS $db_output.ethnicity_desc;
  CREATE TABLE IF NOT EXISTS $db_output.ethnicity_desc
  (
  Census21EthnicityCode INT,
@@ -1130,7 +1235,7 @@ df1.write.insertInto(f"{db_output}.age_band_desc", overwrite=True)
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.hosp_bed_desc;
+ DROP TABLE IF EXISTS $db_output.hosp_bed_desc;
  CREATE TABLE IF NOT EXISTS $db_output.hosp_bed_desc
  (
  MHAdmittedPatientClass STRING,
@@ -1205,7 +1310,7 @@ df1.write.insertInto(f"{db_output}.age_band_desc", overwrite=True)
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.ref_reason_desc;
+ DROP TABLE IF EXISTS $db_output.ref_reason_desc;
  CREATE TABLE IF NOT EXISTS $db_output.ref_reason_desc
  (
  PrimReasonReferralMH STRING,
@@ -1254,7 +1359,7 @@ df1.write.insertInto(f"{db_output}.age_band_desc", overwrite=True)
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.serv_team_type_ref_to_desc;
+ DROP TABLE IF EXISTS $db_output.serv_team_type_ref_to_desc;
  CREATE TABLE IF NOT EXISTS $db_output.serv_team_type_ref_to_desc
  (
  ServTeamTypeRefToMH STRING,
@@ -1422,7 +1527,7 @@ df1.write.insertInto(f"{db_output}.age_band_desc", overwrite=True)
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.ServiceTeamType;
+ DROP TABLE IF EXISTS $db_output.ServiceTeamType;
  CREATE TABLE IF NOT EXISTS $db_output.ServiceTeamType
  (
  UniqMonthID BIGINT,
@@ -1441,4 +1546,65 @@ df1.write.insertInto(f"{db_output}.age_band_desc", overwrite=True)
  RecordNumber BIGINT,
  RecordStartDate DATE,
  RecordEndDate DATE
+ ) USING DELTA
+
+# COMMAND ----------
+
+ %md
+ ## Sub ICB Mapping tables
+
+# COMMAND ----------
+
+ %sql
+ DROP TABLE IF EXISTS $db_output.OrgIDSubICBLocGP_Mapping;
+ CREATE TABLE IF NOT EXISTS $db_output.OrgIDSubICBLocGP_Mapping
+ (
+ OrganisationId STRING,
+ TargetOrganisationID STRING,
+ GP_StartDate DATE,
+ GP_EndDate DATE,
+ SubICB_StartDate DATE,
+ SubICB_EndDate DATE
+ ) USING DELTA
+
+# COMMAND ----------
+
+ %sql
+ DROP TABLE IF EXISTS $db_output.OrgIDSubICBLocGP_Mapping_preApr26;
+ CREATE TABLE IF NOT EXISTS $db_output.OrgIDSubICBLocGP_Mapping_preApr26
+ (
+ OrganisationId STRING,
+ TargetOrganisationID STRING,
+ GP_StartDate DATE,
+ GP_EndDate DATE,
+ SubICB_StartDate DATE,
+ SubICB_EndDate DATE
+ ) USING DELTA
+
+# COMMAND ----------
+
+ %sql
+ DROP TABLE IF EXISTS $db_output.OrgIDSubICBLocResidence_Mapping;
+ CREATE TABLE IF NOT EXISTS $db_output.OrgIDSubICBLocResidence_Mapping
+ (
+ PCDS STRING,
+ CCG STRING,
+ RECORD_START_DATE DATE,
+ RECORD_END_DATE DATE
+ ) USING DELTA
+
+# COMMAND ----------
+
+ %sql
+ DROP TABLE IF EXISTS $db_output.commissioning_org_mapping;
+ CREATE TABLE IF NOT EXISTS $db_output.commissioning_org_mapping
+ (
+ ORIGINAL_CCG_CODE STRING,
+ POPULATION_FACTOR FLOAT,
+ CCG_Code STRING,
+ CCG_Name STRING,
+ STP_Code STRING,
+ STP_Name STRING,
+ Region_Code STRING,
+ Region_Name STRING
  ) USING DELTA

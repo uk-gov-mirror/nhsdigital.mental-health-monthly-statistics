@@ -1,5 +1,4 @@
 # Databricks notebook source
-
  %sql
  CREATE OR REPLACE GLOBAL TEMP VIEW Cont AS
  SELECT        c.UniqMonthID
@@ -164,15 +163,37 @@
                       WHEN a.UNIQMONTHID <= 1467 and (OrgIDCCGRes is not null and c.ORG_CODE is not null) then OrgIDCCGRes 
                       WHEN a.UNIQMONTHID > 1467 and (OrgIDSubICBLocResidence is not null and c.ORG_CODE is not null) then OrgIDSubICBLocResidence 
  						ELSE 'UNKNOWN' 
-                         END AS IC_Rec_CCG		
- FROM               $db_source.mhs001MPI a
- LEFT JOIN          $db_source.MHS002GP b 
-                    on a.Person_ID = b.Person_ID 
-                    and a.UniqMonthID = b.UniqMonthID  
-                    and a.recordnumber = b.recordnumber
-                    and b.GMPReg NOT IN ('V81999','V81998','V81997')
-                    --and b.OrgIDGPPrac <> '-1' -- clause removed, check the methodology page of the publication for further details.
-                    and b.EndDateGMPRegistration is null
+                         END AS IC_Rec_CCG,
+ 				   CASE 
+                      WHEN b.UNIQMONTHID <= 1467 and (OrgIDCCGGPPractice is not null and e.ORG_CODE is not null) then OrgIDCCGGPPractice
+                      WHEN b.UNIQMONTHID > 1467 and (OrgIDSubICBLocGP_Mapped is not null and e2.CCG_Code is not null) then OrgIDSubICBLocGP_Mapped
+                      WHEN a.UNIQMONTHID <= 1467 and (OrgIDCCGRes is not null and c.ORG_CODE is not null) then OrgIDCCGRes 
+                      WHEN a.UNIQMONTHID > 1467 and (OrgIDSubICBLocResidence_Mapped is not null and c2.CCG_Code is not null) then OrgIDSubICBLocResidence_Mapped
+ 						ELSE 'UNKNOWN' 
+                         END AS IC_Rec_CCG_Mapped	
+ FROM               (
+     SELECT a.Person_ID, a.UniqMonthID, a.RecordNumber, a.OrgIDCCGRes, a.OrgIDSubICBLocResidence, a.NHSEValidatedPostcode, a.Postcode,
+            mp.CCG as OrgIDSubICBLocResidence_Mapped
+     FROM $db_source.mhs001MPI a
+     LEFT JOIN $db_output.OrgIDSubICBLocResidence_Mapping mp ON regexp_replace(a.Postcode, '\\s+', '') = regexp_replace(mp.PCDS, '\\s+', '')
+  ) a
+ LEFT JOIN          (
+     SELECT b.Person_ID, b.UniqMonthID, b.RecordNumber, b.GMPReg, b.OrgIDCCGGPPractice, b.OrgIDSubICBLocGP, b.EndDateGMPRegistration,
+            COALESCE(mp.TargetOrganisationID, mp2.TargetOrganisationID) as OrgIDSubICBLocGP_Mapped
+     FROM $db_source.MHS002GP b
+     LEFT JOIN (select distinct uniqmonthid, reportingperiodenddate from $db_source.mhs000header) h ON b.UniqMonthID = h.UniqMonthID
+     LEFT JOIN $db_output.OrgIDSubICBLocGP_Mapping mp ON b.GMPReg = mp.OrganisationID ---new Apr26 GP Codes
+     LEFT JOIN $db_output.OrgIDSubICBLocGP_Mapping_preApr26 mp2 ON b.GMPReg = mp2.OrganisationID 
+                                                 and (mp2.GP_EndDate is null OR mp2.GP_EndDate >= h.reportingperiodenddate)
+                                                 and (mp2.SubICB_EndDate is null OR mp2.SubICB_EndDate >= h.reportingperiodenddate)
+                                                 ---GP Codes that were active when submitted and SubICB was valid
+ ) b 
+     on a.Person_ID = b.Person_ID 
+     and a.UniqMonthID = b.UniqMonthID  
+     and a.recordnumber = b.recordnumber
+     and b.GMPReg NOT IN ('V81999','V81998','V81997')
+     --and b.OrgIDGPPrac <> '-1' 
+     and b.EndDateGMPRegistration is null
  INNER JOIN         global_temp.CCG_prep_2months ccg on a.recordnumber = ccg.recordnumber
 
  LEFT JOIN          $db_output.RD_CCG_LATEST c on  
@@ -184,9 +205,17 @@
                        CASE WHEN b.UNIQMONTHID <= 1467 THEN b.OrgIDCCGGPPractice
                        ELSE b.OrgIDSubICBLocGP
                        END = e.ORG_CODE
-                       
- WHERE              (e.ORG_CODE is not null or c.ORG_CODE is not null)
-                    and a.uniqmonthid between $month_id - 1 AND $month_id
+
+  LEFT JOIN          $db_output.commissioning_org_mapping c2 on a.OrgIDSubICBLocResidence_Mapped = c2.CCG_Code
+  LEFT JOIN          $db_output.commissioning_org_mapping e2 on b.OrgIDSubICBLocGP_Mapped = e2.CCG_Code
+  
+  WHERE              (
+     e.ORG_CODE is not null 
+     or c.ORG_CODE is not null 
+     or e2.CCG_Code is not null 
+     or c2.CCG_Code is not null
+     )
+     and a.uniqmonthid between $month_id - 1 AND $month_id
 
 # COMMAND ----------
 

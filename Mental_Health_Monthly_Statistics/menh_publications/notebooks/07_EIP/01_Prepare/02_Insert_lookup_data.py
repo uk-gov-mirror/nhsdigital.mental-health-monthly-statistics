@@ -9,13 +9,12 @@
 # COMMAND ----------
 
 # DBTITLE 1,Collect params for Python
- %python
 
- import os
+import os
 
- db_output = dbutils.widgets.get("db_output")
- month_id = dbutils.widgets.get("month_id")
- month_id_chgover = dbutils.widgets.get("month_id_chgover")
+db_output = dbutils.widgets.get("db_output")
+month_id = dbutils.widgets.get("month_id")
+month_id_chgover = dbutils.widgets.get("month_id_chgover")
 
 # COMMAND ----------
 
@@ -39,12 +38,12 @@
  TRUNCATE TABLE $db_output.AWT_level_values;
  INSERT INTO $db_output.AWT_level_values
  SELECT DISTINCT
-   IC_Rec_CCG as level, 
-   COALESCE(NAME, "UNKNOWN") as level_desc, 
+   $ccg_code_field as level, 
+   COALESCE($ccg_desc_field, "UNKNOWN") as level_desc, 
    'NONE' as secondary_level,
    'NONE' as secondary_level_desc,
    'CCG - GP Practice or Residence' as breakdown 
- FROM $db_output.CCG -- WARNING: The data in this view differs depending on each month rp_enddate
+ FROM $ccg_ref_table -- WARNING: The data in this view differs depending on each month rp_enddate
  UNION ALL
  SELECT DISTINCT
    ORG_CODE as level, 
@@ -62,20 +61,20 @@
    'England' as breakdown
  UNION ALL
  SELECT distinct
-   STP_Code as Level, 
-   STP_Description as level_desc, 
+   $stp_code_field as Level, 
+   $stp_desc_field as level_desc, 
    'NONE' as secondary_level,
    'NONE' as secondary_level_desc,
    'STP - GP Practice or Residence' as breakdown
-   from $db_output.STP_Region_mapping_post_2020
+   from $stp_reg_ref_table
  UNION ALL
  SELECT distinct
-   Region_code as level, 
-   Region_description as level_desc, 
+   $reg_code_field as level, 
+   $reg_desc_field as level_desc, 
    'NONE' as secondary_level,
    'NONE' as secondary_level_desc,
    'Commissioning Region' as breakdown
-   from $db_output.STP_Region_mapping_post_2020
+   from $stp_reg_ref_table
    
  /* Age group breakdowns for ED32 England level only */  
  UNION ALL
@@ -159,19 +158,19 @@
 
  -- Added below for CCG level breakdown of Ethnicity
  UNION ALL
- SELECT DISTINCT IC_Rec_CCG as level, COALESCE(NAME, "UNKNOWN") as level_desc, 'White' as secondary_level, 'White' as secondary_level_desc, 'CCG - GP Practice or Residence; Ethnicity' as breakdown FROM $db_output.CCG
+ SELECT DISTINCT $ccg_code_field as level, COALESCE($ccg_desc_field, "UNKNOWN") as level_desc, 'White' as secondary_level, 'White' as secondary_level_desc, 'CCG - GP Practice or Residence; Ethnicity' as breakdown FROM $ccg_ref_table
  UNION ALL
- SELECT DISTINCT IC_Rec_CCG as level, COALESCE(NAME, "UNKNOWN") as level_desc, 'Mixed' as secondary_level, 'Mixed' as secondary_level_desc, 'CCG - GP Practice or Residence; Ethnicity' as breakdown FROM $db_output.CCG
+ SELECT DISTINCT $ccg_code_field as level, COALESCE($ccg_desc_field, "UNKNOWN") as level_desc, 'Mixed' as secondary_level, 'Mixed' as secondary_level_desc, 'CCG - GP Practice or Residence; Ethnicity' as breakdown FROM $ccg_ref_table
  UNION ALL
- SELECT DISTINCT IC_Rec_CCG as level, COALESCE(NAME, "UNKNOWN") as level_desc, 'Asian or Asian British' as secondary_level, 'Asian or Asian British' as secondary_level_desc, 'CCG - GP Practice or Residence; Ethnicity' as breakdown FROM $db_output.CCG
+ SELECT DISTINCT $ccg_code_field as level, COALESCE($ccg_desc_field, "UNKNOWN") as level_desc, 'Asian or Asian British' as secondary_level, 'Asian or Asian British' as secondary_level_desc, 'CCG - GP Practice or Residence; Ethnicity' as breakdown FROM $ccg_ref_table
  UNION ALL
- SELECT DISTINCT IC_Rec_CCG as level, COALESCE(NAME, "UNKNOWN") as level_desc, 'Black or Black British' as secondary_level, 'Black or Black British' as secondary_level_desc, 'CCG - GP Practice or Residence; Ethnicity' as breakdown FROM $db_output.CCG
+ SELECT DISTINCT $ccg_code_field as level, COALESCE($ccg_desc_field, "UNKNOWN") as level_desc, 'Black or Black British' as secondary_level, 'Black or Black British' as secondary_level_desc, 'CCG - GP Practice or Residence; Ethnicity' as breakdown FROM $ccg_ref_table
  UNION ALL
- SELECT DISTINCT IC_Rec_CCG as level, COALESCE(NAME, "UNKNOWN") as level_desc, 'Other Ethnic Groups' as secondary_level, 'Other Ethnic Groups' as secondary_level_desc, 'CCG - GP Practice or Residence; Ethnicity' as breakdown FROM $db_output.CCG
+ SELECT DISTINCT $ccg_code_field as level, COALESCE($ccg_desc_field, "UNKNOWN") as level_desc, 'Other Ethnic Groups' as secondary_level, 'Other Ethnic Groups' as secondary_level_desc, 'CCG - GP Practice or Residence; Ethnicity' as breakdown FROM $ccg_ref_table
  UNION ALL
- SELECT DISTINCT IC_Rec_CCG as level, COALESCE(NAME, "UNKNOWN") as level_desc, 'Not Stated' as secondary_level, 'Not Stated' as secondary_level_desc, 'CCG - GP Practice or Residence; Ethnicity' as breakdown FROM $db_output.CCG
+ SELECT DISTINCT $ccg_code_field as level, COALESCE($ccg_desc_field, "UNKNOWN") as level_desc, 'Not Stated' as secondary_level, 'Not Stated' as secondary_level_desc, 'CCG - GP Practice or Residence; Ethnicity' as breakdown FROM $ccg_ref_table
  UNION ALL
- SELECT DISTINCT IC_Rec_CCG as level, COALESCE(NAME, "UNKNOWN") as level_desc, 'Unknown' as secondary_level, 'Unknown' as secondary_level_desc, 'CCG - GP Practice or Residence; Ethnicity' as breakdown FROM $db_output.CCG
+ SELECT DISTINCT $ccg_code_field as level, COALESCE($ccg_desc_field, "UNKNOWN") as level_desc, 'Unknown' as secondary_level, 'Unknown' as secondary_level_desc, 'CCG - GP Practice or Residence; Ethnicity' as breakdown FROM $ccg_ref_table
 
  -- Added below for Provider level breakdown of Ethnicity
  UNION ALL  
@@ -422,13 +421,12 @@
 # COMMAND ----------
 
 # DBTITLE 1,Optimize and vaccum tables
- %python
 
- if os.environ['env'] == 'prod':
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='AWT_breakdown_values'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='AWT_level_values'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='AWT_metric_values'))
+if os.environ['env'] == 'prod':
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='AWT_breakdown_values'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='AWT_level_values'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='AWT_metric_values'))
 
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='AWT_breakdown_values'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='AWT_level_values'))
- spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='AWT_metric_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='AWT_breakdown_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='AWT_level_values'))
+spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output, table='AWT_metric_values'))

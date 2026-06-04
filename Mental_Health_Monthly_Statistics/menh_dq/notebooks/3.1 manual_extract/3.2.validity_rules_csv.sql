@@ -1,5 +1,6 @@
 -- Databricks notebook source
 -- DBTITLE 1,Extract Validity Rules
+
 --DELETE FROM $db_output.validity_rules;
 --INSERT INTO $db_output.validity_rules
 --CREATE OR REPLACE TEMPORARY VIEW dq_vw_vadility AS

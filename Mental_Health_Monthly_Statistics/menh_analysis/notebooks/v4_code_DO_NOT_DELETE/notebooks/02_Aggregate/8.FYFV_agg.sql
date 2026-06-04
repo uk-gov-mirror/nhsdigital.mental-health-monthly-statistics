@@ -1,10 +1,11 @@
 -- Databricks notebook source
-create widget text db_output default "menh_analysis";
-create widget text db_source default "mhsds_database";
-create widget text month_id default "1431";
-create widget text rp_startdate_m1 default "2019-04-01";
-create widget text rp_enddate default "2019-06-30";
-create widget text status default "Final";
+ %sql
+ create widget text db_output default "menh_analysis";
+ create widget text db_source default "mhsds_database";
+ create widget text month_id default "1431";
+ create widget text rp_startdate_m1 default "2019-04-01";
+ create widget text rp_enddate default "2019-06-30";
+ create widget text status default "Final";
 
 -- COMMAND ----------
 
@@ -197,124 +198,131 @@ INSERT INTO $db_output.FYFV_unformatted
 
 -- COMMAND ----------
 
+ %sql
 
-INSERT INTO $db_output.FYFV_unformatted
-    SELECT '$rp_startdate_m1' AS REPORTING_PERIOD_START
-            ,'$rp_enddate' AS REPORTING_PERIOD_END
-			,'$status' AS STATUS
-			,'Region' AS BREAKDOWN
-			,AMH03.Region_code AS PRIMARY_LEVEL
-			,AMH03.Region_description AS PRIMARY_LEVEL_DESCRIPTION
-			,'NONE' AS SECONDARY_LEVEL
-			,'NONE' AS SECONDARY_LEVEL_DESCRIPTION
-			,'AMH13e%' AS METRIC
-            ,(cast(count(distinct AMH14.Person_ID) as INT) / cast(count(distinct AMH03.Person_ID) as INT))*100	AS METRIC_VALUE,
-            '$db_source' AS SOURCE_DB
-      FROM  $db_output.AMH03e_prep AS AMH03
- LEFT JOIN  $db_output.AMH13e_14e_prep AS AMH14
-            ON AMH14.Person_ID = AMH03.Person_ID
-            AND AMH14.Region_code = AMH03.Region_code
-  GROUP BY  AMH03.Region_code, AMH03.Region_description ;
-
--- COMMAND ----------
-
-
-INSERT INTO $db_output.FYFV_unformatted
-    SELECT '$rp_startdate_m1' AS REPORTING_PERIOD_START
-            ,'$rp_enddate' AS REPORTING_PERIOD_END
-			,'$status' AS STATUS
-			,'STP' AS BREAKDOWN
-			,AMH03.STP_code AS PRIMARY_LEVEL
-			,AMH03.STP_description AS PRIMARY_LEVEL_DESCRIPTION
-			,'NONE' AS SECONDARY_LEVEL
-			,'NONE' AS SECONDARY_LEVEL_DESCRIPTION
-			,'AMH13e%' AS METRIC
-            ,(cast(count(distinct AMH14.Person_ID) as INT) / cast(count(distinct AMH03.Person_ID) as INT))*100	AS METRIC_VALUE, 
-            '$db_source' AS SOURCE_DB
-      FROM  $db_output.AMH03e_prep AS AMH03
- LEFT JOIN  $db_output.AMH13e_14e_prep AS AMH14
-            ON AMH14.Person_ID = AMH03.Person_ID
-            AND AMH14.STP_code = AMH03.STP_code
-  GROUP BY  AMH03.STP_code, AMH03.STP_description ;
-
--- COMMAND ----------
-
-
-INSERT INTO $db_output.FYFV_unformatted
-    SELECT '$rp_startdate_m1' AS REPORTING_PERIOD_START,
-             '$rp_enddate' AS REPORTING_PERIOD_END,
-		     '$status' AS STATUS,
-			 'England' AS BREAKDOWN,
-			 'England' AS PRIMARY_LEVEL,
-			 'England' AS PRIMARY_LEVEL_DESCRIPTION,
-			 'NONE' AS SECONDARY_LEVEL,
-			 'NONE' AS SECONDARY_LEVEL_DESCRIPTION,
-			 'AMH14e' AS METRIC,
-			 CAST (COALESCE (CAST(COUNT (DISTINCT Person_ID) AS INT), 0) AS STRING) AS METRIC_VALUE, 
+ INSERT INTO $db_output.FYFV_unformatted
+     SELECT '$rp_startdate_m1' AS REPORTING_PERIOD_START
+             ,'$rp_enddate' AS REPORTING_PERIOD_END
+ 			,'$status' AS STATUS
+ 			,'Region' AS BREAKDOWN
+ 			,AMH03.Region_code AS PRIMARY_LEVEL
+ 			,AMH03.Region_description AS PRIMARY_LEVEL_DESCRIPTION
+ 			,'NONE' AS SECONDARY_LEVEL
+ 			,'NONE' AS SECONDARY_LEVEL_DESCRIPTION
+ 			,'AMH13e%' AS METRIC
+             ,(cast(count(distinct AMH14.Person_ID) as INT) / cast(count(distinct AMH03.Person_ID) as INT))*100	AS METRIC_VALUE,
              '$db_source' AS SOURCE_DB
-        FROM $db_output.AMH13e_14e_prep
-       WHERE SettledAccommodationInd = 'Y'
-             AND RANK = '1';
+       FROM  $db_output.AMH03e_prep AS AMH03
+  LEFT JOIN  $db_output.AMH13e_14e_prep AS AMH14
+             ON AMH14.Person_ID = AMH03.Person_ID
+             AND AMH14.Region_code = AMH03.Region_code
+   GROUP BY  AMH03.Region_code, AMH03.Region_description ;
 
 -- COMMAND ----------
 
+ %sql
 
-INSERT INTO $db_output.FYFV_unformatted
-    SELECT '$rp_startdate_m1' AS REPORTING_PERIOD_START,
-             '$rp_enddate' AS REPORTING_PERIOD_END,
-		     '$status' AS STATUS,
-			 'CCG - GP Practice or Residence' AS BREAKDOWN,
-			 IC_Rec_CCG AS PRIMARY_LEVEL,
-			 NAME AS PRIMARY_LEVEL_DESCRIPTION,
-			 'NONE' AS SECONDARY_LEVEL,
-			 'NONE' AS SECONDARY_LEVEL_DESCRIPTION,
-			 'AMH14e' AS METRIC,
-			 CAST (COALESCE (CAST(COUNT (DISTINCT Person_ID) AS INT), 0) AS STRING) AS METRIC_VALUE,  
+ INSERT INTO $db_output.FYFV_unformatted
+     SELECT '$rp_startdate_m1' AS REPORTING_PERIOD_START
+             ,'$rp_enddate' AS REPORTING_PERIOD_END
+ 			,'$status' AS STATUS
+ 			,'STP' AS BREAKDOWN
+ 			,AMH03.STP_code AS PRIMARY_LEVEL
+ 			,AMH03.STP_description AS PRIMARY_LEVEL_DESCRIPTION
+ 			,'NONE' AS SECONDARY_LEVEL
+ 			,'NONE' AS SECONDARY_LEVEL_DESCRIPTION
+ 			,'AMH13e%' AS METRIC
+             ,(cast(count(distinct AMH14.Person_ID) as INT) / cast(count(distinct AMH03.Person_ID) as INT))*100	AS METRIC_VALUE, 
              '$db_source' AS SOURCE_DB
-        FROM $db_output.AMH13e_14e_prep
-       WHERE SettledAccommodationInd = 'Y' 
-             AND RANK = '1'
-    GROUP BY IC_Rec_CCG, NAME;
+       FROM  $db_output.AMH03e_prep AS AMH03
+  LEFT JOIN  $db_output.AMH13e_14e_prep AS AMH14
+             ON AMH14.Person_ID = AMH03.Person_ID
+             AND AMH14.STP_code = AMH03.STP_code
+   GROUP BY  AMH03.STP_code, AMH03.STP_description ;
 
 -- COMMAND ----------
 
+ %sql
 
-INSERT INTO $db_output.FYFV_unformatted
-    SELECT '$rp_startdate_m1' AS REPORTING_PERIOD_START,
-             '$rp_enddate' AS REPORTING_PERIOD_END,
-		     '$status' AS STATUS,
-			 'Region' AS BREAKDOWN,
-			 Region_code AS PRIMARY_LEVEL,
-			 Region_description AS PRIMARY_LEVEL_DESCRIPTION,
-			 'NONE' AS SECONDARY_LEVEL,
-			 'NONE' AS SECONDARY_LEVEL_DESCRIPTION,
-			 'AMH14e' AS METRIC,
-			 CAST (COALESCE (CAST(COUNT (DISTINCT Person_ID) AS INT), 0) AS STRING) AS METRIC_VALUE,  
-             '$db_source' AS SOURCE_DB
-        FROM $db_output.AMH13e_14e_prep
-       WHERE SettledAccommodationInd = 'Y' 
-             AND RANK = '1'
-    GROUP BY Region_code, Region_description;
+ INSERT INTO $db_output.FYFV_unformatted
+     SELECT '$rp_startdate_m1' AS REPORTING_PERIOD_START,
+              '$rp_enddate' AS REPORTING_PERIOD_END,
+ 		     '$status' AS STATUS,
+ 			 'England' AS BREAKDOWN,
+ 			 'England' AS PRIMARY_LEVEL,
+ 			 'England' AS PRIMARY_LEVEL_DESCRIPTION,
+ 			 'NONE' AS SECONDARY_LEVEL,
+ 			 'NONE' AS SECONDARY_LEVEL_DESCRIPTION,
+ 			 'AMH14e' AS METRIC,
+ 			 CAST (COALESCE (CAST(COUNT (DISTINCT Person_ID) AS INT), 0) AS STRING) AS METRIC_VALUE, 
+              '$db_source' AS SOURCE_DB
+         FROM $db_output.AMH13e_14e_prep
+        WHERE SettledAccommodationInd = 'Y'
+              AND RANK = '1';
 
 -- COMMAND ----------
 
+ %sql
 
-INSERT INTO $db_output.FYFV_unformatted
-    SELECT '$rp_startdate_m1' AS REPORTING_PERIOD_START,
-             '$rp_enddate' AS REPORTING_PERIOD_END,
-		     '$status' AS STATUS,
-			 'STP' AS BREAKDOWN,
-			 STP_code AS PRIMARY_LEVEL,
-			 STP_description AS PRIMARY_LEVEL_DESCRIPTION,
-			 'NONE' AS SECONDARY_LEVEL,
-			 'NONE' AS SECONDARY_LEVEL_DESCRIPTION,
-			 'AMH14e' AS METRIC,
-			 CAST (COALESCE (CAST(COUNT (DISTINCT Person_ID) AS INT), 0) AS STRING) AS METRIC_VALUE,  
-             '$db_source' AS SOURCE_DB
-        FROM $db_output.AMH13e_14e_prep
-       WHERE SettledAccommodationInd = 'Y' 
-             AND RANK = '1'
-    GROUP BY STP_code, STP_description;
+ INSERT INTO $db_output.FYFV_unformatted
+     SELECT '$rp_startdate_m1' AS REPORTING_PERIOD_START,
+              '$rp_enddate' AS REPORTING_PERIOD_END,
+ 		     '$status' AS STATUS,
+ 			 'CCG - GP Practice or Residence' AS BREAKDOWN,
+ 			 IC_Rec_CCG AS PRIMARY_LEVEL,
+ 			 NAME AS PRIMARY_LEVEL_DESCRIPTION,
+ 			 'NONE' AS SECONDARY_LEVEL,
+ 			 'NONE' AS SECONDARY_LEVEL_DESCRIPTION,
+ 			 'AMH14e' AS METRIC,
+ 			 CAST (COALESCE (CAST(COUNT (DISTINCT Person_ID) AS INT), 0) AS STRING) AS METRIC_VALUE,  
+              '$db_source' AS SOURCE_DB
+         FROM $db_output.AMH13e_14e_prep
+        WHERE SettledAccommodationInd = 'Y' 
+              AND RANK = '1'
+     GROUP BY IC_Rec_CCG, NAME;
+
+-- COMMAND ----------
+
+ %sql
+
+ INSERT INTO $db_output.FYFV_unformatted
+     SELECT '$rp_startdate_m1' AS REPORTING_PERIOD_START,
+              '$rp_enddate' AS REPORTING_PERIOD_END,
+ 		     '$status' AS STATUS,
+ 			 'Region' AS BREAKDOWN,
+ 			 Region_code AS PRIMARY_LEVEL,
+ 			 Region_description AS PRIMARY_LEVEL_DESCRIPTION,
+ 			 'NONE' AS SECONDARY_LEVEL,
+ 			 'NONE' AS SECONDARY_LEVEL_DESCRIPTION,
+ 			 'AMH14e' AS METRIC,
+ 			 CAST (COALESCE (CAST(COUNT (DISTINCT Person_ID) AS INT), 0) AS STRING) AS METRIC_VALUE,  
+              '$db_source' AS SOURCE_DB
+         FROM $db_output.AMH13e_14e_prep
+        WHERE SettledAccommodationInd = 'Y' 
+              AND RANK = '1'
+     GROUP BY Region_code, Region_description;
+
+-- COMMAND ----------
+
+ %sql
+
+ INSERT INTO $db_output.FYFV_unformatted
+     SELECT '$rp_startdate_m1' AS REPORTING_PERIOD_START,
+              '$rp_enddate' AS REPORTING_PERIOD_END,
+ 		     '$status' AS STATUS,
+ 			 'STP' AS BREAKDOWN,
+ 			 STP_code AS PRIMARY_LEVEL,
+ 			 STP_description AS PRIMARY_LEVEL_DESCRIPTION,
+ 			 'NONE' AS SECONDARY_LEVEL,
+ 			 'NONE' AS SECONDARY_LEVEL_DESCRIPTION,
+ 			 'AMH14e' AS METRIC,
+ 			 CAST (COALESCE (CAST(COUNT (DISTINCT Person_ID) AS INT), 0) AS STRING) AS METRIC_VALUE,  
+              '$db_source' AS SOURCE_DB
+         FROM $db_output.AMH13e_14e_prep
+        WHERE SettledAccommodationInd = 'Y' 
+              AND RANK = '1'
+     GROUP BY STP_code, STP_description;
+     
 
 -- COMMAND ----------
 

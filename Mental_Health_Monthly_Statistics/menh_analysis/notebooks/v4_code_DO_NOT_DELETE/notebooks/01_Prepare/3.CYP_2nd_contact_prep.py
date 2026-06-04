@@ -11,14 +11,15 @@
 
 # COMMAND ----------
 
-assert dbutils.widgets.get('Financial_Yr_Start')
-assert dbutils.widgets.get('Financial_Yr_End')
-assert dbutils.widgets.get('db_output')
-assert dbutils.widgets.get('db_source')
-assert dbutils.widgets.get('month_id')
-assert dbutils.widgets.get('rp_enddate')
-assert dbutils.widgets.get('rp_startdate')
-assert dbutils.widgets.get('status')
+ %python
+ assert dbutils.widgets.get('Financial_Yr_Start')
+ assert dbutils.widgets.get('Financial_Yr_End')
+ assert dbutils.widgets.get('db_output')
+ assert dbutils.widgets.get('db_source')
+ assert dbutils.widgets.get('month_id')
+ assert dbutils.widgets.get('rp_enddate')
+ assert dbutils.widgets.get('rp_startdate')
+ assert dbutils.widgets.get('status')
 
 # COMMAND ----------
 

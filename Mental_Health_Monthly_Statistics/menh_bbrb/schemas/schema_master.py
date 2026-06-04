@@ -1,4 +1,9 @@
 # Databricks notebook source
+ %sql
+ create widget text db_output default "ellie_hogan1_100239";
+
+# COMMAND ----------
+
 db_output = dbutils.widgets.get("db_output")
 print(db_output)
 assert db_output
@@ -51,6 +56,14 @@ dbutils.notebook.run('09_create_mhc_tables', 0, params)
 # COMMAND ----------
 
 dbutils.notebook.run('10_create_mha_tables', 0, params)
+
+# COMMAND ----------
+
+dbutils.notebook.run('11_create_cmh_outcomes_tables', 0, params)
+
+# COMMAND ----------
+
+dbutils.notebook.run('12_create_readmissions_tables', 0, params)
 
 # COMMAND ----------
 

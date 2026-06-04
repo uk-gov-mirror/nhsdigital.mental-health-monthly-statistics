@@ -26,8 +26,7 @@ assert db_source
 # COMMAND ----------
 
 # DBTITLE 1,Optimize output table for performance
- %python
 
- import os
+import os
 
- spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='72hours_unrounded_stg'))
+spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='72hours_unrounded_stg'))

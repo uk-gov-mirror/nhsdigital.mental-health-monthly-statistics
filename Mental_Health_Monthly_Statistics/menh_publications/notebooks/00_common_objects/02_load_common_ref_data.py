@@ -3,11 +3,20 @@
 
  # Generic Prep assets used throughout Mental health menh_publications
  -- NP: only cells which have been added for CYP_ED_WT have been noted here
- -- USER: updated to include all tables prepared in this notebook
+ -- User: updated to include all tables prepared in this notebook
+
+ - OrgIDSubICBLocGP_Mapping - TABLE
+ - OrgIDSubICBLocGP_Mapping_preApr26 - TABLE
+ - OrgIDSubICBLocResidence_Mapping - TABLE
+ - valid_subicb_role_details - view
+ - valid_subicb_no_hubs - view
+ - valid_icb_targets - view
+ - valid_region_targets - view
+ - commissioning_org_mapping - TABLE
 
  - RD_CCG_LATEST - TABLE
  - CCG_PRAC - view
- - CCG_prep_3months [USER changed from ed_CCG_prep as the tables are the same] - view
+ - CCG_prep_3months [User changed from ed_CCG_prep as the tables are the same] - view
  - CCG_PREP - view
  - CCG - TABLE
  - RD_ORG_DAILY_LATEST - TABLE
@@ -19,7 +28,7 @@
  - org_relationship_daily - view
  - STP_Region_mapping_post_2020 - TABLE
  - MHS101Referral_LATEST - view
- - MHS001_CCG_LATEST - [USER changed from ED_CCG_LATEST] - TABLE
+ - MHS001_CCG_LATEST - [User changed from ED_CCG_LATEST] - TABLE
  - MHS001_PATMRECINRP_201819_F_M - view
  - MHS001MPI_PATMRECINRP_FIX - view
 
@@ -42,6 +51,138 @@
  - Ref_EthnicGroup - TABLE
  - Ref_AgeBand - TABLE
  - Ref_IMD_Decile - TABLE
+
+# COMMAND ----------
+
+ %sql
+ ---needed to map OrgIDSubICBLocGP to post Apr26 Sub ICBs
+ INSERT OVERWRITE TABLE $db_output.OrgIDSubICBLocGP_Mapping
+ select gp.OrganisationId, subicb.TargetOrganisationID, 
+ gp.StartDate as GP_StartDate, gp.EndDate as GP_EndDate, subicb.StartDate as SubICB_StartDate, subicb.EndDate as SubICB_EndDate
+ from reference_data.odsapiroledetails gp
+ inner join reference_data.odsapirelationshipdetails subicb 
+             on gp.OrganisationID = subicb.OrganisationID 
+             and subicb.RelationshipID = "RE4" ---GP Practice (OrganisationID) is "Commissioned by"
+             and subicb.TargetPrimaryRoleID = "RO98" ---TargetOrganisationID is Clinical Commissioning Group
+ where (subicb.EndDate is null or subicb.EndDate > "2026-03-31") --Sub ICB is Active after April 2026 Merges
+
+# COMMAND ----------
+
+ %sql
+ ---needed to map OrgIDSubICBLocGP to pre Apr26 Sub ICBs
+ INSERT OVERWRITE TABLE $db_output.OrgIDSubICBLocGP_Mapping_preApr26
+ select gp.OrganisationId, subicb.TargetOrganisationID, 
+ gp.StartDate as GP_StartDate, gp.EndDate as GP_EndDate, subicb.StartDate as SubICB_StartDate, subicb.EndDate as SubICB_EndDate
+ from reference_data.odsapiroledetails gp
+ inner join reference_data.odsapirelationshipdetails subicb 
+             on gp.OrganisationID = subicb.OrganisationID 
+             and subicb.RelationshipID = "RE4" ---GP Practice (OrganisationID) is "Commissioned by"
+             and subicb.TargetPrimaryRoleID = "RO98" ---TargetOrganisationID is Clinical Commissioning Group
+
+# COMMAND ----------
+
+ %sql
+ ---needed to map OrgIDSubICBLocResidence
+ INSERT OVERWRITE TABLE $db_output.OrgIDSubICBLocResidence_Mapping
+ select distinct PCDS, CCG, RECORD_START_DATE, RECORD_END_DATE
+ from $reference_data.postcode_special_release_2026
+ where CCG is not null and
+ RECORD_START_DATE <= "$rp_enddate" and (RECORD_END_DATE is null or RECORD_END_DATE > "$rp_enddate") --PostCode is Active during time period
+
+# COMMAND ----------
+
+ %sql
+ CREATE OR REPLACE TEMPORARY VIEW commissioning_org_names AS
+ WITH ranked AS (
+   SELECT
+       OrganisationID,
+       Name,
+       StartDate AS Date,
+       ROW_NUMBER() OVER (PARTITION BY OrganisationID ORDER BY StartDate DESC) AS rn
+   FROM $reference_data.ODSAPIOrganisationDetails
+ )
+ SELECT OrganisationID, Name
+ FROM ranked
+ WHERE rn = 1
+
+# COMMAND ----------
+
+ %sql
+ CREATE OR REPLACE TEMPORARY VIEW valid_subicb_role_details AS
+ SELECT
+   OrganisationID, StartDate, EndDate, RoleId, PrimaryRole, DateType
+
+ FROM (
+ SELECT
+     rd.OrganisationID,
+     rd.StartDate,
+     rd.EndDate,
+     rd.RoleId,
+     rd.PrimaryRole,
+     rd.DateType,
+     ROW_NUMBER() OVER (PARTITION BY rd.OrganisationID ORDER BY rd.DateType ASC, rd.StartDate DESC) AS rn
+   FROM reference_data.ODSAPIRoleDetails rd
+   WHERE rd.RoleId = 'RO319'
+     AND rd.PrimaryRole = 0
+ ) rd
+ WHERE rn = 1
+ AND rd.StartDate <= add_months("2026-03-31", 1)
+ AND (rd.EndDate >= add_months("2026-03-31", 1) OR rd.EndDate IS NULL);
+
+# COMMAND ----------
+
+ %sql
+ CREATE OR REPLACE TEMPORARY VIEW valid_subicb_no_hubs AS
+ SELECT a.*
+ FROM valid_subicb_role_details a
+ INNER JOIN commissioning_org_names b
+   ON a.OrganisationID = b.OrganisationID
+ WHERE b.Name NOT RLIKE 'HUB|NATIONAL|ENTITY'
+
+# COMMAND ----------
+
+ %sql
+ CREATE OR REPLACE TEMPORARY VIEW valid_icb_targets as
+ select distinct OrganisationID, TargetOrganisationID 
+ from $reference_data.odsapirelationshipdetails icb
+ where icb.TargetPrimaryRoleID = "RO261"
+ AND icb.StartDate <= add_months("2026-03-31", 1)
+ AND (icb.EndDate >= add_months("2026-03-31", 1) OR icb.EndDate IS NULL)
+
+# COMMAND ----------
+
+ %sql
+ CREATE OR REPLACE TEMPORARY VIEW valid_region_targets as
+ select distinct OrganisationID, TargetOrganisationID 
+ from $reference_data.odsapirelationshipdetails reg
+ where reg.TargetPrimaryRoleID = "RO209"
+ AND reg.StartDate <= add_months("2026-03-31", 1)
+ AND (reg.EndDate >= add_months("2026-03-31", 1) OR reg.EndDate IS NULL)
+
+# COMMAND ----------
+
+ %sql
+ INSERT OVERWRITE TABLE $db_output.commissioning_org_mapping
+ SELECT
+   sub.OrganisationID              AS CCG_Code,
+   subn.Name                       AS CCG_Name,
+   icb.TargetOrganisationID         AS STP_Code,
+   icbn.Name                        AS STP_Name,
+   reg.TargetOrganisationID         AS Region_Code,
+   regn.Name                        AS Region_Name
+ FROM valid_subicb_no_hubs sub
+ LEFT JOIN commissioning_org_names subn
+   ON sub.OrganisationID = subn.OrganisationID
+ LEFT JOIN valid_icb_targets icb
+   ON sub.OrganisationID = icb.OrganisationID
+ LEFT JOIN commissioning_org_names icbn
+   ON icb.TargetOrganisationID = icbn.OrganisationID
+ LEFT JOIN valid_region_targets reg
+   ON icb.TargetOrganisationID = reg.OrganisationID
+ LEFT JOIN commissioning_org_names regn
+   ON reg.TargetOrganisationID = regn.OrganisationID
+ WHERE icb.TargetOrganisationID IS NOT NULL
+   AND reg.TargetOrganisationID IS NOT NULL;
 
 # COMMAND ----------
 
@@ -615,26 +756,58 @@
  TRUNCATE TABLE $db_output.MHS001_CCG_LATEST;
 
  INSERT INTO TABLE $db_output.MHS001_CCG_LATEST
- select distinct    a.Person_ID,
- 				   CASE WHEN b.UniqMonthID <= 1467 AND b.OrgIDCCGGPPractice IS NOT NULL and e.ORG_CODE is not null THEN b.OrgIDCCGGPPractice
- 					    WHEN b.UniqMonthID > 1467 AND b.OrgIDSubICBLocGP IS NOT NULL and e1.ORG_CODE is not null THEN b.OrgIDSubICBLocGP
- 					    WHEN a.UniqMonthID <= 1467 AND A.OrgIDCCGRes IS NOT NULL and c.ORG_CODE is not null THEN A.OrgIDCCGRes
-                         WHEN a.UniqMonthID > 1467 AND A.OrgIDSubICBLocResidence IS NOT NULL and c1.ORG_CODE is not null THEN A.OrgIDSubICBLocResidence
- 						ELSE 'UNKNOWN' END AS IC_Rec_CCG		
- FROM               $db_source.mhs001MPI a
- LEFT JOIN          $db_source.MHS002GP b 
-                    on a.Person_ID = b.Person_ID 
-                    and a.UniqMonthID = b.UniqMonthID  
-                    and a.recordnumber = b.recordnumber
-                    and b.GMPReg NOT IN ('V81999','V81998','V81997')
-                    --and b.OrgIDGPPrac <> '-1' 
-                    and b.EndDateGMPRegistration is null
- INNER JOIN         global_temp.CCG_prep_3months ccg on a.recordnumber = ccg.recordnumber
- LEFT JOIN          $db_output.RD_CCG_LATEST c on a.OrgIDCCGRes = c.original_ORG_CODE
- LEFT JOIN          $db_output.RD_CCG_LATEST e on b.OrgIDCCGGPPractice = e.original_ORG_CODE
- LEFT JOIN          $db_output.RD_CCG_LATEST c1 on a.OrgIDSubICBLocResidence = c1.original_ORG_CODE
- LEFT JOIN          $db_output.RD_CCG_LATEST e1 on b.OrgIDSubICBLocGP = e1.original_ORG_CODE
- WHERE              (e.ORG_CODE is not null or c.ORG_CODE is not null or e1.ORG_CODE is not null or c1.ORG_CODE is not null)
+ select distinct    
+ a.Person_ID,
+ CASE WHEN b.UniqMonthID <= 1467 AND b.OrgIDCCGGPPractice IS NOT NULL and e.ORG_CODE is not null THEN b.OrgIDCCGGPPractice
+      WHEN b.UniqMonthID > 1467 AND b.OrgIDSubICBLocGP IS NOT NULL and e1.ORG_CODE is not null THEN b.OrgIDSubICBLocGP
+      WHEN a.UniqMonthID <= 1467 AND A.OrgIDCCGRes IS NOT NULL and c.ORG_CODE is not null THEN A.OrgIDCCGRes
+      WHEN a.UniqMonthID > 1467 AND A.OrgIDSubICBLocResidence IS NOT NULL and c1.ORG_CODE is not null THEN A.OrgIDSubICBLocResidence
+      ELSE 'UNKNOWN' END AS IC_Rec_CCG,
+ CASE WHEN b.UniqMonthID <= 1467 AND b.OrgIDCCGGPPractice IS NOT NULL and e.ORG_CODE is not null THEN b.OrgIDCCGGPPractice
+      WHEN b.UniqMonthID > 1467 AND b.OrgIDSubICBLocGP_Mapped IS NOT NULL and e2.CCG_Code is not null THEN b.OrgIDSubICBLocGP_Mapped
+      WHEN a.UniqMonthID <= 1467 AND A.OrgIDCCGRes IS NOT NULL and c.ORG_CODE is not null THEN A.OrgIDCCGRes
+      WHEN a.UniqMonthID > 1467 AND A.OrgIDSubICBLocResidence_Mapped IS NOT NULL and c2.CCG_Code is not null THEN A.OrgIDSubICBLocResidence_Mapped
+     ELSE 'UNKNOWN' END AS IC_Rec_CCG_Mapped		
+
+ FROM               (
+     SELECT a.Person_ID, a.UniqMonthID, a.RecordNumber, a.OrgIDCCGRes, a.OrgIDSubICBLocResidence, a.NHSEValidatedPostcode, a.Postcode,
+            mp.CCG as OrgIDSubICBLocResidence_Mapped
+     FROM $db_source.mhs001MPI a
+     LEFT JOIN $db_output.OrgIDSubICBLocResidence_Mapping mp ON regexp_replace(a.Postcode, '\\s+', '') = regexp_replace(mp.PCDS, '\\s+', '')
+  ) a
+ LEFT JOIN          (
+     SELECT b.Person_ID, b.UniqMonthID, b.RecordNumber, b.GMPReg, b.OrgIDCCGGPPractice, b.OrgIDSubICBLocGP, b.EndDateGMPRegistration,
+            COALESCE(mp.TargetOrganisationID, mp2.TargetOrganisationID) as OrgIDSubICBLocGP_Mapped
+     FROM $db_source.MHS002GP b
+     LEFT JOIN (select distinct uniqmonthid, reportingperiodenddate from $db_source.mhs000header) h ON b.UniqMonthID = h.UniqMonthID
+     LEFT JOIN $db_output.OrgIDSubICBLocGP_Mapping mp ON b.GMPReg = mp.OrganisationID ---new Apr26 GP Codes
+     LEFT JOIN $db_output.OrgIDSubICBLocGP_Mapping_preApr26 mp2 ON b.GMPReg = mp2.OrganisationID 
+                                                 and (mp2.GP_EndDate is null OR mp2.GP_EndDate >= h.reportingperiodenddate)
+                                                 and (mp2.SubICB_EndDate is null OR mp2.SubICB_EndDate >= h.reportingperiodenddate)
+                                                 ---GP Codes that were active when submitted and SubICB was valid
+ ) b 
+     on a.Person_ID = b.Person_ID 
+     and a.UniqMonthID = b.UniqMonthID  
+     and a.recordnumber = b.recordnumber
+     and b.GMPReg NOT IN ('V81999','V81998','V81997')
+     --and b.OrgIDGPPrac <> '-1' 
+     and b.EndDateGMPRegistration is null
+
+  INNER JOIN         global_temp.CCG_prep_3months ccg on a.recordnumber = ccg.recordnumber
+  LEFT JOIN          $db_output.RD_CCG_LATEST c on a.OrgIDCCGRes = c.original_ORG_CODE
+  LEFT JOIN          $db_output.RD_CCG_LATEST e on b.OrgIDCCGGPPractice = e.original_ORG_CODE
+  LEFT JOIN          $db_output.RD_CCG_LATEST c1 on a.OrgIDSubICBLocResidence = c1.original_ORG_CODE
+  LEFT JOIN          $db_output.RD_CCG_LATEST e1 on b.OrgIDSubICBLocGP = e1.original_ORG_CODE
+  LEFT JOIN          $db_output.commissioning_org_mapping c2 on a.OrgIDSubICBLocResidence_Mapped = c2.CCG_Code
+  LEFT JOIN          $db_output.commissioning_org_mapping e2 on b.OrgIDSubICBLocGP_Mapped = e2.CCG_Code
+  WHERE              (
+     e.ORG_CODE is not null 
+     or c.ORG_CODE is not null 
+     or e1.ORG_CODE is not null 
+     or c1.ORG_CODE is not null 
+     or e2.CCG_Code is not null 
+     or c2.CCG_Code is not null
+     )
                     and a.uniqmonthid between $month_id - 2 AND $month_id
 
 # COMMAND ----------
@@ -646,26 +819,58 @@
  TRUNCATE TABLE $db_output.MHS001_CCG_LATEST_12m;
 
  INSERT INTO TABLE $db_output.MHS001_CCG_LATEST_12m
- select distinct    a.Person_ID,
- 				   CASE WHEN b.UniqMonthID <= 1467 AND b.OrgIDCCGGPPractice IS NOT NULL and e.ORG_CODE is not null THEN b.OrgIDCCGGPPractice
- 					    WHEN b.UniqMonthID > 1467 AND b.OrgIDSubICBLocGP IS NOT NULL and e1.ORG_CODE is not null THEN b.OrgIDSubICBLocGP
- 					    WHEN a.UniqMonthID <= 1467 AND A.OrgIDCCGRes IS NOT NULL and c.ORG_CODE is not null THEN A.OrgIDCCGRes
-                         WHEN a.UniqMonthID > 1467 AND A.OrgIDSubICBLocResidence IS NOT NULL and c1.ORG_CODE is not null THEN A.OrgIDSubICBLocResidence
- 						ELSE 'UNKNOWN' END AS IC_Rec_CCG		
- FROM               $db_source.mhs001MPI a
- LEFT JOIN          $db_source.MHS002GP b 
-                    on a.Person_ID = b.Person_ID 
-                    and a.UniqMonthID = b.UniqMonthID  
-                    and a.recordnumber = b.recordnumber
-                    and b.GMPReg NOT IN ('V81999','V81998','V81997')
-                    --and b.OrgIDGPPrac <> '-1' 
-                    and b.EndDateGMPRegistration is null
- INNER JOIN         global_temp.CCG_prep_12months ccg on a.recordnumber = ccg.recordnumber
- LEFT JOIN          $db_output.RD_CCG_LATEST c on a.OrgIDCCGRes = c.original_ORG_CODE
- LEFT JOIN          $db_output.RD_CCG_LATEST e on b.OrgIDCCGGPPractice = e.original_ORG_CODE
- LEFT JOIN          $db_output.RD_CCG_LATEST c1 on a.OrgIDSubICBLocResidence = c1.original_ORG_CODE
- LEFT JOIN          $db_output.RD_CCG_LATEST e1 on b.OrgIDSubICBLocGP = e1.original_ORG_CODE
- WHERE              (e.ORG_CODE is not null or c.ORG_CODE is not null or e1.ORG_CODE is not null or c1.ORG_CODE is not null)
+ select distinct    
+ a.Person_ID,
+ CASE WHEN b.UniqMonthID <= 1467 AND b.OrgIDCCGGPPractice IS NOT NULL and e.ORG_CODE is not null THEN b.OrgIDCCGGPPractice
+      WHEN b.UniqMonthID > 1467 AND b.OrgIDSubICBLocGP IS NOT NULL and e1.ORG_CODE is not null THEN b.OrgIDSubICBLocGP
+      WHEN a.UniqMonthID <= 1467 AND A.OrgIDCCGRes IS NOT NULL and c.ORG_CODE is not null THEN A.OrgIDCCGRes
+      WHEN a.UniqMonthID > 1467 AND A.OrgIDSubICBLocResidence IS NOT NULL and c1.ORG_CODE is not null THEN A.OrgIDSubICBLocResidence
+      ELSE 'UNKNOWN' END AS IC_Rec_CCG,
+ CASE WHEN b.UniqMonthID <= 1467 AND b.OrgIDCCGGPPractice IS NOT NULL and e.ORG_CODE is not null THEN b.OrgIDCCGGPPractice
+      WHEN b.UniqMonthID > 1467 AND b.OrgIDSubICBLocGP_Mapped IS NOT NULL and e2.CCG_Code is not null THEN b.OrgIDSubICBLocGP_Mapped
+      WHEN a.UniqMonthID <= 1467 AND A.OrgIDCCGRes IS NOT NULL and c.ORG_CODE is not null THEN A.OrgIDCCGRes
+      WHEN a.UniqMonthID > 1467 AND A.OrgIDSubICBLocResidence_Mapped IS NOT NULL and c2.CCG_Code is not null THEN A.OrgIDSubICBLocResidence_Mapped
+     ELSE 'UNKNOWN' END AS IC_Rec_CCG_Mapped		
+  
+  FROM               (
+     SELECT a.Person_ID, a.UniqMonthID, a.RecordNumber, a.OrgIDCCGRes, a.OrgIDSubICBLocResidence, a.NHSEValidatedPostcode, a.Postcode,
+            mp.CCG as OrgIDSubICBLocResidence_Mapped
+     FROM $db_source.mhs001MPI a
+     LEFT JOIN $db_output.OrgIDSubICBLocResidence_Mapping mp ON regexp_replace(a.Postcode, '\\s+', '') = regexp_replace(mp.PCDS, '\\s+', '')
+  ) a
+ LEFT JOIN          (
+     SELECT b.Person_ID, b.UniqMonthID, b.RecordNumber, b.GMPReg, b.OrgIDCCGGPPractice, b.OrgIDSubICBLocGP, b.EndDateGMPRegistration,
+            COALESCE(mp.TargetOrganisationID, mp2.TargetOrganisationID) as OrgIDSubICBLocGP_Mapped
+     FROM $db_source.MHS002GP b
+     LEFT JOIN (select distinct uniqmonthid, reportingperiodenddate from $db_source.mhs000header) h ON b.UniqMonthID = h.UniqMonthID
+     LEFT JOIN $db_output.OrgIDSubICBLocGP_Mapping mp ON b.GMPReg = mp.OrganisationID ---new Apr26 GP Codes
+     LEFT JOIN $db_output.OrgIDSubICBLocGP_Mapping_preApr26 mp2 ON b.GMPReg = mp2.OrganisationID 
+                                                 and (mp2.GP_EndDate is null OR mp2.GP_EndDate >= h.reportingperiodenddate)
+                                                 and (mp2.SubICB_EndDate is null OR mp2.SubICB_EndDate >= h.reportingperiodenddate)
+                                                 ---GP Codes that were active when submitted and SubICB was valid
+ ) b
+     on a.Person_ID = b.Person_ID 
+     and a.UniqMonthID = b.UniqMonthID  
+     and a.recordnumber = b.recordnumber
+     and b.GMPReg NOT IN ('V81999','V81998','V81997')
+     --and b.OrgIDGPPrac <> '-1' 
+     and b.EndDateGMPRegistration is null
+
+  INNER JOIN         global_temp.CCG_prep_3months ccg on a.recordnumber = ccg.recordnumber
+  LEFT JOIN          $db_output.RD_CCG_LATEST c on a.OrgIDCCGRes = c.original_ORG_CODE
+  LEFT JOIN          $db_output.RD_CCG_LATEST e on b.OrgIDCCGGPPractice = e.original_ORG_CODE
+  LEFT JOIN          $db_output.RD_CCG_LATEST c1 on a.OrgIDSubICBLocResidence = c1.original_ORG_CODE
+  LEFT JOIN          $db_output.RD_CCG_LATEST e1 on b.OrgIDSubICBLocGP = e1.original_ORG_CODE
+  LEFT JOIN          $db_output.commissioning_org_mapping c2 on a.OrgIDSubICBLocResidence_Mapped = c2.CCG_Code
+  LEFT JOIN          $db_output.commissioning_org_mapping e2 on b.OrgIDSubICBLocGP_Mapped = e2.CCG_Code
+  WHERE              (
+     e.ORG_CODE is not null 
+     or c.ORG_CODE is not null 
+     or e1.ORG_CODE is not null 
+     or c1.ORG_CODE is not null 
+     or e2.CCG_Code is not null 
+     or c2.CCG_Code is not null
+     )
                     and a.uniqmonthid between $month_id - 11 AND $month_id
 
 # COMMAND ----------

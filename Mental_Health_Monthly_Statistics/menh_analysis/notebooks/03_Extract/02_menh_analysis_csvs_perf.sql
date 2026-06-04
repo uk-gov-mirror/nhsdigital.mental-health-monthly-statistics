@@ -72,106 +72,107 @@
 -- COMMAND ----------
 
 -- DBTITLE 1,CaP preparation
- 
---this creates a temporary table that is extracted from in the next cell 
---it's done this way to handle different values of blanks within the data: null, '*' and ''
---if there is a better way of making this happen, feel free to update!
+ %sql
+  
+ --this creates a temporary table that is extracted from in the next cell 
+ --it's done this way to handle different values of blanks within the data: null, '*' and ''
+ --if there is a better way of making this happen, feel free to update!
 
-CREATE OR REPLACE TEMPORARY VIEW CaP_ALL
-AS
-(
-select distinct '$MonthPeriod' as Reporting_Period,
-                a.BREAKDOWN,
-                a.Primary_Level as LEVEL,
-                a.Primary_Level_description as level_description,
-                a.secondary_level as CLUSTER,
-                (case when (b.measure_value = '*' or b.measure_value is null) then '' else b.measure_value end) as ACC02_People_on_CPA_at_the_end_of_the_Reporting_Period,
-                (case when (c.measure_value = '*' or c.measure_value is null) then '' else c.measure_value end) as ACC33_People_assigned_to_an_adult_MH_care_cluster_end_RP,
-                (case when (d.measure_value = '*' or d.measure_value is null) then '' else d.measure_value end) as ACC36_People_assigned_to_an_adult_MH_care_cluster_within_cluster_review_period_end_RP, 
-                (case when (e.measure_value = '*' or e.measure_value is null) then '' else e.measure_value end) as ACC37_Proportion_of_people_assigned_to_an_adult_MH_care_cluster_within_cluster_review_period_end_RP,
-                (case when (f.measure_value = '*' or f.measure_value is null) then '' else f.measure_value end) as ACC53_Proportion_of_people_at_the_end_of_the_Reporting_Period_who_are_on_CPA,
-                (case when (g.measure_value = '*' or g.measure_value is null) then '' else g.measure_value end) as ACC54_People_at_the_end_of_the_RP_in_settled_accommodation,              
-                (case when (h.measure_value = '*' or h.measure_value is null) then '' else h.measure_value end) as ACC62_Proportion_of_people_at_the_end_of_the_RP_in_settled_accommodation
-               
-from $db_output.all_products_formatted a
-left join $db_output.all_products_formatted b
-   on a.breakdown = b.breakdown
-   and a.primary_level = b.primary_level
-   and a.SECONDARY_LEVEL = b.SECONDARY_LEVEL
-   and b.reporting_period_start = '$rp_startdate'
-   and b.reporting_period_end = '$rp_enddate'
-   and b.measure_id = 'ACC02'
-   and b.status = '$status'
-   and b.SOURCE_DB = '$db_source'
- 
- left join $db_output.all_products_formatted c
-   on a.breakdown = c.breakdown
-   and a.primary_level = c.primary_level
-   and a.SECONDARY_LEVEL = c.SECONDARY_LEVEL
-   and c.reporting_period_start = '$rp_startdate'
-   and c.reporting_period_end = '$rp_enddate'
-   and c.measure_id = 'ACC33'
-   and c.status = '$status'
-   and c.SOURCE_DB = '$db_source'
-   
-left join $db_output.all_products_formatted d
-   on a.breakdown = d.breakdown
-   and a.primary_level = d.primary_level
-   and a.SECONDARY_LEVEL = d.SECONDARY_LEVEL
-   and d.reporting_period_start = '$rp_startdate'
-   and d.reporting_period_end = '$rp_enddate'
-   and d.measure_id = 'ACC36'
-   and d.status = '$status'
-   and d.SOURCE_DB = '$db_source'
-   
-left join $db_output.all_products_formatted e
-   on a.breakdown = e.breakdown
-   and a.primary_level = e.primary_level
-   and a.SECONDARY_LEVEL = e.SECONDARY_LEVEL
-   and e.reporting_period_start = '$rp_startdate'
-   and e.reporting_period_end = '$rp_enddate'
-   and e.measure_id = 'ACC37'
-   and e.status = '$status'
-   and e.SOURCE_DB = '$db_source'
-   
-left join $db_output.all_products_formatted f
-   on a.breakdown = f.breakdown
-   and a.primary_level = f.primary_level
-   and a.SECONDARY_LEVEL = f.SECONDARY_LEVEL
-   and f.reporting_period_start = '$rp_startdate'
-   and f.reporting_period_end = '$rp_enddate'
-   and f.measure_id = 'ACC53'
-   and f.status = '$status'
-   and f.SOURCE_DB = '$db_source'
- 
-left join $db_output.all_products_formatted g
-   on a.breakdown = g.breakdown
-   and a.primary_level = g.primary_level
-   and a.SECONDARY_LEVEL = g.SECONDARY_LEVEL
-   and g.reporting_period_start = '$rp_startdate'
-   and g.reporting_period_end = '$rp_enddate'
-   and g.measure_id = 'ACC54'
-   and g.status = '$status'
-   and g.SOURCE_DB = '$db_source'
- 
-left join $db_output.all_products_formatted h
-   on a.breakdown = h.breakdown
-   and a.primary_level = h.primary_level
-   and a.SECONDARY_LEVEL = h.SECONDARY_LEVEL
-   and h.reporting_period_start = '$rp_startdate'
-   and h.reporting_period_end = '$rp_enddate'
-   and h.measure_id = 'ACC62'
-   and h.status = '$status'
-   and h.SOURCE_DB = '$db_source'
+ CREATE OR REPLACE TEMPORARY VIEW CaP_ALL
+ AS
+ (
+ select distinct '$MonthPeriod' as Reporting_Period,
+                 a.BREAKDOWN,
+                 a.Primary_Level as LEVEL,
+                 a.Primary_Level_description as level_description,
+                 a.secondary_level as CLUSTER,
+                 (case when (b.measure_value = '*' or b.measure_value is null) then '' else b.measure_value end) as ACC02_People_on_CPA_at_the_end_of_the_Reporting_Period,
+                 (case when (c.measure_value = '*' or c.measure_value is null) then '' else c.measure_value end) as ACC33_People_assigned_to_an_adult_MH_care_cluster_end_RP,
+                 (case when (d.measure_value = '*' or d.measure_value is null) then '' else d.measure_value end) as ACC36_People_assigned_to_an_adult_MH_care_cluster_within_cluster_review_period_end_RP, 
+                 (case when (e.measure_value = '*' or e.measure_value is null) then '' else e.measure_value end) as ACC37_Proportion_of_people_assigned_to_an_adult_MH_care_cluster_within_cluster_review_period_end_RP,
+                 (case when (f.measure_value = '*' or f.measure_value is null) then '' else f.measure_value end) as ACC53_Proportion_of_people_at_the_end_of_the_Reporting_Period_who_are_on_CPA,
+                 (case when (g.measure_value = '*' or g.measure_value is null) then '' else g.measure_value end) as ACC54_People_at_the_end_of_the_RP_in_settled_accommodation,              
+                 (case when (h.measure_value = '*' or h.measure_value is null) then '' else h.measure_value end) as ACC62_Proportion_of_people_at_the_end_of_the_RP_in_settled_accommodation
+                
+ from $db_output.all_products_formatted a
+ left join $db_output.all_products_formatted b
+    on a.breakdown = b.breakdown
+    and a.primary_level = b.primary_level
+    and a.SECONDARY_LEVEL = b.SECONDARY_LEVEL
+    and b.reporting_period_start = '$rp_startdate'
+    and b.reporting_period_end = '$rp_enddate'
+    and b.measure_id = 'ACC02'
+    and b.status = '$status'
+    and b.SOURCE_DB = '$db_source'
+  
+  left join $db_output.all_products_formatted c
+    on a.breakdown = c.breakdown
+    and a.primary_level = c.primary_level
+    and a.SECONDARY_LEVEL = c.SECONDARY_LEVEL
+    and c.reporting_period_start = '$rp_startdate'
+    and c.reporting_period_end = '$rp_enddate'
+    and c.measure_id = 'ACC33'
+    and c.status = '$status'
+    and c.SOURCE_DB = '$db_source'
     
- Where a.breakdown in ('England','Provider','CCG - GP Practice or Residence','Sub-ICB Location - GP Practice or Residence','Sub ICB - GP Practice or Residence')
-   and a.measure_id in ('ACC02','ACC33','ACC36','ACC37','ACC53','ACC54','ACC62')
-   and a.status = '$status'
-   and a.reporting_period_start = '$rp_startdate'
-   and a.reporting_period_end = '$rp_enddate'
-   and a.SOURCE_DB = '$db_source'
- 
-)
+ left join $db_output.all_products_formatted d
+    on a.breakdown = d.breakdown
+    and a.primary_level = d.primary_level
+    and a.SECONDARY_LEVEL = d.SECONDARY_LEVEL
+    and d.reporting_period_start = '$rp_startdate'
+    and d.reporting_period_end = '$rp_enddate'
+    and d.measure_id = 'ACC36'
+    and d.status = '$status'
+    and d.SOURCE_DB = '$db_source'
+    
+ left join $db_output.all_products_formatted e
+    on a.breakdown = e.breakdown
+    and a.primary_level = e.primary_level
+    and a.SECONDARY_LEVEL = e.SECONDARY_LEVEL
+    and e.reporting_period_start = '$rp_startdate'
+    and e.reporting_period_end = '$rp_enddate'
+    and e.measure_id = 'ACC37'
+    and e.status = '$status'
+    and e.SOURCE_DB = '$db_source'
+    
+ left join $db_output.all_products_formatted f
+    on a.breakdown = f.breakdown
+    and a.primary_level = f.primary_level
+    and a.SECONDARY_LEVEL = f.SECONDARY_LEVEL
+    and f.reporting_period_start = '$rp_startdate'
+    and f.reporting_period_end = '$rp_enddate'
+    and f.measure_id = 'ACC53'
+    and f.status = '$status'
+    and f.SOURCE_DB = '$db_source'
+  
+ left join $db_output.all_products_formatted g
+    on a.breakdown = g.breakdown
+    and a.primary_level = g.primary_level
+    and a.SECONDARY_LEVEL = g.SECONDARY_LEVEL
+    and g.reporting_period_start = '$rp_startdate'
+    and g.reporting_period_end = '$rp_enddate'
+    and g.measure_id = 'ACC54'
+    and g.status = '$status'
+    and g.SOURCE_DB = '$db_source'
+  
+ left join $db_output.all_products_formatted h
+    on a.breakdown = h.breakdown
+    and a.primary_level = h.primary_level
+    and a.SECONDARY_LEVEL = h.SECONDARY_LEVEL
+    and h.reporting_period_start = '$rp_startdate'
+    and h.reporting_period_end = '$rp_enddate'
+    and h.measure_id = 'ACC62'
+    and h.status = '$status'
+    and h.SOURCE_DB = '$db_source'
+     
+  Where a.breakdown in ('England','Provider','CCG - GP Practice or Residence','Sub-ICB Location - GP Practice or Residence','Sub ICB - GP Practice or Residence')
+    and a.measure_id in ('ACC02','ACC33','ACC36','ACC37','ACC53','ACC54','ACC62')
+    and a.status = '$status'
+    and a.reporting_period_start = '$rp_startdate'
+    and a.reporting_period_end = '$rp_enddate'
+    and a.SOURCE_DB = '$db_source'
+  
+ )
 
 -- COMMAND ----------
 
@@ -215,67 +216,68 @@ left join $db_output.all_products_formatted h
 -- COMMAND ----------
 
 -- DBTITLE 1,7.CYP preparation
- 
---this creates a temporary table that is extracted from in the next cell 
---it's done this way to handle different values of blanks within the data: null, '*' and ''
---if there is a better way of making this happen, feel free to update!
- 
-CREATE OR REPLACE TEMPORARY VIEW CYP_ALL
-AS
-(
-select distinct '$MonthPeriod' as Reporting_Period,
-                a.BREAKDOWN as Breakdown_All,
-                (case
-                  when upper(a.BREAKDOWN) LIKE '%ENGLAND%' then 'England'
-                  when upper(a.BREAKDOWN) LIKE '%PROVIDER%' then 'Provider'
-                  when upper(a.BREAKDOWN) LIKE '%CCG%' then 'CCG - GP Practice or Residence'
-                end) as BREAKDOWN,
-                a.PRIMARY_LEVEL,
-                a.PRIMARY_LEVEL_DESCRIPTION,
-                a.SECONDARY_LEVEL,
-                a.SECONDARY_LEVEL_DESCRIPTION,
-                (case when (b.measure_value = '*' or b.measure_value is null) then '' else b.measure_value end) as MHS30e_Attended_contacts_in_the_RP_0_to_18_by_consultation_medium,
-                (case when (c.measure_value = '*' or c.measure_value is null) then '' else c.measure_value end) as MHS32a_Referrals_starting_in_Reporting_Period_aged_0_to_18,
-                (case when (d.measure_value = '*' or d.measure_value is null) then '' else d.measure_value end) as MHS58a_Missed_care_contacts_in_the_Reporting_Period_aged_0_to_18_by_DNA_reason
-from $db_output.all_products_formatted a
-left join $db_output.all_products_formatted b
-   on a.breakdown = b.breakdown
-   and a.primary_level = b.primary_level
-   and a.SECONDARY_LEVEL = b.SECONDARY_LEVEL
-   and b.reporting_period_start = '$rp_startdate'
-   and b.reporting_period_end = '$rp_enddate'
-   and b.measure_id = 'MHS30e'
-   and b.status = '$status'
-   and b.SOURCE_DB = '$db_source'
-      
-left join $db_output.all_products_formatted c
-   on a.breakdown = c.breakdown
-   and a.primary_level = c.primary_level
-   and a.SECONDARY_LEVEL = c.SECONDARY_LEVEL
-   and c.reporting_period_start = '$rp_startdate'
-   and c.reporting_period_end = '$rp_enddate'
-   and c.measure_id = 'MHS32a'
-   and c.status = '$status'
-   and c.SOURCE_DB = '$db_source'
-   
-left join $db_output.all_products_formatted d
-   on a.breakdown = d.breakdown
-   and a.primary_level = d.primary_level
-   and a.SECONDARY_LEVEL = d.SECONDARY_LEVEL
-   and d.reporting_period_start = '$rp_startdate'
-   and d.reporting_period_end = '$rp_enddate'
-   and d.measure_id = 'MHS58a'
-   and d.status = '$status'
-   and d.SOURCE_DB = '$db_source'
-   
-where (a.breakdown like 'England%' or a.breakdown like 'Provider%' or a.breakdown like '%CCG%' or a.breakdown like '%Sub-ICB%' or a.breakdown like '%Sub ICB%')
-and a.measure_id in ('MHS30e','MHS32a','MHS58a')
-and a.status = '$status'
-and a.reporting_period_start = '$rp_startdate'
-and a.reporting_period_end = '$rp_enddate'
-and a.SOURCE_DB = '$db_source'
+ %sql
+  
+ --this creates a temporary table that is extracted from in the next cell 
+ --it's done this way to handle different values of blanks within the data: null, '*' and ''
+ --if there is a better way of making this happen, feel free to update!
+  
+ CREATE OR REPLACE TEMPORARY VIEW CYP_ALL
+ AS
+ (
+ select distinct '$MonthPeriod' as Reporting_Period,
+                 a.BREAKDOWN as Breakdown_All,
+                 (case
+                   when upper(a.BREAKDOWN) LIKE '%ENGLAND%' then 'England'
+                   when upper(a.BREAKDOWN) LIKE '%PROVIDER%' then 'Provider'
+                   when upper(a.BREAKDOWN) LIKE '%CCG%' then 'CCG - GP Practice or Residence'
+                 end) as BREAKDOWN,
+                 a.PRIMARY_LEVEL,
+                 a.PRIMARY_LEVEL_DESCRIPTION,
+                 a.SECONDARY_LEVEL,
+                 a.SECONDARY_LEVEL_DESCRIPTION,
+                 (case when (b.measure_value = '*' or b.measure_value is null) then '' else b.measure_value end) as MHS30e_Attended_contacts_in_the_RP_0_to_18_by_consultation_medium,
+                 (case when (c.measure_value = '*' or c.measure_value is null) then '' else c.measure_value end) as MHS32a_Referrals_starting_in_Reporting_Period_aged_0_to_18,
+                 (case when (d.measure_value = '*' or d.measure_value is null) then '' else d.measure_value end) as MHS58a_Missed_care_contacts_in_the_Reporting_Period_aged_0_to_18_by_DNA_reason
+ from $db_output.all_products_formatted a
+ left join $db_output.all_products_formatted b
+    on a.breakdown = b.breakdown
+    and a.primary_level = b.primary_level
+    and a.SECONDARY_LEVEL = b.SECONDARY_LEVEL
+    and b.reporting_period_start = '$rp_startdate'
+    and b.reporting_period_end = '$rp_enddate'
+    and b.measure_id = 'MHS30e'
+    and b.status = '$status'
+    and b.SOURCE_DB = '$db_source'
+       
+ left join $db_output.all_products_formatted c
+    on a.breakdown = c.breakdown
+    and a.primary_level = c.primary_level
+    and a.SECONDARY_LEVEL = c.SECONDARY_LEVEL
+    and c.reporting_period_start = '$rp_startdate'
+    and c.reporting_period_end = '$rp_enddate'
+    and c.measure_id = 'MHS32a'
+    and c.status = '$status'
+    and c.SOURCE_DB = '$db_source'
+    
+ left join $db_output.all_products_formatted d
+    on a.breakdown = d.breakdown
+    and a.primary_level = d.primary_level
+    and a.SECONDARY_LEVEL = d.SECONDARY_LEVEL
+    and d.reporting_period_start = '$rp_startdate'
+    and d.reporting_period_end = '$rp_enddate'
+    and d.measure_id = 'MHS58a'
+    and d.status = '$status'
+    and d.SOURCE_DB = '$db_source'
+    
+ where (a.breakdown like 'England%' or a.breakdown like 'Provider%' or a.breakdown like '%CCG%' or a.breakdown like '%Sub-ICB%' or a.breakdown like '%Sub ICB%')
+ and a.measure_id in ('MHS30e','MHS32a','MHS58a')
+ and a.status = '$status'
+ and a.reporting_period_start = '$rp_startdate'
+ and a.reporting_period_end = '$rp_enddate'
+ and a.SOURCE_DB = '$db_source'
 
-)
+ )
 
 -- COMMAND ----------
 

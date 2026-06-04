@@ -255,6 +255,7 @@
  ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '301781000000101', 1513, null)
  ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '1833251000000107', 1513, null)
  ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '1833011000000101', 1513, null)
+ ,('MHS202CareActivity', 'Procedure', 'CYP_ED_WaitingTimes', 'include', '2304461000000102', 1513, null)
 
 # COMMAND ----------
 

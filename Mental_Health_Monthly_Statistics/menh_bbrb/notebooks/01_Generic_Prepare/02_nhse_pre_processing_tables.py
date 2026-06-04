@@ -12,26 +12,33 @@
  %sql
  --This table returns rows, carry forward
  CREATE OR REPLACE TEMPORARY VIEW GP_Practice_CCG AS
-  
+
  SELECT GP.UniqMonthID,
-       GP.Person_ID,
-       GP.OrgIDCCGGPPractice,
-       GP.OrgIDSubICBLocGP,
-       GP.RecordNumber
-  FROM $db_source.MHS002GP GP
-       INNER JOIN 
-                  (
-                    SELECT UniqMonthID,
-                           Person_ID, 
-                           MAX(RecordNumber) as RecordNumber
-                      FROM $db_source.MHS002GP
-                      WHERE GMPReg NOT IN ('V81999','V81998','V81997') AND EndDateGMPRegistration is NULL
-                  GROUP BY UniqMonthID, Person_ID
-                  ) max_GP  
-                  ON GP.Person_ID = max_GP.Person_ID 
-                  AND GP.RecordNumber = max_GP.RecordNumber
-                  AND GP.UniqMonthID = max_GP.UniqMonthID
-  WHERE GMPReg NOT IN ('V81999','V81998','V81997') AND EndDateGMPRegistration is NULL
+     GP.Person_ID,
+     GP.OrgIDCCGGPPractice,
+     GP.OrgIDSubICBLocGP,
+     COALESCE(mp.TargetOrganisationID, mp2.TargetOrganisationID) as OrgIDSubICBLocGP_Mapped,
+     GP.RecordNumber
+ FROM $db_source.MHS002GP GP
+     INNER JOIN 
+                 (
+                 SELECT UniqMonthID,
+                         Person_ID, 
+                         MAX(RecordNumber) as RecordNumber
+                     FROM $db_source.MHS002GP
+                     WHERE GMPReg NOT IN ('V81999','V81998','V81997') AND EndDateGMPRegistration is NULL
+                 GROUP BY UniqMonthID, Person_ID
+                 ) max_GP  
+                 ON GP.Person_ID = max_GP.Person_ID 
+                 AND GP.RecordNumber = max_GP.RecordNumber
+                 AND GP.UniqMonthID = max_GP.UniqMonthID
+
+ LEFT JOIN (select distinct uniqmonthid, reportingperiodenddate from $db_source.mhs000header) h ON GP.UniqMonthID = h.UniqMonthID
+ LEFT JOIN $db_output.OrgIDSubICBLocGP_Mapping mp ON GP.GMPReg = mp.OrganisationID ---new Apr26 GP Codes
+ LEFT JOIN $db_output.OrgIDSubICBLocGP_Mapping_preApr26 mp2 ON GP.GMPReg = mp2.OrganisationID 
+                                 and (mp2.GP_EndDate is null OR mp2.GP_EndDate >= h.reportingperiodenddate)
+                                 and (mp2.SubICB_EndDate is null OR mp2.SubICB_EndDate >= h.reportingperiodenddate)
+ WHERE GP.GMPReg NOT IN ('V81999','V81998','V81997') AND GP.EndDateGMPRegistration is NULL
 
 # COMMAND ----------
 
@@ -74,6 +81,11 @@
       WHEN m.UniqMonthID <= 1467 then m.OrgIDCCGRes 
       WHEN m.UniqMonthID > 1467 then m.OrgIDSubICBLocResidence
       ELSE 'ERROR' END as IC_Rec_CCG,
+ CASE WHEN m.UniqMonthID <= 1467 and gp.OrgIDCCGGPPractice is not null then gp.OrgIDCCGGPPractice
+     WHEN m.UniqMonthID > 1467 and gp.OrgIDSubICBLocGP_Mapped is not null then gp.OrgIDSubICBLocGP_Mapped 
+     WHEN m.UniqMonthID <= 1467 then m.OrgIDCCGRes 
+     WHEN m.UniqMonthID > 1467 then m.OrgIDSubICBLocResidence_Mapped
+     ELSE 'ERROR' END as IC_Rec_CCG_Mapped,
  m.OrgIDEduEstab,
  m.EthnicCategory,
  m.EthnicCategory2021, --new for v5 but not being used in final prep table
@@ -99,7 +111,14 @@
  s.ReferClosureTime,
  s.ReferClosReason
  FROM                $db_source.mhs101referral r
- INNER JOIN          $db_source.mhs001mpi m 
+ INNER JOIN          (
+     SELECT m.UniqMonthID, m.RecordNumber, m.MHS001UniqID, m.OrgIDCCGRes, m.OrgIDSubICBLocResidence, m.OrgIDEduEstab, m.EthnicCategory,
+             m.EthnicCategory2021, m.NHSDEthnicity, m.Gender, m.GenderIDCode, m.MaritalStatus, m.PersDeathDate, m.AgeDeath, m.LocalPatientId, 
+             m.OrgIDResidenceResp, m.LADistrictAuth, m.PostcodeDistrict, m.DefaultPostcode, m.AgeRepPeriodStart, m.AgeRepPeriodEnd,
+             mp.CCG as OrgIDSubICBLocResidence_Mapped
+     FROM $db_source.mhs001mpi m 
+     LEFT JOIN $db_output.OrgIDSubICBLocResidence_Mapping mp ON regexp_replace(m.Postcode, '\\s+', '') = regexp_replace(mp.PCDS, '\\s+', '')
+ ) m 
                      ON r.RecordNumber = m.RecordNumber ---joining on recordnumber opposed to person_id as we want OrgIDCCGRes as it was inputted when referral was submitted in that month
  LEFT JOIN           $db_output.ServiceTeamType s 
                      ON r.UniqServReqID = s.UniqServReqID 
@@ -527,6 +546,63 @@
  Der_AssKey
  FROM $db_output.nhse_pre_proc_assessments_unique
  WHERE Der_ValidScore = 'Y'
+
+# COMMAND ----------
+
+ %md
+ The two commands below labelled "for Outcomes" recreate the pre processing tables that create the Der_ValidScore flag and Der_AssOrderAsc_NEW flag which assign the order of valid asessments. These tables are used for reporting outcomes.
+ - Der_ValidScoreOutcomes is created to exclude DIALOG PersScore = 8 invalid/not known. This overrides Der_ValidScore
+ - The Der_AssOrderAsc_NEW rank is recreated where the updated valid score = Y
+
+# COMMAND ----------
+
+# DBTITLE 1,13b Unique Assessments out of Month - for Outcomes
+ %sql
+ INSERT OVERWRITE TABLE $db_output.nhse_pre_proc_assessments_unique_outcomes
+
+ SELECT 
+ *,
+ CASE WHEN (Der_AssessmentToolName = 'DIALOG' AND PersScore = '8') THEN NULL ELSE Der_ValidScore END AS Der_ValidScoreOutcomes -- fix to exclude DIALOG PersScore = 8 invalid/not known
+
+ FROM $db_output.nhse_pre_proc_assessments_unique 
+
+# COMMAND ----------
+
+# DBTITLE 1,14b Unique and Valid Assessments - for Outcomes
+
+ %sql
+ INSERT OVERWRITE TABLE $db_output.nhse_pre_proc_assessments_unique_valid_outcomes
+
+ SELECT
+ ReportingPeriodStartDate,
+ ReportingPeriodEndDate,
+ Der_FY,
+ UniqSubmissionID,
+ UniqMonthID,
+ OrgIDProv,
+ Person_ID,
+ RecordNumber,
+ UniqServReqID,
+ UniqCareContID,
+ UniqCareActID,
+ CodedAssToolType,
+ PersScore,
+ Der_AssUniqID,
+ Der_AssTable,
+ Der_AssToolCompDate,
+ Der_AgeAssessTool,
+ Der_AssessmentToolName,
+ Der_PreferredTermSNOMED,
+ Der_SNOMEDCodeVersion,
+ Der_LowerRange,
+ Der_UpperRange,
+ Der_ValidScoreOutcomes as Der_ValidScore,
+ Der_AssessmentCategory,        
+ ROW_NUMBER () OVER (PARTITION BY Person_ID, UniqServReqID, Der_PreferredTermSNOMED ORDER BY Der_AssToolCompDate ASC) AS Der_AssOrderAsc, --First assessment
+ ROW_NUMBER () OVER (PARTITION BY Person_ID, UniqServReqID, Der_PreferredTermSNOMED ORDER BY Der_AssToolCompDate DESC) AS Der_AssOrderDesc, -- Last assessment
+ Der_AssKey
+ FROM $db_output.nhse_pre_proc_assessments_unique_outcomes
+ WHERE Der_ValidScoreOutcomes = 'Y'
 
 # COMMAND ----------
 

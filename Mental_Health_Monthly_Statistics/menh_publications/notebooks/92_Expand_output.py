@@ -219,7 +219,7 @@ else:
                 UNION ALL
 
                 select 
-                  COALESCE(c.REPORTING_PERIOD_START, '{rp_startdate_12m} as REPORTING_PERIOD_START, 
+                  COALESCE(c.REPORTING_PERIOD_START, '{rp_startdate_12m}') as REPORTING_PERIOD_START, 
                   COALESCE(c.REPORTING_PERIOD_END, '{rp_enddate}') as REPORTING_PERIOD_END,
                   COALESCE(c.STATUS,'{status}') as STATUS,
                   COALESCE(c.BREAKDOWN,d.BREAKDOWN,'UNKNOWN') as BREAKDOWN,

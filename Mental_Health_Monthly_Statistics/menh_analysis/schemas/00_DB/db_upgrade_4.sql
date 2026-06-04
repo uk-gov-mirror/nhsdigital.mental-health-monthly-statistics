@@ -1,4 +1,5 @@
 -- Databricks notebook source
+
 CREATE TABLE IF NOT EXISTS $db_output.FYFV_unformatted
 (
     REPORTING_PERIOD_START DATE,

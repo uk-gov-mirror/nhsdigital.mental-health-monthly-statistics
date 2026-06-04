@@ -349,7 +349,7 @@ spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output
 
  TRUNCATE table $db_output.MHS001MPI_latest_month_data;
 
- -- USER: MPI
+ -- User: MPI
 
  INSERT INTO $db_output.MHS001MPI_latest_month_data 
      (SELECT MPI.AgeDeath 
@@ -414,7 +414,7 @@ spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output
 # DBTITLE 1,MHS101Referral_open_end_rp - Referral table, latest month and open end RP
  %sql
 
- -- USER replacing ref.* here with a list of all columns to allow the _v sourced menhprimary_refresh and menh_point_in_time tables to be used as source data too.
+ -- User replacing ref.* here with a list of all columns to allow the _v sourced menhprimary_refresh and menh_point_in_time tables to be used as source data too.
 
  TRUNCATE TABLE $db_output.MHS101Referral_open_end_rp;
 

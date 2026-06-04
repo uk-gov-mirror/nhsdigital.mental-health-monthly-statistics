@@ -44,12 +44,11 @@ assert db_source
 # COMMAND ----------
 
 # DBTITLE 1,Optimize output table for performance
- %python
 
- import os
+import os
 
- if os.environ['env'] == 'prod':
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='MHSRestrictiveInterventionCount'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='MHSRestrictiveInterventionPeople'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='MHSRestrictiveInterventionCountSuppressed'))
-   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='MHSRestrictiveInterventionPeopleSuppressed'))
+if os.environ['env'] == 'prod':
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='MHSRestrictiveInterventionCount'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='MHSRestrictiveInterventionPeople'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='MHSRestrictiveInterventionCountSuppressed'))
+  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='MHSRestrictiveInterventionPeopleSuppressed'))

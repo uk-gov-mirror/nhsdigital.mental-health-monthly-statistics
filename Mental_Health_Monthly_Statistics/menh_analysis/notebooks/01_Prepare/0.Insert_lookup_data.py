@@ -829,28 +829,28 @@ spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output
  %sql
  -- Outpatient-Other measures
  INSERT INTO $db_output.Main_monthly_metric_values VALUES 
-   ('MHS01', 'People in contact with services at the end of the reporting period'),
+   ('MHS01', 'People with an open referral with services at the end of the reporting period'),
    --('MHS02', 'People on CPA  at the end of the reporting period'),
-    ('AMH01', 'People in contact with adult mental health services at the end of the reporting period')
-   --, ('AMH02', 'People in contact with adult mental health services on CPA  at the end of the reporting period')
+    ('AMH01', 'People with an open referral with adult mental health services at the end of the reporting period')
+   --, ('AMH02', 'People with an open referral with adult mental health services on CPA  at the end of the reporting period')
    --, ('AMH03', 'People on CPA aged 18 to 69  at the end of the reporting period (adult mental health services only)')
-   --, ('AMH04', 'People in contact with adult mental health services CPA at the end of the reporting period with HoNOS recorded')
-   , ('CYP01', "People in contact with children and young people's mental health services at the end of the reporting period")
-   , ('MH01', 'People in contact with mental health services at the end of the reporting period')
-   , ('MH01a', 'People in contact with mental health services aged 0 to 18 at the end of the reporting period')
-   , ('MH01b', 'People in contact with mental health services aged 19 to 64 at the end of the reporting period')
-   , ('MH01c', 'People in contact with mental health services aged 65 and over at the end of the reporting period')
-   , ('LDA01', 'People in contact with Learning Disabilities and Autism services at the end of the reporting period')
+   --, ('AMH04', 'People with an open referral with adult mental health services CPA at the end of the reporting period with HoNOS recorded')
+   , ('CYP01', "People with an open referral with children and young people's mental health services at the end of the reporting period")
+   , ('MH01', 'People with an open referral with mental health services at the end of the reporting period')
+   , ('MH01a', 'People with an open referral with mental health services aged 0 to 18 at the end of the reporting period')
+   , ('MH01b', 'People with an open referral with mental health services aged 19 to 64 at the end of the reporting period')
+   , ('MH01c', 'People with an open referral with mental health services aged 65 and over at the end of the reporting period')
+   , ('LDA01', 'People with an open referral with Learning Disabilities and Autism services at the end of the reporting period')
    --, ('AMH05', 'People on CPA for 12 months at the end of the reporting period (adult mental health services only)')
    --, ('AMH06', 'People on CPA for 12 months with review at the end of the reporting period (adult mental health services only)')
-   , ('MHS13', 'People in contact with services at the end of the reporting period with accommodation status recorded')
+   , ('MHS13', 'People with an open referral with services at the end of the reporting period with accommodation status recorded')
    --, ('AMH14', 'People aged 18 to 69 on CPA at the end of the reporting period  in settled accommodation (adult mental health services)')
    --, ('AMH15', 'Proportion of people aged 18 to 69 on CPA at the end of the reporting period in settled accommodation (adult mental health services)')
-   , ('MHS16', 'People in contact with services at the end of the reporting period  with employment status recorded')
+   , ('MHS16', 'People with an open referral with services at the end of the reporting period  with employment status recorded')
    --, ('AMH17', 'People aged 18 to 69 on CPA (adult mental health services) at the end of the reporting period  in employment')
    --, ('AMH18', 'Proportion of people aged 18 to 69 on CPA (adult mental health services) at the end of the reporting period  in employment')
    , ('MHS19', 'People with a crisis plan in place at the end of the reporting period')
-   , ('MHS20', 'People in contact with services at the end of the reporting period with a diagnosis recorded')
+   , ('MHS20', 'People with an open referral with services at the end of the reporting period with a diagnosis recorded')
    , ('MHS23', 'Open referrals at the end of the reporting period')
    , ('AMH23', 'Open referrals (adult mental health services) at end of the reporting period')
    , ('CYP23', "Open referrals (children's and young people's mental health services) at end of the reporting period")
@@ -1370,9 +1370,9 @@ spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output
 
  -- Outpatient Other
  INSERT INTO $db_output.CYP_monthly_metric_values VALUES 
- --  ('MH01a', 'People in contact with mental health services aged 0 to 18 at the end of the reporting period'),
- --   ('CYP01', 'People in contact with children and young people''s mental health services at the end of the reporting period'),
- --    ('CYP02', 'People in contact with children and young people''s mental health services on CPA at the end of the reporting period')
+ --  ('MH01a', 'People with an open referral with mental health services aged 0 to 18 at the end of the reporting period'),
+ --   ('CYP01', 'People with an open referral with children and young people''s mental health services at the end of the reporting period'),
+ --    ('CYP02', 'People with an open referral with children and young people''s mental health services on CPA at the end of the reporting period')
  --  , ('CYP23', 'Open referrals (children''s and young people''s mental health services) at end of the reporting period')
    ('MHS30d', 'Attended contacts in the RP, aged 0 to 18')
    , ('MHS30e', 'Attended contacts in the RP, 0 to 18, by consultation medium')
@@ -1825,15 +1825,15 @@ spark.sql('VACUUM {db_output}.{table} RETAIN 8 HOURS'.format(db_output=db_output
 
  TRUNCATE TABLE $db_output.FYFV_Dashboard_metric_values;
  INSERT INTO $db_output.FYFV_Dashboard_metric_values VALUES 
-   ('AMH03e', 'People in contact with adult mental health services aged 18-69 at the end of the reporting period (AMH03e)')
-    , ('AMH13e', 'People in contact with adult mental health services aged 18-69 at the end of the reporting period with accommodation status recorded (AMH13e)')
-    , ('AMH13e%', 'Proportion of people in contact with adult mental health services aged 18-69 at the end of the reporting period with accommodation status recorded')
-    , ('AMH14e', 'People in contact with adult mental health services aged 18-69 at the end of the reporting period in settled accommodation (AMH14e)')
-    , ('AMH14e%', 'Proportion of people in contact with adult mental health services aged 18-69 at the end of the reporting period in settled accommodation')
-    , ('AMH16e', 'People in contact with adult mental health services aged 18-69 at the end of the reporting period with employment status recorded (AMH16e)')
-    , ('AMH16e%', 'Proportion of people in contact with adult mental health services aged 18-69 at the end of the reporting period with employment status recorded')
-    , ('AMH17e', 'People in contact with adult mental health services aged 18-69 at the end of the reporting period in employment (AMH17e)')
-    , ('AMH17e%', 'Proportion of people in contact with adult mental health services aged 18-69 at the end of the reporting period in employment')
+   ('AMH03e', 'People with an open referral with adult mental health services aged 18-69 at the end of the reporting period (AMH03e)')
+    , ('AMH13e', 'People with an open referral with adult mental health services aged 18-69 at the end of the reporting period with accommodation status recorded (AMH13e)')
+    , ('AMH13e%', 'Proportion of People with an open referral with adult mental health services aged 18-69 at the end of the reporting period with accommodation status recorded')
+    , ('AMH14e', 'People with an open referral with adult mental health services aged 18-69 at the end of the reporting period in settled accommodation (AMH14e)')
+    , ('AMH14e%', 'Proportion of People with an open referral with adult mental health services aged 18-69 at the end of the reporting period in settled accommodation')
+    , ('AMH16e', 'People with an open referral with adult mental health services aged 18-69 at the end of the reporting period with employment status recorded (AMH16e)')
+    , ('AMH16e%', 'Proportion of People with an open referral with adult mental health services aged 18-69 at the end of the reporting period with employment status recorded')
+    , ('AMH17e', 'People with an open referral with adult mental health services aged 18-69 at the end of the reporting period in employment (AMH17e)')
+    , ('AMH17e%', 'Proportion of People with an open referral with adult mental health services aged 18-69 at the end of the reporting period in employment')
     , ('MHS69', 'The number of children and young people, regardless of when their referral started, receiving at least two contacts (including indirect contacts) and where their first contact occurs before their 18th birthday')
     , ('BED_DAYS','Bed days on adult wards for people aged 0-17')
     , ('CYP_ADULT_WARDS','Number of people aged 0-17 on adult wards');

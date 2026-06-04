@@ -25,7 +25,7 @@ TRUNCATE TABLE $db_output.dq_stg_integrity;
 
 -- COMMAND ----------
 
-/** USER: added to support code needed for v4.1 when CAMHSTier removed **/
+/** User: added to support code needed for v4.1 when CAMHSTier removed **/
 
 CREATE OR REPLACE GLOBAL TEMPORARY VIEW REFS AS 
  
@@ -46,7 +46,7 @@ WHERE a.UniqMonthID = '$month_id'
 
 -- COMMAND ----------
 
-/** USER: added to support code needed for v4.1 when CAMHSTier removed **/
+/** User: added to support code needed for v4.1 when CAMHSTier removed **/
 
 CREATE OR REPLACE GLOBAL TEMPORARY VIEW TEAMTYPE AS
  
@@ -63,7 +63,7 @@ GROUP BY r.UniqCareProfTeamID
 -- COMMAND ----------
 
 -- DBTITLE 1,Referrals to CYP-MH services starting in RP
-/** USER: updated for v4.1 when CAMHSTier removed **/
+/** User: updated for v4.1 when CAMHSTier removed **/
 
 WITH Referral
 AS
@@ -153,7 +153,7 @@ FROM $dbm.mhs101referral
 WHERE UniqMonthID = '$month_id'
 AND ReferralRequestReceivedDate >= '$rp_startdate'
 AND ReferralRequestReceivedDate <= '$rp_enddate'
-AND AgeServReferRecDate < 19
+AND AgeServReferRecDate < 18 --Updated to reflect move to under 18s from April 2016 not under 19s
 GROUP BY OrgIDProv;
 
 -- COMMAND ----------
@@ -166,7 +166,7 @@ AS
     r.OrgIDProv,
     r.UniqServReqID,
     (CASE
-      WHEN ca.CodeProcAndProcStatus IN ('51484002', '304891004', '444175001', '443730003', '984421000000104') THEN 1
+      WHEN ca.CodeProcAndProcStatus IN ('51484002', '444175001', '443730003', '1323681000000103', '1362001000000104', '1833251000000107', '1833011000000101', '301781000000101', '2304461000000102') THEN 1
       ELSE 0
     END) AS Integrity
   FROM $dbm.mhs101referral r
@@ -174,7 +174,7 @@ AS
   LEFT OUTER JOIN $dbm.mhs202careactivity ca ON cc.UniqCareContID = ca.UniqCareContID AND ca.UniqMonthID = '$month_id'
   WHERE r.UniqMonthID = '$month_id'
   AND r.PrimReasonReferralMH = '12'
-  AND r.AgeServReferRecDate < 19
+  AND r.AgeServReferRecDate < 18 --Updated age to be under 18 from April 2026 data
 ), Referral_2
 AS
 (

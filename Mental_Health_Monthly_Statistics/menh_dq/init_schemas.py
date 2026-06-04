@@ -21,14 +21,14 @@ assert reference_data
 current_env = os.environ.get('env')
 assert current_env
 
-# USER: only needed for the addition of SOURCE_DB column to existing tables - no longer needed
-# USER: commenting out as the new source db is menh_v5_pre_clear anyway (so if needed would need to change)
+# User: only needed for the addition of SOURCE_DB column to existing tables - no longer needed
+# User: commenting out as the new source db is menh_v5_pre_clear anyway (so if needed would need to change)
 
-# dbutils.widgets.text("mhsds_db", "", "Source database")
-# mhsds_db = dbutils.widgets.get("mhsds_db")
-# assert mhsds_db
+# dbutils.widgets.text("mhsds_database", "", "Source database")
+# mhsds_database = dbutils.widgets.get("mhsds_database")
+# assert mhsds_database
 
-# USER: removed all other parameters from this notebook as they are not needed for the set up of tables.
+# User: removed all other parameters from this notebook as they are not needed for the set up of tables.
 
 params = {'db' : db, 'db_output' : db_output, 'reference_data': reference_data}
 

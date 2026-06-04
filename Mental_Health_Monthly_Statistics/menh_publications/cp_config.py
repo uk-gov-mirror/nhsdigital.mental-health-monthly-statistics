@@ -15,7 +15,9 @@
 
 # spark_version = "6.6.x-scala2.11" # spark 2.4.5 - use this one to force spark 2
 # spark_version = "9.1.x-scala2.12" # spark 3.1.2 - use this one to force spark 3
-spark_version = "10.4.x-scala2.12" # update to align to code promotion cluster
+# spark_version = "10.4.x-scala2.12" # update to align to code promotion cluster
+spark_version = "16.4.x-scala2.12"
+docker_image = "databricks_spark3"
 
 # COMMAND ----------
 

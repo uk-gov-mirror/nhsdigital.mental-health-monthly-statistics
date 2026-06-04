@@ -574,12 +574,12 @@
  m.Person_ID,
  m.OrgIDProv,
  COALESCE(o.NAME, "UNKNOWN") as Provider_Name,
- COALESCE(s.CCG_CODE, 'UNKNOWN') as CCG_Code,
- COALESCE(s.CCG_NAME, 'UNKNOWN') as CCG_Name,
- COALESCE(s.STP_CODE, 'UNKNOWN') AS STP_Code,
- COALESCE(s.STP_NAME, 'UNKNOWN') AS STP_Name,
- COALESCE(s.REGION_CODE, 'UNKNOWN') AS Region_Code,
- COALESCE(s.REGION_NAME, 'UNKNOWN') AS Region_Name,
+ COALESCE(stp.CCG_Code, co.CCG_Code,'UNKNOWN') AS CCG_Code,
+ COALESCE(stp.CCG_Name, co.CCG_Name,'UNKNOWN') AS CCG_Name,
+ COALESCE(stp.STP_Code, co.STP_Code,'UNKNOWN') AS STP_Code,
+ COALESCE(stp.STP_Name, co.STP_Name,'UNKNOWN') AS STP_Name,
+ COALESCE(stp.Region_Code, co.Region_Code,'UNKNOWN') AS Region_Code,
+ COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') AS Region_Name,
  --BITC-6882: IMD breakdowns
  COALESCE(mpi.IMD_Core20, "UNKNOWN") as IMD_Core20,
  m.SpellID,
@@ -624,7 +624,9 @@
   
  LEFT JOIN $db_output.bbrb_ccg_in_quarter c on m.Person_ID = c.Person_ID
   
- LEFT JOIN $db_output.bbrb_stp_mapping s on c.SubICBGPRes = s.CCG_CODE
+ LEFT JOIN $db_output.bbrb_stp_mapping stp on c.SubICBGPRes = stp.CCG_Code and '$end_month_id' < '$apr26_icb_swap_month_id'
+
+ LEFT JOIN $db_output.commissioning_org_mapping co ON c.SubICBGPRes_Mapped = co.CCG_Code and '$end_month_id' >= '$apr26_icb_swap_month_id'
 
  --BITC-6882: IMD breakdowns
  LEFT JOIN REFSPL_MHS001MPI_LATEST mpi on m.Person_ID = mpi.Person_ID
@@ -645,12 +647,12 @@
  m.Person_ID,
  m.OrgIDProv,
  COALESCE(o.NAME, "UNKNOWN") as Provider_Name,
- COALESCE(s.CCG_CODE, 'UNKNOWN') as CCG_Code,
- COALESCE(s.CCG_NAME, 'UNKNOWN') as CCG_Name,
- COALESCE(s.STP_CODE, 'UNKNOWN') AS STP_Code,
- COALESCE(s.STP_NAME, 'UNKNOWN') AS STP_Name,
- COALESCE(s.REGION_CODE, 'UNKNOWN') AS Region_Code,
- COALESCE(s.REGION_NAME, 'UNKNOWN') AS Region_Name,
+ COALESCE(stp.CCG_Code, co.CCG_Code,'UNKNOWN') AS CCG_Code,
+ COALESCE(stp.CCG_Name, co.CCG_Name,'UNKNOWN') AS CCG_Name,
+ COALESCE(stp.STP_Code, co.STP_Code,'UNKNOWN') AS STP_Code,
+ COALESCE(stp.STP_Name, co.STP_Name,'UNKNOWN') AS STP_Name,
+ COALESCE(stp.Region_Code, co.Region_Code,'UNKNOWN') AS Region_Code,
+ COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') AS Region_Name,
  --BITC-6882: IMD breakdowns
  COALESCE(mpi.IMD_Core20, "UNKNOWN") as IMD_Core20,
  m.SpellID,
@@ -695,8 +697,9 @@
   
  LEFT JOIN $db_output.bbrb_ccg_in_year c on m.Person_ID = c.Person_ID
   
- LEFT JOIN $db_output.bbrb_stp_mapping s on c.SubICBGPRes = s.CCG_CODE
+ LEFT JOIN $db_output.bbrb_stp_mapping stp on c.SubICBGPRes = stp.CCG_Code and '$end_month_id' < '$apr26_icb_swap_month_id'
 
+ LEFT JOIN $db_output.commissioning_org_mapping co ON c.SubICBGPRes_Mapped = co.CCG_Code and '$end_month_id' >= '$apr26_icb_swap_month_id'
  --BITC-6882: IMD breakdowns
  LEFT JOIN REFSPL_MHS001MPI_LATEST_YEAR mpi on m.Person_ID = mpi.Person_ID
 
@@ -1171,12 +1174,12 @@
  m.Person_ID,
  m.OrgIDProv,
  COALESCE(o.NAME, "UNKNOWN") as Provider_Name,
- COALESCE(s.CCG_CODE, 'UNKNOWN') as CCG_Code,
- COALESCE(s.CCG_NAME, 'UNKNOWN') as CCG_Name,
- COALESCE(s.STP_CODE, 'UNKNOWN') AS STP_Code,
- COALESCE(s.STP_NAME, 'UNKNOWN') AS STP_Name,
- COALESCE(s.REGION_CODE, 'UNKNOWN') AS Region_Code,
- COALESCE(s.REGION_NAME, 'UNKNOWN') AS Region_Name,
+ COALESCE(stp.CCG_Code, co.CCG_Code,'UNKNOWN') AS CCG_Code,
+ COALESCE(stp.CCG_Name, co.CCG_Name,'UNKNOWN') AS CCG_Name,
+ COALESCE(stp.STP_Code, co.STP_Code,'UNKNOWN') AS STP_Code,
+ COALESCE(stp.STP_Name, co.STP_Name,'UNKNOWN') AS STP_Name,
+ COALESCE(stp.Region_Code, co.Region_Code,'UNKNOWN') AS Region_Code,
+ COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') AS Region_Name,
  --BITC-6882: IMD breakdowns
  COALESCE(mpi.IMD_Core20, "UNKNOWN") as IMD_Core20,
  m.SpellID,
@@ -1215,7 +1218,9 @@
   
  LEFT JOIN $db_output.bbrb_ccg_in_quarter c on m.Person_ID = c.Person_ID
   
- LEFT JOIN $db_output.bbrb_stp_mapping s on c.SubICBGPRes = s.CCG_CODE
+ LEFT JOIN $db_output.bbrb_stp_mapping stp on c.SubICBGPRes = stp.CCG_Code and '$end_month_id' < '$apr26_icb_swap_month_id'
+
+ LEFT JOIN $db_output.commissioning_org_mapping co ON c.SubICBGPRes_Mapped = co.CCG_Code and '$end_month_id' >= '$apr26_icb_swap_month_id'
 
  --BITC-6882: IMD breakdowns
  LEFT JOIN REFSPL_MHS001MPI_LATEST mpi on m.Person_ID = mpi.Person_ID
@@ -1236,12 +1241,12 @@
  m.Person_ID,
  m.OrgIDProv,
  COALESCE(o.NAME, "UNKNOWN") as Provider_Name,
- COALESCE(s.CCG_CODE, 'UNKNOWN') as CCG_Code,
- COALESCE(s.CCG_NAME, 'UNKNOWN') as CCG_Name,
- COALESCE(s.STP_CODE, 'UNKNOWN') AS STP_Code,
- COALESCE(s.STP_NAME, 'UNKNOWN') AS STP_Name,
- COALESCE(s.REGION_CODE, 'UNKNOWN') AS Region_Code,
- COALESCE(s.REGION_NAME, 'UNKNOWN') AS Region_Name,
+ COALESCE(stp.CCG_Code, co.CCG_Code,'UNKNOWN') AS CCG_Code,
+ COALESCE(stp.CCG_Name, co.CCG_Name,'UNKNOWN') AS CCG_Name,
+ COALESCE(stp.STP_Code, co.STP_Code,'UNKNOWN') AS STP_Code,
+ COALESCE(stp.STP_Name, co.STP_Name,'UNKNOWN') AS STP_Name,
+ COALESCE(stp.Region_Code, co.Region_Code,'UNKNOWN') AS Region_Code,
+ COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') AS Region_Name,
  --BITC-6882: IMD breakdowns
  COALESCE(mpi.IMD_Core20, "UNKNOWN") as IMD_Core20,
  m.SpellID,
@@ -1280,7 +1285,9 @@
   
  LEFT JOIN $db_output.bbrb_ccg_in_year c on m.Person_ID = c.Person_ID
   
- LEFT JOIN $db_output.bbrb_stp_mapping s on c.SubICBGPRes = s.CCG_CODE
+ LEFT JOIN $db_output.bbrb_stp_mapping stp on c.SubICBGPRes = stp.CCG_Code and '$end_month_id' < '$apr26_icb_swap_month_id'
+
+ LEFT JOIN $db_output.commissioning_org_mapping co ON c.SubICBGPRes_Mapped = co.CCG_Code and '$end_month_id' >= '$apr26_icb_swap_month_id'
 
  --BITC-6882: IMD breakdowns
  LEFT JOIN REFSPL_MHS001MPI_LATEST_YEAR mpi on m.Person_ID = mpi.Person_ID

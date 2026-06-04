@@ -114,12 +114,12 @@
                  ,D.DECI_IMD
                  ,coalesce(imd.IMD_Decile, "UNKNOWN") as IMD_Decile   
                  ,coalesce(imd.IMD_Core20, "UNKNOWN") as IMD_Core20
-                 ,COALESCE(stp.CCG_Code, 'UNKNOWN') as CCG_Code
-                 ,COALESCE(stp.CCG_Name, 'UNKNOWN') as CCG_Name
-                 ,COALESCE(stp.STP_Code, 'UNKNOWN') as STP_CODE
-                 ,COALESCE(stp.STP_Name, 'UNKNOWN') as STP_NAME
-                 ,COALESCE(stp.Region_Code, 'UNKNOWN') as Region_Code
-                 ,COALESCE(stp.Region_Name, 'UNKNOWN') as Region_Name
+                 ,COALESCE(stp.CCG_Code, co.CCG_Code,'UNKNOWN') AS CCG_Code
+                 ,COALESCE(stp.CCG_Name, co.CCG_Name,'UNKNOWN') AS CCG_Name
+                 ,COALESCE(stp.STP_Code, co.STP_Code,'UNKNOWN') AS STP_Code
+                 ,COALESCE(stp.STP_Name, co.STP_Name,'UNKNOWN') AS STP_Name
+                 ,COALESCE(stp.Region_Code, co.Region_Code,'UNKNOWN') AS Region_Code
+                 ,COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') AS Region_Name
                  ,coalesce(aut.AutismStatus, "UNKNOWN") as AutismStatus
                  ,coalesce(aut1.AutismStatus_desc, "UNKNOWN") as AutismStatus_desc
                  ,coalesce(ld.LDStatus, "UNKNOWN") as LDStatus
@@ -140,9 +140,9 @@
                                          and '$end_month_id' >= gen.FirstMonth and (gen.LastMonth is null or '$end_month_id' <= gen.LastMonth)
  LEFT JOIN $db_output.bbrb_ccg_in_year ccg ON ccg.PERSON_ID = B.PERSON_ID   
   
- --LEFT JOIN $db_output.ccg_mapping_2021 c on A.IC_Rec_CCG = c.CCG21CDH 
-  
- left join $db_output.bbrb_stp_mapping stp  on ccg.SubICBGPRes = stp.CCG_Code
+ LEFT JOIN $db_output.bbrb_stp_mapping stp on ccg.SubICBGPRes = stp.CCG_Code and '$end_month_id' < '$apr26_icb_swap_month_id'
+
+ LEFT JOIN $db_output.commissioning_org_mapping co ON ccg.SubICBGPRes_Mapped = co.CCG_Code and '$end_month_id' >= '$apr26_icb_swap_month_id'
   
  --Autsim and LD Status
  LEFT JOIN global_temp.MHS005PatInd_AUT aut on B.PERSON_ID = aut.PERSON_ID

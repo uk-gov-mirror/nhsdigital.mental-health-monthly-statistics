@@ -40,7 +40,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.perinatal_m_master;
+ DROP TABLE IF EXISTS $db_output.perinatal_m_master;
  CREATE TABLE IF NOT EXISTS $db_output.perinatal_m_master
  (
  UniqMonthID string,
@@ -71,7 +71,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.Act_cumulative_master;
+ DROP TABLE IF EXISTS $db_output.Act_cumulative_master;
  CREATE TABLE IF NOT EXISTS $db_output.Act_cumulative_master
  (
  UniqMonthID int,
@@ -99,7 +99,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.Act_cumulative_master_first_contact;
+ DROP TABLE IF EXISTS $db_output.Act_cumulative_master_first_contact;
  CREATE TABLE IF NOT EXISTS $db_output.Act_cumulative_master_first_contact
  (
  UniqMonthID int,
@@ -127,7 +127,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.Act_cumulative_master_still_waiting;
+ DROP TABLE IF EXISTS $db_output.Act_cumulative_master_still_waiting;
  CREATE TABLE IF NOT EXISTS $db_output.Act_cumulative_master_still_waiting
  (
  UniqMonthID int,

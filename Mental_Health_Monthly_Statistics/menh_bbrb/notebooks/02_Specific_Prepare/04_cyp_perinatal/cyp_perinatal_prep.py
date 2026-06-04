@@ -12,6 +12,8 @@
      r.UniqServReqID,
      Case when r.OrgIDProv in ('DFC','S9X2N','F9R5H') then r.OrgIDComm
           else r.IC_Rec_CCG end as Der_OrgComm,
+     Case when r.OrgIDProv in ('DFC','S9X2N','F9R5H') then r.OrgIDComm
+          else r.IC_Rec_CCG_Mapped end as Der_OrgComm_Mapped,
      r.LADistrictAuth,
      r.AgeServReferRecDate,
      r.AgeRepPeriodEnd,
@@ -44,24 +46,31 @@
  CREATE OR REPLACE TEMPORARY VIEW GP_PRACTICE_CCG AS
 
  SELECT GP.UniqMonthID,
-        GP.Person_ID,
-        GP.OrgIDCCGGPPractice,
-        GP.OrgIDSubICBLocGP,
-        GP.RecordNumber
+     GP.Person_ID,
+     GP.OrgIDCCGGPPractice,
+     GP.OrgIDSubICBLocGP,
+     COALESCE(mp.TargetOrganisationID, mp2.TargetOrganisationID) as OrgIDSubICBLocGP_Mapped,
+     GP.RecordNumber
  FROM $db_source.MHS002GP GP
-      INNER JOIN
+     INNER JOIN 
                  (
-                   SELECT UniqMonthID,
-                          Person_ID,
-                          MAX(RecordNumber) as RecordNumber
-                   FROM $db_source.MHS002GP
-                   WHERE GMPReg NOT IN ('V81999','V81998','V81997') AND EndDateGMPRegistration is NULL
+                 SELECT UniqMonthID,
+                         Person_ID, 
+                         MAX(RecordNumber) as RecordNumber
+                     FROM $db_source.MHS002GP
+                     WHERE GMPReg NOT IN ('V81999','V81998','V81997') AND EndDateGMPRegistration is NULL
                  GROUP BY UniqMonthID, Person_ID
-                 ) max_GP
-                 ON GP.Person_ID = max_GP.Person_ID
-                 AND GP.RecordNumber = max_GP.recordnumber
-                 AND GP.UniqMonthID = max_GP.uniqmonthid
- WHERE GMPReg NOT IN ('V81999','V81998','V81997') AND EndDateGMPRegistration is NULL
+                 ) max_GP  
+                 ON GP.Person_ID = max_GP.Person_ID 
+                 AND GP.RecordNumber = max_GP.RecordNumber
+                 AND GP.UniqMonthID = max_GP.UniqMonthID
+
+ LEFT JOIN (select distinct uniqmonthid, reportingperiodenddate from $db_source.mhs000header) h ON GP.UniqMonthID = h.UniqMonthID
+ LEFT JOIN $db_output.OrgIDSubICBLocGP_Mapping mp ON GP.GMPReg = mp.OrganisationID ---new Apr26 GP Codes
+ LEFT JOIN $db_output.OrgIDSubICBLocGP_Mapping_preApr26 mp2 ON GP.GMPReg = mp2.OrganisationID 
+                                 and (mp2.GP_EndDate is null OR mp2.GP_EndDate >= h.reportingperiodenddate)
+                                 and (mp2.SubICB_EndDate is null OR mp2.SubICB_EndDate >= h.reportingperiodenddate)
+ WHERE GP.GMPReg NOT IN ('V81999','V81998','V81997') AND GP.EndDateGMPRegistration is NULL
 
 # COMMAND ----------
 
@@ -82,6 +91,12 @@
           WHEN m.UniqMonthID <= 1467 then m.OrgIDCCGRes
           WHEN m.UniqMonthID > 1467 then m.OrgIDSubICBLocResidence
           ELSE 'ERROR' END as Der_OrgComm,
+     Case when r.OrgIDProv in ('DFC','S9X2N','F9R5H') then r.OrgIDComm
+          WHEN m.UniqMonthID <= 1467 and gp.OrgIDCCGGPPractice is not null then gp.OrgIDCCGGPPractice
+          WHEN m.UniqMonthID > 1467 and gp.OrgIDSubICBLocGP_Mapped is not null then gp.OrgIDSubICBLocGP_Mapped
+          WHEN m.UniqMonthID <= 1467 then m.OrgIDCCGRes
+          WHEN m.UniqMonthID > 1467 then m.OrgIDSubICBLocResidence_Mapped
+          ELSE 'ERROR' END as Der_OrgComm_Mapped,
      m.LADistrictAuth,
      r.AgeServReferRecDate,
      m.AgeRepPeriodEnd,
@@ -99,7 +114,12 @@
      mpi.IMD_Quintile,
      mpi.IMD_Core20
  FROM $db_source.mhs101referral r
- INNER JOIN $db_source.mhs001mpi m
+ INNER JOIN (
+   SELECT m.Person_ID, m.UniqMonthID, m.RecordNumber, m.OrgIDCCGRes, m.OrgIDSubICBLocResidence, m.LADistrictAuth, m.AgeRepPeriodEnd, m.NHSDEthnicity,
+          mp.CCG as OrgIDSubICBLocResidence_Mapped
+   FROM $db_source.mhs001mpi m 
+   LEFT JOIN $db_output.OrgIDSubICBLocResidence_Mapping mp ON regexp_replace(m.Postcode, '\\s+', '') = regexp_replace(mp.PCDS, '\\s+', '')
+ ) m
  ON r.RecordNumber = m.RecordNumber
  LEFT JOIN GP_Practice_CCG gp
  ON r.Person_ID = gp.Person_ID
@@ -122,7 +142,7 @@
  CREATE OR REPLACE TEMPORARY VIEW Comb AS
  SELECT
      CASE 
-       WHEN c.OrgIDProv in ('DFC','S9X2N') THEN CONCAT(m.OrgIDProv, m.LocalPatientID)
+       WHEN c.OrgIDProv in ('DFC','S9X2N','F9R5H') THEN CONCAT(m.OrgIDProv, m.LocalPatientID)
        ELSE c.Person_ID
        END AS Person_ID,
      c.RecordNumber,
@@ -138,13 +158,13 @@
      ( c.AttendStatus IN ('5', '6') and ((c.ConsMechanismMH NOT IN ('05', '06') and c.UniqMonthID < '1459') or (c.ConsMechanismMH IN ('01', '02', '04', '11') and c.UniqMonthID >= '1459')))   
  -------/*** ConsMediumUsed' will change to 'ConsMechanismMH', code '06' will change to '09' from Oct 2021 data /*** updated to v5 AM ***/
      or 
-     ( ((c.ConsMechanismMH IN ('05', '06') and c.UniqMonthID < '1459') or (c.ConsMechanismMH IN ('05', '09', '10', '13') and c.UniqMonthID >= '1459')) and c.OrgIdProv in ('DFC','S9X2N')) 
+     ( ((c.ConsMechanismMH IN ('05', '06') and c.UniqMonthID < '1459') or (c.ConsMechanismMH IN ('05', '09', '10', '13') and c.UniqMonthID >= '1459')) and c.OrgIdProv in ('DFC','S9X2N','F9R5H')) 
     )-------/*** ConsMediumUsed' will change to 'ConsMechanismMH', code '06' will change to '09' from Oct 2021 data V5.0 /*** updated to v5 AM ***/
  UNION ALL
   
  SELECT
      CASE 
-       WHEN i.OrgIDProv in ('DFC','S9X2N') THEN CONCAT(m.OrgIDProv, m.LocalPatientID)
+       WHEN i.OrgIDProv in ('DFC','S9X2N','F9R5H') THEN CONCAT(m.OrgIDProv, m.LocalPatientID)
        ELSE i.Person_ID
        END AS Person_ID,
      i.RecordNumber,
@@ -164,6 +184,7 @@
      r.UniqMonthID,
      r.OrgIDProv,
      r.Der_OrgComm,
+     r.Der_OrgComm_Mapped,
      r.LADistrictAuth,
      r.Person_ID,
      r.RecordNumber,
@@ -198,6 +219,7 @@
      r.UniqMonthID,
      r.OrgIDProv,
      r.Der_OrgComm,
+     r.Der_OrgComm_Mapped,
      r.LADistrictAuth,
      r.Person_ID,
      r.RecordNumber,
@@ -231,8 +253,10 @@
  SELECT
      r.UniqMonthID,
      r.OrgIDProv,
-     Case when r.OrgIDProv in ('DFC','S9X2N') then r.OrgIDComm
+     Case when r.OrgIDProv in ('DFC','S9X2N','F9R5H') then r.OrgIDComm
           else ccg.SubICBGPRes end as Der_OrgComm,
+     Case when r.OrgIDProv in ('DFC','S9X2N','F9R5H') then r.OrgIDComm
+          else ccg.SubICBGPRes_Mapped end as Der_OrgComm_Mapped,
      r.Person_ID,
      r.RecordNumber,
      r.UniqServReqID,
@@ -275,16 +299,17 @@
  Der_ContactDate,
  Der_ContactOrder,
  o.NAME AS PROVIDER_NAME,
- COALESCE(c.CCG21CDH,'UNKNOWN') AS CCG_Code,
- COALESCE(c.CCG21NM,'UNKNOWN') AS CCG_Name,
- COALESCE(c.STP21CDH,'UNKNOWN') AS STP_Code,
- COALESCE(c.STP21NM,'UNKNOWN') AS STP_Name,
- COALESCE(c.NHSER21CDH,'UNKNOWN') AS Region_Code,
- COALESCE(c.NHSER21NM,'UNKNOWN') AS Region_Name,
+ COALESCE(stp.CCG_Code, co.CCG_Code,'UNKNOWN') AS CCG_Code,
+ COALESCE(stp.CCG_Name, co.CCG_Name,'UNKNOWN') AS CCG_Name,
+ COALESCE(stp.STP_Code, co.STP_Code,'UNKNOWN') AS STP_Code,
+ COALESCE(stp.STP_Name, co.STP_Name,'UNKNOWN') AS STP_Name,
+ COALESCE(stp.Region_Code, co.Region_Code,'UNKNOWN') AS Region_Code,
+ COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') AS Region_Name,
  DATEDIFF(Der_ContactDate, ReferralRequestReceivedDate) as TimeFromRefToFirstCont,
  DATEDIFF(DATE_ADD('$rp_enddate',1), ReferralRequestReceivedDate) as TimeFromRefToEndRP
  FROM Act_cumulative A
- LEFT JOIN $db_output.CCG_MAPPING_2021 C on a.DER_ORGCOMM = C.CCG_UNMAPPED
+ LEFT JOIN $db_output.bbrb_stp_mapping stp on A.Der_OrgComm = stp.CCG_Code and '$end_month_id' < '$apr26_icb_swap_month_id'
+ LEFT JOIN $db_output.commissioning_org_mapping co ON A.Der_OrgComm_Mapped = co.CCG_Code and '$end_month_id' >= '$apr26_icb_swap_month_id'
  LEFT JOIN $db_output.bbrb_org_daily_latest o on a.OrgIDProv = o.ORG_CODE
 
 # COMMAND ----------
@@ -315,13 +340,15 @@
      r.UniqMonthID,
      r.OrgIDProv,
      CASE 
-       WHEN r.OrgIDProv in ('DFC','S9X2N') THEN CONCAT(r.OrgIDProv, r.LocalPatientID)
+       WHEN r.OrgIDProv in ('DFC','S9X2N','F9R5H') THEN CONCAT(r.OrgIDProv, r.LocalPatientID)
        ELSE r.Person_ID
        END AS Person_ID,
      r.RecordNumber,
      r.UniqServReqID,
-     Case when r.OrgIDProv in ('DFC','S9X2N') then r.OrgIDComm
+     Case when r.OrgIDProv in ('DFC','S9X2N','F9R5H') then r.OrgIDComm
           else r.IC_Rec_CCG end as Der_OrgComm,
+     Case when r.OrgIDProv in ('DFC','S9X2N','F9R5H') then r.OrgIDComm
+          else r.IC_Rec_CCG_Mapped end as Der_OrgComm_Mapped,
      r.LADistrictAuth,
      r.AgeServReferRecDate,    
      r.AgeRepPeriodEnd,
@@ -356,6 +383,7 @@
      r.UniqMonthID,
      r.OrgIDProv,
      r.Der_OrgComm,
+     r.Der_OrgComm_Mapped,
      r.LADistrictAuth,
      r.Person_ID,
      r.RecordNumber,
@@ -389,12 +417,12 @@
      a.UniqMonthID,
      a.OrgIDProv,
      o.NAME AS Provider_Name,
-     COALESCE(c.CCG21CDH,'UNKNOWN') AS CCG_Code,
-     COALESCE(c.CCG21NM,'UNKNOWN') AS CCG_Name,
-     COALESCE(c.STP21CDH,'UNKNOWN') AS STP_Code,
-     COALESCE(c.STP21NM,'UNKNOWN') AS STP_Name,
-     COALESCE(c.NHSER21CDH,'UNKNOWN') AS Region_Code,
-     COALESCE(c.NHSER21NM,'UNKNOWN') AS Region_Name,
+     COALESCE(stp.CCG_Code, co.CCG_Code,'UNKNOWN') AS CCG_Code,
+     COALESCE(stp.CCG_Name, co.CCG_Name,'UNKNOWN') AS CCG_Name,
+     COALESCE(stp.STP_Code, co.STP_Code,'UNKNOWN') AS STP_Code,
+     COALESCE(stp.STP_Name, co.STP_Name,'UNKNOWN') AS STP_Name,
+     COALESCE(stp.Region_Code, co.Region_Code,'UNKNOWN') AS Region_Code,
+     COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') AS Region_Name,
      a.LADistrictAuth,
      a.Person_ID,
      a.RecordNumber,
@@ -411,16 +439,17 @@
      a.IMD_Quintile,
      a.IMD_Core20,
      ROW_NUMBER () OVER(PARTITION BY a.Person_ID, a.LADistrictAuth ORDER BY a.Der_ContactDate ASC) AS AccessLARN,
-     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, c.CCG21CDH ORDER BY a.Der_ContactDate ASC) AS AccessCCGRN,
-     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, c.CCG21CDH, a.OrgIDProv ORDER BY a.Der_ContactDate ASC) AS AccessCCGProvRN,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, COALESCE(stp.CCG_Code, co.CCG_Code,'UNKNOWN') ORDER BY a.Der_ContactDate ASC) AS AccessCCGRN,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, COALESCE(stp.CCG_Code, co.CCG_Code,'UNKNOWN'), a.OrgIDProv ORDER BY a.Der_ContactDate ASC) AS AccessCCGProvRN,
      ROW_NUMBER () OVER(PARTITION BY a.Person_ID, a.OrgIDProv ORDER BY a.Der_ContactDate ASC) AS AccessProvRN,
      ROW_NUMBER () OVER(PARTITION BY a.Person_ID ORDER BY a.Der_ContactDate ASC) AS AccessEngRN,
-     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, c.STP21CDH ORDER BY a.Der_ContactDate ASC) AS AccessSTPRN,
-     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, c.NHSER21CDH ORDER BY a.Der_ContactDate ASC) AS AccessRegionRN,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, COALESCE(stp.STP_Code, co.STP_Code,'UNKNOWN') ORDER BY a.Der_ContactDate ASC) AS AccessSTPRN,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') ORDER BY a.Der_ContactDate ASC) AS AccessRegionRN,
      'MHS95' AS Metric-- add metric id to table
   
  FROM Act as a
- LEFT JOIN $db_output.CCG_MAPPING_2021 c on a.DER_ORGCOMM = C.CCG_UNMAPPED
+ LEFT JOIN $db_output.bbrb_stp_mapping stp on A.Der_OrgComm = stp.CCG_Code and '$end_month_id' < '$apr26_icb_swap_month_id'
+ LEFT JOIN $db_output.commissioning_org_mapping co ON A.Der_OrgComm_Mapped = co.CCG_Code and '$end_month_id' >= '$apr26_icb_swap_month_id'
  LEFT JOIN $db_output.bbrb_org_daily_latest  o on a.OrgIDProv = o.ORG_CODE
 
 # COMMAND ----------
@@ -431,12 +460,12 @@
      a.UniqMonthID,
      a.OrgIDProv,
      o.NAME AS Provider_Name,
-     COALESCE(c.CCG21CDH,'UNKNOWN') AS CCG_Code,
-     COALESCE(c.CCG21NM,'UNKNOWN') AS CCG_Name,
-     COALESCE(c.STP21CDH,'UNKNOWN') AS STP_Code,
-     COALESCE(c.STP21NM,'UNKNOWN') AS STP_Name,
-     COALESCE(c.NHSER21CDH,'UNKNOWN') AS Region_Code,
-     COALESCE(c.NHSER21NM,'UNKNOWN') AS Region_Name,
+     COALESCE(stp.CCG_Code, co.CCG_Code,'UNKNOWN') AS CCG_Code,
+     COALESCE(stp.CCG_Name, co.CCG_Name,'UNKNOWN') AS CCG_Name,
+     COALESCE(stp.STP_Code, co.STP_Code,'UNKNOWN') AS STP_Code,
+     COALESCE(stp.STP_Name, co.STP_Name,'UNKNOWN') AS STP_Name,
+     COALESCE(stp.Region_Code, co.Region_Code,'UNKNOWN') AS Region_Code,
+     COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') AS Region_Name,
      a.LADistrictAuth,
      a.Person_ID,
      a.RecordNumber,
@@ -453,16 +482,17 @@
      a.IMD_Quintile,
      a.IMD_Core20,
      ROW_NUMBER () OVER(PARTITION BY a.Person_ID, a.LADistrictAuth ORDER BY a.Der_ContactDate ASC) AS AccessLARN,
-     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, c.CCG21CDH ORDER BY a.Der_ContactDate ASC) AS AccessCCGRN,
-     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, c.CCG21CDH, a.OrgIDProv ORDER BY a.Der_ContactDate ASC) AS AccessCCGProvRN,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, COALESCE(stp.CCG_Code, co.CCG_Code,'UNKNOWN') ORDER BY a.Der_ContactDate ASC) AS AccessCCGRN,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, COALESCE(stp.CCG_Code, co.CCG_Code,'UNKNOWN'), a.OrgIDProv ORDER BY a.Der_ContactDate ASC) AS AccessCCGProvRN,
      ROW_NUMBER () OVER(PARTITION BY a.Person_ID, a.OrgIDProv ORDER BY a.Der_ContactDate ASC) AS AccessProvRN,
      ROW_NUMBER () OVER(PARTITION BY a.Person_ID ORDER BY a.Der_ContactDate ASC) AS AccessEngRN,
-     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, c.STP21CDH ORDER BY a.Der_ContactDate ASC) AS AccessSTPRN,
-     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, c.NHSER21CDH ORDER BY a.Der_ContactDate ASC) AS AccessRegionRN,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, COALESCE(stp.STP_Code, co.STP_Code,'UNKNOWN') ORDER BY a.Der_ContactDate ASC) AS AccessSTPRN,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') ORDER BY a.Der_ContactDate ASC) AS AccessRegionRN,
      'MHS159' AS Metric-- add metric id to table
   
  FROM Act_filtF01 as a
- LEFT JOIN $db_output.CCG_MAPPING_2021 c on a.DER_ORGCOMM = C.CCG_UNMAPPED
+ LEFT JOIN $db_output.bbrb_stp_mapping stp on A.Der_OrgComm = stp.CCG_Code and '$end_month_id' < '$apr26_icb_swap_month_id'
+ LEFT JOIN $db_output.commissioning_org_mapping co ON A.Der_OrgComm_Mapped = co.CCG_Code and '$end_month_id' >= '$apr26_icb_swap_month_id'
  LEFT JOIN $db_output.bbrb_org_daily_latest  o on a.OrgIDProv = o.ORG_CODE
 
 # COMMAND ----------
@@ -474,12 +504,12 @@
      a.UniqMonthID,
      a.OrgIDProv,
      o.NAME AS Provider_Name,
-     COALESCE(c.CCG21CDH,'UNKNOWN') AS CCG_Code,
-     COALESCE(c.CCG21NM,'UNKNOWN') AS CCG_Name,
-     COALESCE(c.STP21CDH,'UNKNOWN') AS STP_Code,
-     COALESCE(c.STP21NM,'UNKNOWN') AS STP_Name,
-     COALESCE(c.NHSER21CDH,'UNKNOWN') AS Region_Code,
-     COALESCE(c.NHSER21NM,'UNKNOWN') AS Region_Name,
+     COALESCE(stp.CCG_Code, co.CCG_Code,'UNKNOWN') AS CCG_Code,
+     COALESCE(stp.CCG_Name, co.CCG_Name,'UNKNOWN') AS CCG_Name,
+     COALESCE(stp.STP_Code, co.STP_Code,'UNKNOWN') AS STP_Code,
+     COALESCE(stp.STP_Name, co.STP_Name,'UNKNOWN') AS STP_Name,
+     COALESCE(stp.Region_Code, co.Region_Code,'UNKNOWN') AS Region_Code,
+     COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') AS Region_Name,
      a.LADistrictAuth,
      a.Person_ID,
      a.RecordNumber,
@@ -496,16 +526,17 @@
      a.IMD_Quintile,
      a.IMD_Core20,
      ROW_NUMBER () OVER(PARTITION BY a.Person_ID, a.LADistrictAuth ORDER BY a.Der_ContactDate ASC) AS AccessLARN,
-     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, c.CCG21CDH ORDER BY a.Der_ContactDate ASC) AS AccessCCGRN,
-     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, c.CCG21CDH, a.OrgIDProv ORDER BY a.Der_ContactDate ASC) AS AccessCCGProvRN,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, COALESCE(stp.CCG_Code, co.CCG_Code,'UNKNOWN') ORDER BY a.Der_ContactDate ASC) AS AccessCCGRN,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, COALESCE(stp.CCG_Code, co.CCG_Code,'UNKNOWN'), a.OrgIDProv ORDER BY a.Der_ContactDate ASC) AS AccessCCGProvRN,
      ROW_NUMBER () OVER(PARTITION BY a.Person_ID, a.OrgIDProv ORDER BY a.Der_ContactDate ASC) AS AccessProvRN,
      ROW_NUMBER () OVER(PARTITION BY a.Person_ID ORDER BY a.Der_ContactDate ASC) AS AccessEngRN,
-     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, c.STP21CDH ORDER BY a.Der_ContactDate ASC) AS AccessSTPRN,
-     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, c.NHSER21CDH ORDER BY a.Der_ContactDate ASC) AS AccessRegionRN,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, COALESCE(stp.STP_Code, co.STP_Code,'UNKNOWN') ORDER BY a.Der_ContactDate ASC) AS AccessSTPRN,
+     ROW_NUMBER () OVER(PARTITION BY a.Person_ID, COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') ORDER BY a.Der_ContactDate ASC) AS AccessRegionRN,
      'MHS109' AS Metric-- add metric id to table
   
  FROM Act109 as A
- LEFT JOIN $db_output.CCG_MAPPING_2021 C on a.Der_OrgComm = C.CCG_UNMAPPED
+ LEFT JOIN $db_output.bbrb_stp_mapping stp on A.Der_OrgComm = stp.CCG_Code and '$end_month_id' < '$apr26_icb_swap_month_id'
+ LEFT JOIN $db_output.commissioning_org_mapping co ON A.Der_OrgComm_Mapped = co.CCG_Code and '$end_month_id' >= '$apr26_icb_swap_month_id'
  LEFT JOIN $db_output.bbrb_org_daily_latest  o on a.OrgIDProv = o.ORG_CODE
 
 # COMMAND ----------
@@ -526,16 +557,16 @@
  r.UniqServReqID,
  r.OrgIDProv,
  r.ReferralRequestReceivedDate,
- COALESCE(mp.CCG21CDH, 'UNKNOWN') AS IC_Rec_CCG,
- COALESCE(mp.CCG21NM, 'UNKNOWN') AS CCG_NAME,
+ COALESCE(stp.CCG_Code, co.CCG_Code, 'UNKNOWN') AS IC_Rec_CCG,
+ COALESCE(stp.CCG_Name, co.CCG_Name, 'UNKNOWN') AS CCG_NAME,
  m.LADistrictAuth,
  coalesce(eth.LowerEthnicityCode, "UNKNOWN") as LowerEthnicityCode,
  coalesce(eth.LowerEthnicityName, "UNKNOWN") as LowerEthnicityName,
  coalesce(eth.UpperEthnicity, "UNKNOWN") as UpperEthnicity,
- COALESCE(mp.STP21CDH, 'UNKNOWN') AS STP_Code,
- COALESCE(mp.STP21NM, 'UNKNOWN') AS STP_Name,
- COALESCE(mp.NHSER21CDH, 'UNKNOWN') AS Region_Code,
- COALESCE(mp.NHSER21NM, 'UNKNOWN') AS Region_Name
+ COALESCE(stp.STP_Code, co.STP_Code, 'UNKNOWN') AS STP_Code,
+ COALESCE(stp.STP_Name, co.STP_Name, 'UNKNOWN') AS STP_Name,
+ COALESCE(stp.Region_Code, co.Region_Code, 'UNKNOWN') AS Region_Code,
+ COALESCE(stp.Region_Name, co.Region_Name, 'UNKNOWN') AS Region_Name
   
  FROM $db_source.MHS101Referral r
  INNER JOIN $db_output.ServiceTeamType s
@@ -560,9 +591,10 @@
  LEFT JOIN $db_output.ethnicity_desc eth on m.NHSDEthnicity = eth.LowerEthnicityCode and '$end_month_id' >= eth.FirstMonth and (eth.LastMonth is null or '$end_month_id' <= eth.LastMonth)
   
  LEFT JOIN $db_output.bbrb_ccg_in_year ccg on m.Person_ID = ccg.Person_ID
-  
- LEFT JOIN $db_output.CCG_mapping_2021 mp 
- on ccg.SubICBGPRes = mp.CCG_unmapped
+
+ LEFT JOIN $db_output.bbrb_stp_mapping stp on ccg.SubICBGPRes = stp.CCG_Code and '$end_month_id' < '$apr26_icb_swap_month_id'
+
+ LEFT JOIN $db_output.commissioning_org_mapping co ON ccg.SubICBGPRes_Mapped = co.CCG_Code and '$end_month_id' >= '$apr26_icb_swap_month_id'
   
  WHERE r.UniqMonthID BETWEEN '$end_month_id'-11 AND '$end_month_id'
 
@@ -655,11 +687,11 @@
  r.OrgIDProv,
  o.NAME as Provider_Name,
  COALESCE(r.IC_Rec_CCG, "UNKNOWN") as CCG_Code,
- COALESCE(o2.NAME, "UNKNOWN") as CCG_Name, --Changed to pull out latest CCG Name
+ COALESCE(co.CCG_Name, "UNKNOWN") as CCG_Name, --Changed to pull out latest CCG Name
  r.STP_Code,
- STP_NAME as STP_Name,
+ COALESCE(co.STP_Name, "UNKNOWN") as STP_Name,
  r.REGION_CODE as Region_Code,
- REGION_NAME as Region_Name,
+ COALESCE(co.Region_Name, "UNKNOWN") as Region_Name,
  COALESCE(r.LADistrictAuth,'Unknown') AS LACode,
  r.LowerEthnicityCode,
  r.LowerEthnicityName,
@@ -697,8 +729,7 @@
  LEFT JOIN $db_output.bbrb_org_daily_latest o
        ON r.OrgIDProv = o.ORG_CODE 
     
- LEFT JOIN $db_output.bbrb_org_daily_latest o2 --Added to pull out latest CCG Name
-       ON r.IC_Rec_CCG = o2.ORG_CODE
+ LEFT JOIN $db_output.commissioning_org_mapping co ON r.IC_Rec_CCG = co.CCG_Code
 
 # COMMAND ----------
 

@@ -277,6 +277,7 @@ class MHRunParameters:
   financial_year_start: str = field(init=False)
   year_of_count: int = field(init=False)
   reference_data: str = "reference_data"
+  apr26_icb_swap_month_id: int = apr26_icb_swap_month_id #uniqmonthid for apr26 (currently set as march26 for testing) from params
    
   def __post_init__(self):
     self.pub_month = get_pub_month(self.rp_startdate, self.status)
@@ -822,7 +823,26 @@ def get_historic_df(df: df, numerator_id: str, breakdown: str, status: str, db_s
       F.col("MEASURE_VALUE").alias("HISTORIC_COUNT")    
     ).distinct()
   )
-  
+
+  if historic_df.count() == 0:
+    
+    historic_df = (
+      df
+      .filter(
+        (F.col("MEASURE_ID") == numerator_id)
+        & (F.col("BREAKDOWN") == breakdown)
+        & (F.col("STATUS") == "Performance") ###historic data based on performance data if no Final data exists
+        & (F.col("SOURCE_DB") == db_source)
+        & (F.col("REPORTING_PERIOD_END") == dt2str(add_months(str2dt(rp_enddate), -month_int)))
+      ) 
+      .select(
+        F.col("BREAKDOWN"), 
+        F.col("PRIMARY_LEVEL"), F.col("PRIMARY_LEVEL_DESCRIPTION"),
+        F.col("SECONDARY_LEVEL"), F.col("SECONDARY_LEVEL_DESCRIPTION"),
+        F.col("MEASURE_VALUE").alias("HISTORIC_COUNT")
+        ).distinct()
+    )
+    
   return historic_df
  
 def get_percentage_change_df(numerator_df: df, historic_df: df) -> df:
@@ -872,7 +892,7 @@ def produce_percentage_change_agg_df(
     
     numerator_df = get_numerator_df(insert_df, numerator_id, breakdown, status, db_source, rp_enddate)
  
-    historic_df = get_historic_df(insert_df, numerator_id, breakdown, status, db_source, rp_enddate, month_int=12)
+    historic_df = get_historic_df(spark.table(f"menh_bbrb.{table_name}"), numerator_id, breakdown, status, db_source, rp_enddate, month_int=12)
  
     perc_change_df = get_percentage_change_df(numerator_df, historic_df)
     
@@ -1421,37 +1441,16 @@ def produce_absolute_difference_between_two_standardised_rates_df(
 # COMMAND ----------
 
 # DBTITLE 1,Insert into table functions
-def insert_unsup_agg(agg_df: df, db_output: str, unsup_columns: list, output_table: str) -> None:
+def insert_agg_df(insert_df: df, db_output: str, output_table: str) -> None:
   """
   This function uses the aggregation dataframe produced in the different aggregation functions 
-  and selects certain columns and inserts them into the required unsuppressed table in measure metadata
+  and inserts them into the desired output table
   
   Example:
   
   """
-  unsup_agg_df = (
-    agg_df
-    .withColumn("MEASURE_VALUE", F.coalesce(F.col("MEASURE_VALUE"), F.lit(0)))
-    .select(*unsup_columns)
-  )
-  
-  unsup_agg_df.write.insertInto(f"{db_output}.{output_table}")
-  
-def insert_sup_agg(agg_df: df, db_output: str, measure_name: str, sup_columns: list, output_table: str) -> None:
-  """
-  This function uses the aggregation dataframe produced in the different aggregation functions 
-  and selects certain columns and inserts them into the required suppressed table in measure metadata
-  
-  Example:
-  
-  """
-  sup_agg_df = (
-    agg_df
-    .withColumn("MEASURE_NAME", F.lit(measure_name))
-    .select(*sup_columns)
-  )
-  
-  sup_agg_df.write.insertInto(f"{db_output}.{output_table}")
+  insert_df = insert_df.coalesce(spark.sparkContext.defaultParallelism)
+  insert_df.write.insertInto(f"{db_output}.{output_table}")
 
 # COMMAND ----------
 
@@ -1842,7 +1841,7 @@ def get_var_name(variable):   # pass in a variable, get its name in text format
             return name
           
 def unionAll(*dfs):
-    return reduce(df.unionAll, dfs)
+    return reduce(df.unionAll, dfs)  
    
 def convert_df_to_dictionary(db_output, table, cols):
   d1 = {}
@@ -1876,6 +1875,7 @@ def createbreakdowndf(db_output, end_month_id, breakdown, freq):
   
   prov_geog_check = check_substring_exists_in_list(provider_parent_breakdowns, breakdown_name)
   oaps_prov_geog_check = check_substring_exists_in_list(oaps_provider_parent_breakdowns, breakdown_name)
+  icb_changes_geog_check = any(s in breakdown_name for s in icb_changes_parent_breakdowns)
   
   if oaps_prov_geog_check == True:
       lvl_tables = ["oaps_year" if x == "oaps_prov_placeholder" else x for x in lvl_tables]
@@ -1887,7 +1887,10 @@ def createbreakdowndf(db_output, end_month_id, breakdown, freq):
       lvl_tables = ["bbrb_org_daily_past_quarter_mhsds_providers" if x == "prov_placeholder" else x for x in lvl_tables]
       
   elif prov_geog_check == True and freq == "12M":
-      lvl_tables = ["bbrb_org_daily_past_12_months_mhsds_providers" if x == "prov_placeholder" else x for x in lvl_tables]   
+      lvl_tables = ["bbrb_org_daily_past_12_months_mhsds_providers" if x == "prov_placeholder" else x for x in lvl_tables]
+
+  elif int(end_month_id) >= int(apr26_icb_swap_month_id) and icb_changes_geog_check == True and freq != "M":
+      lvl_tables = ["commissioning_org_mapping" if x == "bbrb_stp_mapping" else x for x in lvl_tables]
  
   if lvl_tier == 0:
     table = lvl_tables[0]

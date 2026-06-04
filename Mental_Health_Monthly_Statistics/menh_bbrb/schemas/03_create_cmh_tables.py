@@ -9,6 +9,7 @@
  RecordNumber BIGINT,
  UniqServReqID string,
  IC_Rec_CCG string,
+ IC_Rec_CCG_Mapped string,
  ReferralRequestReceivedDate date,
  ServDischDate Date,
  Ref_MnthNum int
@@ -17,7 +18,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cmh_activity;
+ DROP TABLE IF EXISTS $db_output.cmh_activity;
  CREATE TABLE IF NOT EXISTS $db_output.cmh_activity
  (
  Der_ActivityType string,
@@ -67,7 +68,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cmh_activity_linked;
+ DROP TABLE IF EXISTS $db_output.cmh_activity_linked;
  CREATE TABLE IF NOT EXISTS $db_output.cmh_activity_linked
  (
  UniqMonthID int,
@@ -88,7 +89,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cmh_rolling_activity;
+ DROP TABLE IF EXISTS $db_output.cmh_rolling_activity;
  CREATE TABLE IF NOT EXISTS $db_output.cmh_rolling_activity
  (
  UniqMonthID int,
@@ -198,6 +199,7 @@
  RecordNumber BIGINT,
  UniqServReqID string,
  IC_Rec_CCG string,
+ IC_Rec_CCG_Mapped string,
  ReferralRequestReceivedDate date,
  ServDischDate Date,
  Ref_MnthNum int
@@ -206,7 +208,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cmh_activity_linked_medians;
+ DROP TABLE IF EXISTS $db_output.cmh_activity_linked_medians;
  CREATE TABLE IF NOT EXISTS $db_output.cmh_activity_linked_medians
  (
  UniqMonthID int,
@@ -232,7 +234,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cmh_rolling_activity_medians;
+ DROP TABLE IF EXISTS $db_output.cmh_rolling_activity_medians;
  CREATE TABLE IF NOT EXISTS $db_output.cmh_rolling_activity_medians
  (
  UniqMonthID int,
@@ -258,7 +260,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cmh_rolling_activity_medians_2nd_cont;
+ DROP TABLE IF EXISTS $db_output.cmh_rolling_activity_medians_2nd_cont;
  CREATE TABLE IF NOT EXISTS $db_output.cmh_rolling_activity_medians_2nd_cont
  (
  UniqMonthID int,
@@ -284,7 +286,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cmh_rolling_activity_medians_still_waiting;
+ DROP TABLE IF EXISTS $db_output.cmh_rolling_activity_medians_still_waiting;
  CREATE TABLE IF NOT EXISTS $db_output.cmh_rolling_activity_medians_still_waiting
  (
  UniqMonthID int,

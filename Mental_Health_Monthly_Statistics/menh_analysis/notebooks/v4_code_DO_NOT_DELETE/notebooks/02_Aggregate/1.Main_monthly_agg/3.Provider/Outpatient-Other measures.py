@@ -680,14 +680,14 @@
              AND REF.OrgIDProv = CRS.OrgIDProv
    
    
-     --USER: commenting this section of code out to exclude the need for table MHS008CrisisPlan in the source data
+     --User: commenting this section of code out to exclude the need for table MHS008CrisisPlan in the source data
  --     LEFT JOIN $db_source.MHS008CrisisPlan AS CRSold
  -- 		    ON REF.Person_ID = CRSold.Person_ID 
  --             AND CRSold.UniqMonthID <= '${month_id}' 
  --             AND REF.OrgIDProv = CRSold.OrgIDProv
        WHERE 
 
-     --USER: commenting this section of code out to exclude the need for table MHS008CrisisPlan in the source data
+     --User: commenting this section of code out to exclude the need for table MHS008CrisisPlan in the source data
      --(
                       (CarePlanTypeMH = '12' AND CRS.Person_ID IS NOT NULL 
                       AND ((CRS.CarePlanCreatDate <= '${rp_enddate}' 
@@ -695,7 +695,7 @@
                       OR (CRS.CarePlanLastUpdateDate <= '${rp_enddate}' 
                       AND CRS.CarePlanLastUpdateDate >= DATE_ADD(ADD_MONTHS( '${rp_enddate}', -12),1))))
       
-     --USER: commenting this section of code out to exclude the need for table MHS008CrisisPlan in the source data
+     --User: commenting this section of code out to exclude the need for table MHS008CrisisPlan in the source data
  --                 OR 
  --                      (CRSold.Person_ID IS NOT NULL 
  --                      AND ((CRSold.MHCrisisPlanCreatDate <= '${rp_enddate}' 

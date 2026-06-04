@@ -16,6 +16,15 @@
 
 # COMMAND ----------
 
+ %py
+ #Set variable for month of April 2026 Sub ICB / ICB Changes
+ apr26_icb_swap_month_id = '1513'
+
+ icb_change_products = ['72HOURS', 'CYP_ED_WaitingTimes_preFY2324', 'CYP_ED_WaitingTimes', 'CYP_ED_WaitingTimes_12m', 'EIP']
+ assert apr26_icb_swap_month_id
+
+# COMMAND ----------
+
 import json
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -87,6 +96,7 @@ params = {
     "db_output": db_output,
     "month_id": month_id,
     "month_id_chgover": month_id_chgover,
+    "apr26_icb_swap_month_id": apr26_icb_swap_month_id,
     "status": status,
     "rp_enddate": rp_enddate,
     "rp_startdate": rp_startdate,
@@ -242,14 +252,47 @@ try:
           params['ccg_table'] = db_output + ".MHS001_CCG_LATEST"
           params['provider_table'] = db_output + ".providers_between_rp_start_end_dates"
           params['rp_startdate_run'] = params['rp_startdate_quarterly']
+
         elif row_product == 'CYP_ED_WaitingTimes_12m':
           params['ccg_table'] = db_output + ".MHS001_CCG_LATEST_12m"
           params['provider_table'] = db_output + ".providers_between_rp_start_end_dates_12m"
           params['rp_startdate_run'] = params['rp_startdate_12m']
+
+        elif row_product in icb_change_products and params['month_id'] < params['apr26_icb_swap_month_id']:
+          params['ccg_ref_table'] = db_output + '.ccg'
+          params['ccg_agg_field'] = 'IC_Rec_CCG'
+          params['ccg_code_field'] = 'IC_Rec_CCG'
+          params['ccg_desc_field'] = 'Name'
+          params['stp_reg_ref_table'] = db_output + '.STP_Region_mapping_post_2020'
+          params['stp_code_field'] = 'STP_Code'
+          params['stp_desc_field'] = 'STP_Description'
+          params['reg_code_field'] = 'Region_code'
+          params['reg_desc_field'] = 'Region_description'
+
+        elif row_product in icb_change_products and params['month_id'] >= params['apr26_icb_swap_month_id']:
+          params['ccg_ref_table'] = db_output + '.commissioning_org_mapping'
+          params['ccg_agg_field'] = 'IC_Rec_CCG_Mapped'
+          params['ccg_code_field'] = 'CCG_Code'
+          params['ccg_desc_field'] = 'CCG_Name'
+          params['stp_reg_ref_table'] = db_output + '.commissioning_org_mapping'
+          params['stp_code_field'] = 'STP_Code'
+          params['stp_desc_field'] = 'STP_Name'
+          params['reg_code_field'] = 'Region_code'
+          params['reg_desc_field'] = 'Region_Name'
+        
         else:
           params['ccg_table'] = ''
           params['provider_table'] = ''
           params['rp_startdate_run'] = ''
+          params['ccg_ref_table'] = ''
+          params['ccg_agg_field'] = ''
+          params['ccg_code_field'] = ''
+          params['ccg_desc_field'] = ''
+          params['stp_reg_ref_table'] = ''
+          params['stp_code_field'] = ''
+          params['stp_desc_field'] = ''
+          params['reg_code_field'] = ''
+          params['reg_desc_field'] = ''
         
         if run == 1:
           path = row['notebook_path']
@@ -284,18 +327,50 @@ try:
           params['ccg_table'] = db_output + ".MHS001_CCG_LATEST"
           params['provider_table'] = db_output + ".providers_between_rp_start_end_dates"
           params['rp_startdate_run'] = params['rp_startdate_quarterly']
+
         elif row_product == 'CYP_ED_WaitingTimes_12m':
           params['ccg_table'] = db_output + ".MHS001_CCG_LATEST_12m"
           params['provider_table'] = db_output + ".providers_between_rp_start_end_dates_12m"
           params['rp_startdate_run'] = params['rp_startdate_12m']
+
+        elif row_product in icb_change_products and params['month_id'] < params['apr26_icb_swap_month_id']:
+          params['ccg_ref_table'] = db_output + '.ccg'
+          params['ccg_agg_field'] = 'IC_Rec_CCG'
+          params['ccg_code_field'] = 'IC_Rec_CCG'
+          params['ccg_desc_field'] = 'Name'
+          params['stp_reg_ref_table'] = db_output + '.STP_Region_mapping_post_2020'
+          params['stp_code_field'] = 'STP_Code'
+          params['stp_desc_field'] = 'STP_Description'
+          params['reg_code_field'] = 'Region_code'
+          params['reg_desc_field'] = 'Region_description'
+
+        elif row_product in icb_change_products and params['month_id'] >= params['apr26_icb_swap_month_id']:
+          params['ccg_ref_table'] = db_output + '.commissioning_org_mapping'
+          params['ccg_agg_field'] = 'IC_Rec_CCG_Mapped'
+          params['ccg_code_field'] = 'CCG_Code'
+          params['ccg_desc_field'] = 'CCG_Name'
+          params['stp_reg_ref_table'] = db_output + '.commissioning_org_mapping'
+          params['stp_code_field'] = 'STP_Code'
+          params['stp_desc_field'] = 'STP_Name'
+          params['reg_code_field'] = 'Region_code'
+          params['reg_desc_field'] = 'Region_Name'
+        
         else:
           params['ccg_table'] = ''
           params['provider_table'] = ''
           params['rp_startdate_run'] = ''
+          params['ccg_ref_table'] = ''
+          params['ccg_agg_field'] = ''
+          params['ccg_code_field'] = ''
+          params['ccg_desc_field'] = ''
+          params['stp_reg_ref_table'] = ''
+          params['stp_code_field'] = ''
+          params['stp_desc_field'] = ''
+          params['reg_code_field'] = ''
+          params['reg_desc_field'] = ''
 
         dbutils.notebook.run(f'{path}', 0, params)
         print(f'{path} run now complete from for loop')
-
 
     ############################################################
     dbutils.notebook.run("91_List_possible_metrics", 0, params)

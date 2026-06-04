@@ -1,7 +1,7 @@
 # Databricks notebook source
 # dbutils.widgets.text("db_output", "personal_db")
 # db_output = dbutils.widgets.get("db_output")
-# dbutils.widgets.text("db_source", "testdata_menh_bbrb_mhsds_db")
+# dbutils.widgets.text("db_source", "testdata_menh_bbrb_mhsds_database")
 # db_source = dbutils.widgets.get("db_source")
 # dbutils.widgets.text("end_month_id", "1459")
 # end_month_id = dbutils.widgets.get("end_month_id")
@@ -41,7 +41,8 @@ if int(end_month_id) > 1467:
               B.EndDateWardStay,
               DATEDIFF(B.EndDateWardStay, B.StartDateWardStay) as WARD_LOS,
               C.AgeRepPeriodEnd,
-              ccg.SubICBGPRes AS IC_REC_GP_RES
+              ccg.SubICBGPRes AS IC_REC_GP_RES,
+              ccg.SubICBGPRes_Mapped AS IC_REC_GP_RES_MAPPED
  
               FROM
               {db_source}.MHS501HospProvSpell a 
@@ -76,7 +77,8 @@ else:
               B.EndDateWardStay,
               DATEDIFF(B.EndDateWardStay, B.StartDateWardStay) as WARD_LOS,
               C.AgeRepPeriodEnd,
-              ccg.SubICBGPRes AS IC_REC_GP_RES
+              ccg.SubICBGPRes AS IC_REC_GP_RES,
+              ccg.SubICBGPRes_Mapped AS IC_REC_GP_RES_MAPPED
  
               FROM
               {db_source}.MHS501HospProvSpell a 
@@ -109,20 +111,20 @@ else:
  A.EndDateWardStay,
  A.WARD_LOS as Ward_LOS,
  A.AgeRepPeriodEnd,
- COALESCE(F.ORG_CODE,'UNKNOWN') as CCG_Code,
- COALESCE(F.NAME,'UNKNOWN') as CCG_Name,
- COALESCE(C.REGION_CODE, 'UNKNOWN') as REGION_CODE,
- COALESCE(C.REGION_NAME, 'UNKNOWN') as REGION_Name,
- COALESCE(C.STP_CODE, 'UNKNOWN') as STP_CODE,
- COALESCE(C.STP_NAME, 'UNKNOWN') as STP_Name,
+ COALESCE(stp.CCG_Code, co.CCG_Code,'UNKNOWN') AS CCG_Code,
+ COALESCE(stp.CCG_Name, co.CCG_Name,'UNKNOWN') AS CCG_Name,
+ COALESCE(stp.Region_Code, co.Region_Code,'UNKNOWN') AS Region_Code,
+ COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') AS Region_Name,
+ COALESCE(stp.STP_Code, co.STP_Code,'UNKNOWN') AS STP_Code,
+ COALESCE(stp.STP_Name, co.STP_Name,'UNKNOWN') AS STP_Name,
  CASE WHEN (A.UniqMonthID > 1488 AND A.MHAdmittedPatientClass = '200') OR (A.UniqMonthID <= 1488 AND A.MHAdmittedPatientClass = '10') THEN 'Adult Acute'
       WHEN (A.UniqMonthID > 1488 AND A.MHAdmittedPatientClass = '201') OR (A.UniqMonthID <= 1488 AND A.MHAdmittedPatientClass = '11') THEN 'Older Adult Acute'
       WHEN (A.UniqMonthID > 1488 AND A.MHAdmittedPatientClass = '202') OR (A.UniqMonthID <= 1488 AND A.MHAdmittedPatientClass = '12') THEN 'PICU'
       ELSE 'Invalid' END AS Acute_Bed
   
  FROM $db_output.spells1 A
- LEFT JOIN $db_output.bbrb_ccg_latest F ON A.IC_REC_GP_RES = F.ORG_CODE
- LEFT JOIN $db_output.bbrb_stp_mapping c on F.ORG_CODE = c.CCG_CODE
+ LEFT JOIN $db_output.bbrb_stp_mapping stp on A.IC_REC_GP_RES = stp.CCG_Code and '$end_month_id' < '$apr26_icb_swap_month_id'
+ LEFT JOIN $db_output.commissioning_org_mapping co ON A.IC_REC_GP_RES_MAPPED = co.CCG_Code and '$end_month_id' >= '$apr26_icb_swap_month_id'
 
 # COMMAND ----------
 

@@ -80,7 +80,7 @@ spark.conf.set("spark.sql.legacy.allowCreatingManagedTableUsingNonemptyLocation"
      c.TimeReferAndCareContact,
      c.uniqothercareprofteamlocalid AS Der_UniqCareProfTeamID,
      c.PlaceOfSafetyInd,
-     CASE WHEN c.OrgIDProv in ('DFC','S9X2N') THEN '1' ELSE c.Person_ID END AS Der_PersonID, -- derivation added to better reflect anonymous services (such as Kooth) where personID may change every month
+     CASE WHEN c.OrgIDProv in ('DFC','S9X2N','F9R5H') THEN '1' ELSE c.Person_ID END AS Der_PersonID, -- derivation added to better reflect anonymous services (such as Kooth) where personID may change every month
      'NULL' AS Der_ContactOrder,
      'NULL' AS Der_FYContactOrder,
      'NULL' AS Der_DirectContactOrder,
@@ -129,7 +129,7 @@ spark.conf.set("spark.sql.legacy.allowCreatingManagedTableUsingNonemptyLocation"
           WHEN uniqmonthid <= '1488' THEN CONCAT(i.OrgIDProv,i.CareProfTeamLocalId)
           END AS Der_UniqCareProfTeamID,
      'NULL' AS PlaceOfSafetyInd,
-     CASE WHEN i.OrgIDProv in ('DFC','S9X2N') THEN '1' ELSE i.Person_ID END AS Der_PersonID, -- derivation added to better reflect anonymous services where personID may change every month
+     CASE WHEN i.OrgIDProv in ('DFC','S9X2N','F9R5H') THEN '1' ELSE i.Person_ID END AS Der_PersonID, -- derivation added to better reflect anonymous services where personID may change every month
      'NULL' AS Der_ContactOrder,
      'NULL' AS Der_FYContactOrder,
      'NULL' AS Der_DirectContactOrder,
@@ -160,7 +160,7 @@ spark.conf.set("spark.sql.legacy.allowCreatingManagedTableUsingNonemptyLocation"
  a.Der_ContactDateTime,
  ROW_NUMBER() OVER (PARTITION BY a.Der_PersonID, a.UniqServReqID ORDER BY a.Der_ContactDateTime ASC, a.Der_ActivityUniqID ASC) AS Der_ContactOrder
  FROM $db_output.EIP_Pre_Proc_Activity a
- WHERE (a.Der_ActivityType = 'DIRECT' AND a.AttendStatus IN ('5','6') AND (((a.ConsMechanismMH NOT IN ('05', '06') and a.UniqMonthID < '1459') OR (a.ConsMechanismMH IN ('01', '02', '04', '11') and a.UniqMonthID >= '1459')) OR a.OrgIDProv in ('DFC','S9X2N') AND ((a.ConsMechanismMH IN ('05', '06') and a.UniqMonthID < '1459') OR (a.ConsMechanismMH IN ('05', '09', '10', '13') and a.UniqMonthID >= '1459')))) OR a.Der_ActivityType = 'INDIRECT'
+ WHERE (a.Der_ActivityType = 'DIRECT' AND a.AttendStatus IN ('5','6') AND (((a.ConsMechanismMH NOT IN ('05', '06') and a.UniqMonthID < '1459') OR (a.ConsMechanismMH IN ('01', '02', '04', '11') and a.UniqMonthID >= '1459')) OR a.OrgIDProv in ('DFC','S9X2N','F9R5H') AND ((a.ConsMechanismMH IN ('05', '06') and a.UniqMonthID < '1459') OR (a.ConsMechanismMH IN ('05', '09', '10', '13') and a.UniqMonthID >= '1459')))) OR a.Der_ActivityType = 'INDIRECT'
 
 
 # COMMAND ----------

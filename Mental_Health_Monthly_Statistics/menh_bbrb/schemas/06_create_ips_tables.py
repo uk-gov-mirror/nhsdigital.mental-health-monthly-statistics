@@ -14,13 +14,14 @@
  ServDischDate DATE,
  OrgIDProv STRING,
  IC_Rec_CCG STRING,
+ IC_Rec_CCG_Mapped STRING,
  Identifier STRING 
  ) USING DELTA
 
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.ips_interventions;
+ DROP TABLE IF EXISTS $db_output.ips_interventions;
  CREATE TABLE IF NOT EXISTS $db_output.ips_interventions
  (
  UniqMonthID BIGINT,
@@ -46,7 +47,8 @@
  ReferralRequestReceivedDate DATE,
  ServDischDate DATE,
  OrgIDProv STRING,
- IC_Rec_CCG STRING
+ IC_Rec_CCG STRING,
+ IC_Rec_CCG_Mapped STRING
  ) USING DELTA
 
 # COMMAND ----------
@@ -60,6 +62,7 @@
  RecordNumber STRING,
  OrgIDProv STRING,
  IC_Rec_CCG STRING,
+ IC_Rec_CCG_Mapped STRING,
  UniqServReqID STRING, 
  Identifier STRING,
  UniqCareContID STRING,
@@ -78,6 +81,7 @@
  RecordNumber STRING,
  OrgIDProv STRING,
  IC_Rec_CCG STRING,
+ IC_Rec_CCG_Mapped STRING,
  UniqServReqID STRING, 
  UniqCareContID STRING,
  Der_ContactDate DATE,
@@ -87,7 +91,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.ips_activity_order;
+ DROP TABLE IF EXISTS $db_output.ips_activity_order;
  CREATE TABLE IF NOT EXISTS $db_output.ips_activity_order
  (
  RecordNumber STRING,
@@ -102,7 +106,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.ips_activity_agg;
+ DROP TABLE IF EXISTS $db_output.ips_activity_agg;
  CREATE TABLE IF NOT EXISTS $db_output.ips_activity_agg
  (
  RecordNumber STRING,

@@ -25,7 +25,7 @@ TRUNCATE TABLE $db_output.dq_stg_integrity;
 
 -- COMMAND ----------
 
-/** USER: added to support code needed for v4.1 when CAMHSTier removed **/
+/** User: added to support code needed for v4.1 when CAMHSTier removed **/
 
 CREATE OR REPLACE GLOBAL TEMPORARY VIEW REFS AS 
  
@@ -46,7 +46,7 @@ WHERE a.UniqMonthID = '$month_id'
 
 -- COMMAND ----------
 
-/** USER: added to support code needed for v4.1 when CAMHSTier removed **/
+/** User: added to support code needed for v4.1 when CAMHSTier removed **/
 
 CREATE OR REPLACE GLOBAL TEMPORARY VIEW TEAMTYPE AS
  
@@ -63,7 +63,7 @@ GROUP BY r.UniqCareProfTeamID
 -- COMMAND ----------
 
 -- DBTITLE 1,Referrals to CYP-MH services starting in RP
-/** USER: updated for v4.1 when CAMHSTier removed **/
+/** User: updated for v4.1 when CAMHSTier removed **/
 
 WITH Referral
 AS

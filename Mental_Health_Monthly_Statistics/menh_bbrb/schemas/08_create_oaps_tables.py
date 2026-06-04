@@ -37,7 +37,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.oaps_wardstay;
+ DROP TABLE IF EXISTS $db_output.oaps_wardstay;
  CREATE TABLE IF NOT EXISTS $db_output.oaps_wardstay
  (
  UniqWardStayID STRING,
@@ -53,7 +53,8 @@
  ReportingPeriodEndDate DATE,
  StartDateWardStay DATE,
  EndDateWardStay DATE,
- Acute_Bed STRING
+ Acute_Bed STRING,
+ NOF_Bed_Flag STRING
  ) USING DELTA
 
 # COMMAND ----------
@@ -205,6 +206,7 @@
  MHAdmittedPatientClass STRING,
  MHAdmittedPatientClassName STRING,
  Acute_Bed STRING,
+ NOF_Bed_Flag STRING,
  StartMHAdmittedPatientClass STRING,
  StartMHAdmittedPatientClassName STRING,
  StartAcute_Bed STRING,
@@ -278,6 +280,7 @@
  MHAdmittedPatientClass STRING,
  MHAdmittedPatientClassName STRING,
  Acute_Bed STRING,
+ NOF_Bed_Flag STRING,
  StartMHAdmittedPatientClass STRING,
  StartMHAdmittedPatientClassName STRING,
  StartAcute_Bed STRING,
@@ -351,6 +354,7 @@
  MHAdmittedPatientClass STRING,
  MHAdmittedPatientClassName STRING,
  Acute_Bed STRING,
+ NOF_Bed_Flag STRING,
  StartMHAdmittedPatientClass STRING,
  StartMHAdmittedPatientClassName STRING,
  StartAcute_Bed STRING,
@@ -412,6 +416,7 @@
  MHAdmittedPatientClass STRING,
  MHAdmittedPatientClassName  STRING,
  Acute_Bed STRING,
+ NOF_Bed_Flag STRING,
  StartDateWardStay DATE,
  EndDateWardStay DATE,
  Bed_Days_Month_WS INT,
@@ -459,6 +464,7 @@
  MHAdmittedPatientClass STRING,
  MHAdmittedPatientClassName  STRING,
  Acute_Bed STRING,
+ NOF_Bed_Flag STRING,
  StartDateWardStay DATE,
  EndDateWardStay DATE,
  Bed_Days_Month_WS INT,
@@ -506,6 +512,7 @@
  MHAdmittedPatientClass STRING,
  MHAdmittedPatientClassName  STRING,
  Acute_Bed STRING,
+ NOF_Bed_Flag STRING,
  StartDateWardStay DATE,
  EndDateWardStay DATE,
  Bed_Days_Month_WS INT,

@@ -6,7 +6,7 @@
 
 # COMMAND ----------
 
-# dbutils.widgets.text("db_output","USER_demo_test2","Target Database")
+# dbutils.widgets.text("db_output","User_demo_test2","Target Database")
 db_output = dbutils.widgets.get("db_output")
 assert db_output
 

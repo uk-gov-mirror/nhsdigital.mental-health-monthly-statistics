@@ -36,35 +36,37 @@
 # COMMAND ----------
 
 # DBTITLE 1,Optimize unformatted output tables for performance
+ %python
 
-import os
+ import os
 
-db_output = dbutils.widgets.get("db_output")
-month_id = dbutils.widgets.get("month_id")
+ db_output = dbutils.widgets.get("db_output")
+ month_id = dbutils.widgets.get("month_id")
 
-is_quarter = int(month_id) % 3 ==0
+ is_quarter = int(month_id) % 3 ==0
 
-if os.environ['env'] == 'prod':
-  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Main_monthly_unformatted'))
-  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='AWT_unformatted'))
-  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CYP_2nd_contact_unformatted'))
-  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CAP_Unformatted'))
-  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CYP_monthly_unformatted'))
-  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Ascof_unformatted'))
-  spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='FYFV_unformatted'))
-  
-print(is_quarter)
+ if os.environ['env'] == 'prod':
+   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Main_monthly_unformatted'))
+   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='AWT_unformatted'))
+   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CYP_2nd_contact_unformatted'))
+   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CAP_Unformatted'))
+   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='CYP_monthly_unformatted'))
+   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='Ascof_unformatted'))
+   spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='FYFV_unformatted'))
+   
+ print(is_quarter)
 
 # COMMAND ----------
 
 # DBTITLE 1,Optimise Quarterly Tables
+ %python
 
-if is_quarter:
-  ##only needs to run when month_id is divisible by 3 with no remainder
+ if is_quarter:
+   ##only needs to run when month_id is divisible by 3 with no remainder
 
-  import os
+   import os
 
-  db_output = dbutils.widgets.get("db_output")
+   db_output = dbutils.widgets.get("db_output")
 
-  if os.environ['env'] == 'prod':
-    spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='FYFV_unformatted'))
+   if os.environ['env'] == 'prod':
+     spark.sql('OPTIMIZE {db_output}.{table}'.format(db_output=db_output, table='FYFV_unformatted'))

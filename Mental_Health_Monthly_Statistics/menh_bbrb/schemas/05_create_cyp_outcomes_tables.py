@@ -490,7 +490,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cyp_all_assessments;
+ DROP TABLE IF EXISTS $db_output.cyp_all_assessments;
  CREATE TABLE IF NOT EXISTS $db_output.cyp_all_assessments
  (
  Person_ID string,
@@ -512,7 +512,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cyp_ref_cont_out;
+ DROP TABLE IF EXISTS $db_output.cyp_ref_cont_out;
  CREATE TABLE IF NOT EXISTS $db_output.cyp_ref_cont_out
  (
  Person_ID string,
@@ -548,7 +548,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cyp_valid_unique_assessments_rcads;
+ DROP TABLE IF EXISTS $db_output.cyp_valid_unique_assessments_rcads;
  CREATE TABLE IF NOT EXISTS $db_output.cyp_valid_unique_assessments_rcads
  (
  Person_ID string,
@@ -585,7 +585,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cyp_partition_assessments;
+ DROP TABLE IF EXISTS $db_output.cyp_partition_assessments;
  CREATE TABLE IF NOT EXISTS $db_output.cyp_partition_assessments
  (
  Person_ID string,
@@ -623,7 +623,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cyp_last_assessments;
+ DROP TABLE IF EXISTS $db_output.cyp_last_assessments;
  CREATE TABLE IF NOT EXISTS $db_output.cyp_last_assessments
  (
  Person_ID string,
@@ -635,7 +635,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cyp_first_and_last_assessments;
+ DROP TABLE IF EXISTS $db_output.cyp_first_and_last_assessments;
  CREATE TABLE IF NOT EXISTS $db_output.cyp_first_and_last_assessments
  (
  Person_ID string,
@@ -673,7 +673,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cyp_rci;
+ DROP TABLE IF EXISTS $db_output.cyp_rci;
  CREATE TABLE IF NOT EXISTS $db_output.cyp_rci
  (
  Person_ID string,
@@ -714,7 +714,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cyp_rci_referral;
+ DROP TABLE IF EXISTS $db_output.cyp_rci_referral;
  CREATE TABLE IF NOT EXISTS $db_output.cyp_rci_referral
  (
  Person_ID string,
@@ -732,7 +732,7 @@
 # COMMAND ----------
 
  %sql
- -- DROP TABLE IF EXISTS $db_output.cyp_meaningful_change;
+ DROP TABLE IF EXISTS $db_output.cyp_meaningful_change;
  CREATE TABLE IF NOT EXISTS $db_output.cyp_meaningful_change
  (
  Person_ID string,

@@ -204,7 +204,7 @@
                                        AND MEASURE_VALUE != 0
                                        AND MEASURE_ID LIKE "%OAP%"
                                        AND MEASURE_ID NOT LIKE "%MHSPOP%"
-                                       AND RIGHT(MEASURE_ID, 1) = 'a'
+                                       AND RIGHT(MEASURE_ID, 1) IN ('a', 'b')
                                        ORDER BY REPORTING_PERIOD_START, REPORTING_PERIOD_END, STATUS, BREAKDOWN, PRIMARY_LEVEL, SECONDARY_LEVEL, MEASURE_ID""")
   
  #to help with local testing and avoiding the commenting and uncommenting the code
@@ -242,7 +242,7 @@
                                    AND STATUS = '{status}'  
                                    AND SOURCE_DB = '{db_source}'                                  
                                    AND MEASURE_ID LIKE "%OAP%"
-                                   AND RIGHT(MEASURE_ID, 1) = 'a'
+                                   AND RIGHT(MEASURE_ID, 1) IN ('a', 'b')
                                    ORDER BY REPORTING_PERIOD_START, REPORTING_PERIOD_END, STATUS, BREAKDOWN, PRIMARY_LEVEL, SECONDARY_LEVEL, MEASURE_ID""")
   
  if(os.environ.get('env') == 'prod'):
@@ -286,7 +286,7 @@
                                        AND MEASURE_VALUE != 0
                                        AND MEASURE_ID LIKE "%OAP%"
                                        AND MEASURE_ID NOT LIKE "%MHSPOP%"
-                                       AND RIGHT(MEASURE_ID, 1) <> 'a'
+                                       AND RIGHT(MEASURE_ID, 1) NOT IN ('a', 'b')
                                        ORDER BY REPORTING_PERIOD_START, REPORTING_PERIOD_END, STATUS, BREAKDOWN, PRIMARY_LEVEL, SECONDARY_LEVEL, MEASURE_ID""")
   
  #to help with local testing and avoiding the commenting and uncommenting the code
@@ -324,7 +324,7 @@
                                    AND STATUS = '{status}'  
                                    AND SOURCE_DB = '{db_source}'                                  
                                    AND MEASURE_ID LIKE "%OAP%"
-                                   AND RIGHT(MEASURE_ID, 1) <> 'a'
+                                   AND RIGHT(MEASURE_ID, 1) NOT IN ('a', 'b')
                                    ORDER BY REPORTING_PERIOD_START, REPORTING_PERIOD_END, STATUS, BREAKDOWN, PRIMARY_LEVEL, SECONDARY_LEVEL, MEASURE_ID""")
   
  if(os.environ.get('env') == 'prod'):

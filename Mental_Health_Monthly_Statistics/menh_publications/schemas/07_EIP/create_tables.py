@@ -33,11 +33,12 @@
 # COMMAND ----------
 
  %sql
-
+ DROP TABLE IF EXISTS $db_output.EIP01_common;
  CREATE TABLE IF NOT EXISTS $db_output.EIP01_common
      (AGE_GROUP                           STRING,
       UniqServReqID                       STRING,
       IC_Rec_CCG                          STRING,
+      IC_Rec_CCG_Mapped                   STRING,
       NHSDEthnicity                       STRING,
       CLOCK_STOP                          DATE)
  USING delta 
@@ -46,14 +47,17 @@
 # COMMAND ----------
 
  %sql
+ DROP TABLE IF EXISTS $db_output.eip23a_common;
+  
  CREATE TABLE IF NOT EXISTS $db_output.eip23a_common 
  (AGE_GROUP                                STRING,
   UniqServReqID                            STRING,
   IC_Rec_CCG                               STRING,
+  IC_Rec_CCG_Mapped                        STRING,
   NHSDEthnicity                            STRING,
   days_between_ReferralRequestReceivedDate INT)
  USING delta 
- PARTITIONED BY (AGE_GROUP) 
+ PARTITIONED BY (AGE_GROUP)  
 
 # COMMAND ----------
 
@@ -71,22 +75,28 @@
 
  %sql
 
+ DROP TABLE IF EXISTS $db_output.EIP23d_common;
+  
  CREATE TABLE IF NOT EXISTS $db_output.EIP23d_common
        (AGE_GROUP                                        STRING,
         UniqServReqID                                    STRING,
         IC_Rec_CCG                                       STRING,
+        IC_Rec_CCG_Mapped                                STRING,
         NHSDEthnicity                                    STRING,
         days_between_endate_ReferralRequestReceivedDate  INT)
  USING delta 
- PARTITIONED BY (AGE_GROUP) 
+ PARTITIONED BY (AGE_GROUP)
 
 # COMMAND ----------
 
  %sql
+ DROP TABLE IF EXISTS $db_output.EIP63_common;
+  
  CREATE TABLE IF NOT EXISTS $db_output.EIP63_common
      (UniqServReqID                                     STRING,
       OrgIDProv                                         STRING,
       IC_Rec_CCG                                        STRING,
+      IC_Rec_CCG_Mapped                                 STRING,
       NHSDEthnicity                                     STRING,
       AGE_GROUP                                         STRING)
  USING delta 
@@ -109,12 +119,15 @@
 
  %sql
 
+ DROP TABLE IF EXISTS $db_output.eip64abc_common;
+  
  CREATE TABLE IF NOT EXISTS $db_output.eip64abc_common 
   (AGE_GROUP                                 STRING,
    NHSDEthnicity                             STRING,
    OrgIDProv                                 STRING,
    UniqServReqID                             STRING,
    IC_Rec_CCG                                STRING,
+   IC_Rec_CCG_Mapped                         STRING,
    ReferralRequestReceivedDate               DATE,
    CLOCK_STOP                                DATE)
  USING delta 
@@ -130,6 +143,7 @@
      (UniqServReqID                                        STRING,
       OrgIDProv                                            STRING,
       IC_Rec_CCG                                           STRING,
+      IC_Rec_CCG_Mapped                                    STRING,
       PrimReasonReferralMH                                 STRING,
       AgeServReferRecDate                                  BIGINT,
       Age_Group                                            STRING,

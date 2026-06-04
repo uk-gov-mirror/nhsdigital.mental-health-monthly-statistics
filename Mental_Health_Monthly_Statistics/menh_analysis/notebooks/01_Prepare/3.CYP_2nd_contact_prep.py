@@ -56,7 +56,7 @@ else:
    LEFT JOIN {db_output}.validcodes as vck \
     ON vck.Tablename = 'mhs201carecontact' and vck.field = 'ConsMechanismMH' and vck.Measure = 'CYP_KOOTH' and vck.type = 'include' and c.ConsMechanismMH = vck.ValidValue \
     and c.UniqMonthID >= vck.FirstMonth and (vck.LastMonth is null or c.UniqMonthID <= vck.LastMonth) \
-    and OrgIdProv in ('DFC','S9X2N') \
+    and OrgIdProv in ('DFC','S9X2N','F9R5H') \
    WHERE c.AttendStatus IN ('5','6') \
    AND NOT(vc.Field is null AND vck.Field is null) \
    AND UniqMonthID <= '{month_id}' \

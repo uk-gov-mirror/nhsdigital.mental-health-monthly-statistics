@@ -3796,6 +3796,78 @@ stp_prac_res_autism_status_bd,
                  comm_region_bd, comm_region_age_band_oaps_bd, comm_region_lower_eth_bd, comm_region_upper_eth_bd, comm_region_gender_bd, comm_region_imd_decile_bd],
   "output_table": "bbrb_final_raw"
 },
+ 
+  "OAP02bM": {
+  "freq": "M", 
+  "name": "Number of Inappropriate OAPs bed days in Adult Acute beds in the period",
+  "source_table": "oaps_month",
+  "filter_clause": (F.col("ReasonOAT") == "10") & (F.col("Submitted_In_RP") == 1) & (F.col("RANK") == 1) & (F.col("NOF_Bed_Flag") == "Y"),
+  "aggregate_field": "SUM(Bed_Days_Month_HS)",
+  "aggregate_function": produce_filter_oaps_bed_days_agg_df,
+  "numerator_id": "OAP02bM",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "bed days",
+  "suppression": "count",
+  "breakdowns": [eng_bd, age_band_oaps_bd, lower_eth_bd, upper_eth_bd, gender_bd, imd_decile_bd, autism_status_bd, ld_status_bd, reason_for_ref_bd, bed_type_bd, 
+                 ccg_prac_res_bd, 
+                 stp_prac_res_bd,
+                 comm_region_bd, comm_region_age_band_oaps_bd, comm_region_lower_eth_bd, comm_region_upper_eth_bd, comm_region_gender_bd, comm_region_imd_decile_bd, comm_region_ld_status_bd,
+comm_region_autism_status_bd,comm_region_reason_for_ref_bd, comm_region_bed_type_bd, comm_region_receiving_prov_bd,
+                 sending_prov_bd, sending_prov_receiving_prov_bd,
+                 receiving_prov_bd
+                ],
+  "output_table": "bbrb_final_raw"
+},
+  
+ "OAP02bQ": {
+  "freq": "Q", 
+  "name": "Number of Inappropriate OAPs bed days in Adult Acute beds in the period",
+  "source_table": "oaps_quarter",
+  "filter_clause": (F.col("ReasonOAT") == "10") & (F.col("Submitted_In_RP") == 1) & (F.col("RANK") == 1) & (F.col("NOF_Bed_Flag") == "Y"),
+  "aggregate_field": "SUM(Bed_Days_Qtr_HS)",
+  "aggregate_function": produce_filter_oaps_bed_days_agg_df,
+  "numerator_id": "OAP02bQ",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "bed days",
+  "suppression": "count",
+  "breakdowns": [eng_bd, age_band_oaps_bd, lower_eth_bd, upper_eth_bd, gender_bd, imd_decile_bd, autism_status_bd, ld_status_bd, reason_for_ref_bd, bed_type_bd, 
+                 ccg_prac_res_bd, 
+                 stp_prac_res_bd,
+                 comm_region_bd, comm_region_age_band_oaps_bd, comm_region_lower_eth_bd, comm_region_upper_eth_bd, comm_region_gender_bd, comm_region_imd_decile_bd, comm_region_ld_status_bd,
+comm_region_autism_status_bd,comm_region_reason_for_ref_bd, comm_region_bed_type_bd, comm_region_receiving_prov_bd,
+                 sending_prov_bd, sending_prov_receiving_prov_bd,
+                 receiving_prov_bd
+                ],
+  "output_table": "bbrb_final_raw"
+},
+ "OAP02bY": {
+  "freq": "12M", 
+  "name": "Number of Inappropriate OAPs bed days in Adult Acute beds in the period",
+  "source_table": "oaps_year",
+  "filter_clause": (F.col("ReasonOAT") == "10") & (F.col("Submitted_In_RP") == 1) & (F.col("RANK") == 1) & (F.col("NOF_Bed_flag") == "Y"),
+  "aggregate_field": "SUM(Bed_Days_Yr_HS)",
+  "aggregate_function": produce_filter_oaps_bed_days_agg_df,
+  "numerator_id": "OAP02bY",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "bed days",
+  "suppression": "count",
+  "breakdowns": [eng_bd, age_band_oaps_bd, lower_eth_bd, upper_eth_bd, gender_bd, imd_decile_bd, autism_status_bd, ld_status_bd, reason_for_ref_bd, bed_type_bd, 
+                 ccg_prac_res_bd, ccg_prac_res_age_band_oaps_bd, ccg_prac_res_lower_eth_bd, ccg_prac_res_upper_eth_bd, ccg_prac_res_gender_bd, ccg_prac_res_imd_decile_bd, ccg_prac_res_ld_status_bd,
+ccg_prac_res_autism_status_bd,ccg_prac_res_reason_for_ref_bd, ccg_prac_res_bed_type_bd, ccg_prac_res_receiving_prov_bd,
+                 stp_prac_res_bd, stp_prac_res_age_band_oaps_bd, stp_prac_res_lower_eth_bd, stp_prac_res_upper_eth_bd, stp_prac_res_gender_bd, stp_prac_res_imd_decile_bd, stp_prac_res_ld_status_bd,
+stp_prac_res_autism_status_bd,stp_prac_res_reason_for_ref_bd, stp_prac_res_bed_type_bd, stp_prac_res_receiving_prov_bd,
+                 comm_region_bd, comm_region_age_band_oaps_bd, comm_region_lower_eth_bd, comm_region_upper_eth_bd, comm_region_gender_bd, comm_region_imd_decile_bd, comm_region_ld_status_bd,
+comm_region_autism_status_bd,comm_region_reason_for_ref_bd, comm_region_bed_type_bd, comm_region_receiving_prov_bd,
+                 sending_prov_bd, sending_prov_age_band_oaps_bd, sending_prov_lower_eth_bd, sending_prov_upper_eth_bd, sending_prov_gender_bd, sending_prov_imd_decile_bd, sending_prov_ld_status_bd,
+sending_prov_autism_status_bd, sending_prov_reason_for_ref_bd, sending_prov_bed_type_bd, sending_prov_receiving_prov_bd,
+                 receiving_prov_bd, receiving_prov_age_band_oaps_bd, receiving_prov_lower_eth_bd, receiving_prov_upper_eth_bd, receiving_prov_gender_bd, receiving_prov_imd_decile_bd, receiving_prov_ld_status_bd,
+receiving_prov_autism_status_bd,receiving_prov_reason_for_ref_bd, receiving_prov_bed_type_bd
+                ],
+  "output_table": "bbrb_final_raw"
+}
 }
 
 # COMMAND ----------
@@ -4262,6 +4334,63 @@ stp_prac_res_autism_status_bd,
 comm_region_autism_status_bd],
   "output_table": "bbrb_final_raw"
 },
+ "BEDDAYSbM": {
+  "freq": "M", 
+  "name": "Number of bed days in Adult Acute beds in the period",
+  "source_table": "oaps_all_admissions_month",
+  "filter_clause": (F.col("Submitted_In_RP") == 1) & (F.col("RANK") == 1) & (F.col("NOF_Bed_Flag") == "Y"),
+  "aggregate_field": "SUM(Bed_Days_Month_HS)",
+  "aggregate_function": produce_filter_bed_days_agg_df,
+  "numerator_id": "BEDDAYSbM",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "bed days",
+  "suppression": "count",
+  "breakdowns": [eng_bd, age_band_oaps_bd, lower_eth_bd, upper_eth_bd, gender_bd, imd_decile_bd, autism_status_bd, ld_status_bd, bed_type_bd, 
+                 ccg_prac_res_bd, 
+                 stp_prac_res_bd,
+                 comm_region_bd, comm_region_age_band_oaps_bd, comm_region_lower_eth_bd, comm_region_upper_eth_bd, comm_region_gender_bd, comm_region_imd_decile_bd, comm_region_bed_type_bd, comm_region_ld_status_bd,
+comm_region_autism_status_bd],
+  "output_table": "bbrb_final_raw"
+},
+ "BEDDAYSbQ": {
+  "freq": "Q", 
+  "name": "Number of bed days in Adult Acute beds in the period",
+  "source_table": "oaps_all_admissions_quarter",
+  "filter_clause": (F.col("Submitted_In_RP") == 1) & (F.col("RANK") == 1) & (F.col("NOF_Bed_Flag") == "Y"),
+  "aggregate_field": "SUM(Bed_Days_Qtr_HS)",
+  "aggregate_function": produce_filter_bed_days_agg_df,
+  "numerator_id": "BEDDAYSbQ",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "bed days",
+  "suppression": "count",
+  "breakdowns": [eng_bd, age_band_oaps_bd, lower_eth_bd, upper_eth_bd, gender_bd, imd_decile_bd, autism_status_bd, ld_status_bd, bed_type_bd, 
+                 ccg_prac_res_bd, 
+                 stp_prac_res_bd,
+                 comm_region_bd, comm_region_age_band_oaps_bd, comm_region_lower_eth_bd, comm_region_upper_eth_bd, comm_region_gender_bd, comm_region_imd_decile_bd, comm_region_bed_type_bd],
+  "output_table": "bbrb_final_raw"
+},
+ "BEDDAYSbY": {
+  "freq": "12M", 
+  "name": "Number of bed days in Adult Acute beds in the period",
+  "source_table": "oaps_all_admissions_year",
+  "filter_clause": (F.col("Submitted_In_RP") == 1) & (F.col("RANK") == 1) & (F.col("NOF_Bed_Flag") == "Y"),
+  "aggregate_field": "SUM(Bed_Days_Yr_HS)",
+  "aggregate_function": produce_filter_bed_days_agg_df,
+  "numerator_id": "BEDDAYSbY",
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "bed days",
+  "suppression": "count",
+  "breakdowns": [eng_bd, age_band_oaps_bd, lower_eth_bd, upper_eth_bd, gender_bd, imd_decile_bd, autism_status_bd, ld_status_bd, bed_type_bd, 
+                 ccg_prac_res_bd, ccg_prac_res_age_band_oaps_bd, ccg_prac_res_lower_eth_bd, ccg_prac_res_upper_eth_bd, ccg_prac_res_gender_bd, ccg_prac_res_imd_decile_bd, ccg_prac_res_bed_type_bd, ccg_prac_res_ld_status_bd,ccg_prac_res_autism_status_bd,
+                 stp_prac_res_bd, stp_prac_res_age_band_oaps_bd, stp_prac_res_lower_eth_bd, stp_prac_res_upper_eth_bd, stp_prac_res_gender_bd, stp_prac_res_imd_decile_bd, stp_prac_res_bed_type_bd, stp_prac_res_ld_status_bd, 
+stp_prac_res_autism_status_bd, 
+                 comm_region_bd, comm_region_age_band_oaps_bd, comm_region_lower_eth_bd, comm_region_upper_eth_bd, comm_region_gender_bd, comm_region_imd_decile_bd, comm_region_bed_type_bd, comm_region_ld_status_bd,
+comm_region_autism_status_bd],
+  "output_table": "bbrb_final_raw"
+},
  "OAP08M": {
   "freq": "M", 
   "name": "Proportion of Inappropriate new OAPs started in the period",
@@ -4489,6 +4618,66 @@ stp_prac_res_autism_status_bd,
 comm_region_autism_status_bd],
   "output_table": "bbrb_final_raw"
 },
+ 
+  "OAP09bM": {
+  "freq": "M", 
+  "name": "Proportion of Inappropriate OAPs bed days in Adult Acute beds in the period",
+  "source_table": "oaps_all_admissions_month",
+  "filter_clause": "",
+  "aggregate_field": "(COALESCE(SUM(NUMERATOR_COUNT)/SUM(DENOMINATOR_COUNT)))*100",
+  "aggregate_function": produce_crude_rate_agg_df,
+  "numerator_id": "OAP02bM",
+  "denominator": "BEDDAYSbM",  
+  "crude_rate": 1,
+  "related_to": "bed days",
+  "suppression": "percent",
+  "breakdowns": [eng_bd, age_band_oaps_bd, lower_eth_bd, upper_eth_bd, gender_bd, imd_decile_bd, autism_status_bd, ld_status_bd, bed_type_bd, 
+                 ccg_prac_res_bd, 
+                 stp_prac_res_bd,
+                 comm_region_bd, comm_region_age_band_oaps_bd, comm_region_lower_eth_bd, comm_region_upper_eth_bd, comm_region_gender_bd, comm_region_imd_decile_bd, comm_region_bed_type_bd, comm_region_ld_status_bd,
+comm_region_autism_status_bd],
+  "output_table": "bbrb_final_raw"
+},
+ "OAP09bQ": {
+  "freq": "Q", 
+  "name": "Proportion of Inappropriate OAPs bed days in Adult Acute beds in the period",
+  "source_table": "oaps_all_admissions_quarter",
+  "filter_clause": "",
+  "aggregate_field": "(COALESCE(SUM(NUMERATOR_COUNT)/SUM(DENOMINATOR_COUNT)))*100",
+  "aggregate_function": produce_crude_rate_agg_df,
+  "numerator_id": "OAP02bQ",
+  "denominator": "BEDDAYSbQ",  
+  "crude_rate": 1,
+  "related_to": "bed days",
+  "suppression": "percent",
+  "breakdowns": [eng_bd, age_band_oaps_bd, lower_eth_bd, upper_eth_bd, gender_bd, imd_decile_bd, autism_status_bd, ld_status_bd, bed_type_bd, 
+                 ccg_prac_res_bd, 
+                 stp_prac_res_bd,
+                 comm_region_bd, comm_region_age_band_oaps_bd, comm_region_lower_eth_bd, comm_region_upper_eth_bd, comm_region_gender_bd, comm_region_imd_decile_bd, comm_region_bed_type_bd],
+  "output_table": "bbrb_final_raw"
+},
+ "OAP09bY": {
+  "freq": "12M", 
+  "name": "Proportion of Inappropriate OAPs bed days in Adult Acute beds in the period",
+  "source_table": "oaps_all_admissions_year",
+  "filter_clause": "",
+  "aggregate_field": "(COALESCE(SUM(NUMERATOR_COUNT)/SUM(DENOMINATOR_COUNT)))*100",
+  "aggregate_function": produce_crude_rate_agg_df,
+  "numerator_id": "OAP02bY",
+  "denominator": "BEDDAYSbY",  
+  "crude_rate": 1,
+  "related_to": "bed days",
+  "suppression": "percent",
+  "breakdowns": [eng_bd, age_band_oaps_bd, lower_eth_bd, upper_eth_bd, gender_bd, imd_decile_bd, autism_status_bd, ld_status_bd,  bed_type_bd, 
+                 ccg_prac_res_bd, ccg_prac_res_age_band_oaps_bd, ccg_prac_res_lower_eth_bd, ccg_prac_res_upper_eth_bd, ccg_prac_res_gender_bd, ccg_prac_res_imd_decile_bd, ccg_prac_res_bed_type_bd, ccg_prac_res_ld_status_bd,ccg_prac_res_autism_status_bd,
+                 stp_prac_res_bd, stp_prac_res_age_band_oaps_bd, stp_prac_res_lower_eth_bd, stp_prac_res_upper_eth_bd, stp_prac_res_gender_bd, stp_prac_res_imd_decile_bd, stp_prac_res_bed_type_bd, stp_prac_res_ld_status_bd, 
+stp_prac_res_autism_status_bd, 
+                 comm_region_bd, comm_region_age_band_oaps_bd, comm_region_lower_eth_bd, comm_region_upper_eth_bd, comm_region_gender_bd, comm_region_imd_decile_bd, comm_region_bed_type_bd, comm_region_ld_status_bd,
+comm_region_autism_status_bd],
+  "output_table": "bbrb_final_raw"
+}
+ 
+ ,
   "OAP10M": {
   "freq": "M", 
   "name": "Proportion of Inappropriate OAPs active at the end of the period",
@@ -5558,9 +5747,109 @@ mha_measure_ids = {
 
 # COMMAND ----------
 
+cmh_proms_measure_ids = {
+'MHS160' : {
+  'freq': 'Q',
+  'name': 'Number of closed referrals from CMH services in the RP for people aged 18 and over with at least 2 contacts',  
+  'source_table': 'CMHProms_Master',     
+  "filter_clause": (F.col("Ref_Dup") == 1),
+  'aggregate_field': "COUNT(DISTINCT CASE WHEN SecondContact IS NOT NULL THEN UniqServReqID ELSE NULL END)",
+  'aggregate_function': produce_filter_agg_df,
+  'numerator_id': 'MHS160',
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "referrals",
+  'suppression': 'count',
+  'breakdowns': [eng_bd, prov_bd, stp_prac_res_bd, comm_region_bd, ccg_prac_res_bd],
+  "output_table": "bbrb_final_raw"
+},
+'MHS161' : {
+  'freq': 'Q',
+  'name': 'Number of closed referrals from CMH services in the RP for people aged 18 and over with at least 2 contacts and any perspective paired score',  
+  'source_table': 'CMHProms_Master',     
+  "filter_clause": (F.col("Ref_Dup") == 1),
+  'aggregate_field': "COUNT(DISTINCT CASE WHEN SecondContact IS NOT NULL AND Der_AssOrderAsc > 1 THEN UniqServReqID ELSE NULL END)",
+  'aggregate_function': produce_filter_agg_df,
+  'numerator_id': 'MHS161',
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "referrals",
+  'suppression': 'count',
+  'breakdowns': [eng_bd, prov_bd, stp_prac_res_bd, comm_region_bd, ccg_prac_res_bd],
+  "output_table": "bbrb_final_raw"
+},
+'MHS162' : {
+  'freq': 'Q',
+  'name': 'Proportion of closed referrals from CMH services in the RP for people aged 18 and over with at least 2 contacts and any perspective paired score',  
+  'source_table': 'CMHProms_Master',     
+  "filter_clause": "",
+  'aggregate_field': "(COALESCE(SUM(NUMERATOR_COUNT)/SUM(DENOMINATOR_COUNT), 0))*100",
+  'aggregate_function': produce_crude_rate_agg_df,
+  'numerator_id': 'MHS161',
+  "denominator": 'MHS160',  
+  "crude_rate": 1,
+  "related_to": "referrals",
+  'suppression': 'percent',
+  'breakdowns': [eng_bd, prov_bd, stp_prac_res_bd, comm_region_bd, ccg_prac_res_bd],
+  "output_table": "bbrb_final_raw"
+}
+}
+
+# COMMAND ----------
+
+readm_measure_ids = {
+'MHS163' : {
+  'freq': 'Q',
+  'name': 'Number of hospital spells discharged in the RP from adult acute, older adult acute, or PICU beds eligible for readmission',  
+  'source_table': 'Readm_Master',     
+  "filter_clause": F.col("Der_DischEligibleForReAdm_Flag") == 1,
+  'aggregate_field': "COUNT(DISTINCT UniqHospProvSpellID)",
+  'aggregate_function': produce_filter_agg_df,
+  'numerator_id': 'MHS163',
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "hospital_spells",
+  'suppression': 'count',
+  'breakdowns': [eng_bd, prov_bd, stp_prac_res_bd, comm_region_bd, ccg_prac_res_bd],
+  "output_table": "bbrb_final_raw"
+},
+'MHS164' : {
+  'freq': 'Q',
+  'name': 'Number of hospital spells in the RP readmitted within 14 days, where bed type is adult acute, older adult acute, or PICU',  
+  'source_table': 'Readm_Master',     
+  "filter_clause": F.col("Der_DischEligibleForReAdm_Flag") == 1,
+  'aggregate_field': "COUNT(DISTINCT CASE WHEN TimetoReadm < 14 THEN UniqHospProvSpellID ELSE NULL END)",
+  'aggregate_function': produce_filter_agg_df,
+  'numerator_id': 'MHS164',
+  "denominator": 0,  
+  "crude_rate": 0,
+  "related_to": "hospital_spells",
+  'suppression': 'count',
+  'breakdowns': [eng_bd, prov_bd, stp_prac_res_bd, comm_region_bd, ccg_prac_res_bd],
+  "output_table": "bbrb_final_raw"
+},
+'MHS165' : {
+  'freq': 'Q',
+  'name': 'Proportion of hospital spells in the RP readmitted within 14 days, where bed type is adult acute, older adult acute, or PICU',  
+  'source_table': 'Readm_Master',     
+  "filter_clause": "",
+  'aggregate_field': "(COALESCE(SUM(NUMERATOR_COUNT)/SUM(DENOMINATOR_COUNT), 0))*100",
+  'aggregate_function': produce_crude_rate_agg_df,
+  'numerator_id': 'MHS164',
+  "denominator": 'MHS163',  
+  "crude_rate": 1,
+  "related_to": "hospital_spells",
+  'suppression': 'percent',
+  'breakdowns': [eng_bd, prov_bd, stp_prac_res_bd, comm_region_bd, ccg_prac_res_bd],
+  "output_table": "bbrb_final_raw"
+}
+}
+
+# COMMAND ----------
+
 # DBTITLE 1,Combine Dictionaries into one:
 measure_metadata = {
-  "ALL": {**los_measure_ids, **four_ww_measure_ids, **cmh_measure_ids, **cyp_peri_measure_ids, **cyp_out_measure_ids, **uec_measure_ids, **ips_measure_ids, **oaps_measure_ids_part1, **oaps_measure_ids_part2, **mhc_measure_ids, **mha_measure_ids},
+  "ALL": {**los_measure_ids, **four_ww_measure_ids, **cmh_measure_ids, **cyp_peri_measure_ids, **cyp_out_measure_ids, **uec_measure_ids, **ips_measure_ids, **oaps_measure_ids_part1, **oaps_measure_ids_part2, **mhc_measure_ids, **mha_measure_ids, **cmh_proms_measure_ids, **readm_measure_ids},
   "01_LOS": los_measure_ids,
   "02_4W_WAITS": four_ww_measure_ids,
   "03_CMH": cmh_measure_ids,
@@ -5570,7 +5859,10 @@ measure_metadata = {
   "07_UEC": uec_measure_ids,
   "08_OAPS": {**oaps_measure_ids_part1, **oaps_measure_ids_part2},
   "09_MHC": mhc_measure_ids,
-  "10_MHA": mha_measure_ids
+  "10_MHA": mha_measure_ids,
+  "11_CMH_OUTCOMES": cmh_proms_measure_ids,
+  "12_READMISSIONS": readm_measure_ids,
+  "ICB_CHANGES": {**los_measure_ids, **four_ww_measure_ids, **cmh_measure_ids, **cyp_peri_measure_ids, **ips_measure_ids, **oaps_measure_ids_part1, **oaps_measure_ids_part2, **mha_measure_ids, **cmh_proms_measure_ids, **readm_measure_ids},
 }
 
 # COMMAND ----------

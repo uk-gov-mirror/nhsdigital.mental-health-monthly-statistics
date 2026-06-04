@@ -39,12 +39,12 @@
      ,coalesce(eth.UpperEthnicity, "UNKNOWN") as UpperEthnicity
      ,i.OrgIDProv
      ,od.NAME as Provider_Name
-     ,COALESCE(ccg21.CCG21CDH, CASE WHEN r.IC_Rec_CCG in ('X98', '') THEN 'UNKNOWN' ELSE r.IC_Rec_CCG END, 'UNKNOWN') as CCG_Code
-     ,COALESCE(ccg21.CCG21NM, 'UNKNOWN') as CCG_Name
-     ,COALESCE(ccg21.NHSER21CDH, 'UNKNOWN') as Region_Code
-     ,COALESCE(ccg21.NHSER21NM, 'UNKNOWN') as Region_Name
-     ,COALESCE(ccg21.STP21CDH, 'UNKNOWN') as STP_Code
-     ,COALESCE(ccg21.STP21NM, 'UNKNOWN') as STP_Name
+     ,COALESCE(stp.CCG_Code, co.CCG_Code, 'UNKNOWN') as CCG_Code
+     ,COALESCE(stp.CCG_Name, co.CCG_Name,'UNKNOWN') AS CCG_Name
+     ,COALESCE(stp.Region_Code, co.Region_Code,'UNKNOWN') AS Region_Code
+     ,COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') AS Region_Name
+     ,COALESCE(stp.STP_Code, co.STP_Code,'UNKNOWN') AS STP_Code
+     ,COALESCE(stp.STP_Name, co.STP_Name,'UNKNOWN') AS STP_Name
      ,i.StartDateHospProvSpell
      ,i.StartTimeHospProvSpell 
      ,date_add(last_day(add_months(i.StartDateHospProvSpell, -1)),1) AS Adm_month
@@ -69,7 +69,8 @@
                                                AND i.UniqServReqID = r.UniqServReqID 
                                                AND (r.LADistrictAuth LIKE 'E%' OR r.LADistrictAuth IS NULL OR r.LADistrictAuth = '')  
  LEFT JOIN $db_output.ethnicity_desc eth on r.NHSDEthnicity = eth.LowerEthnicityCode and '$end_month_id' >= eth.FirstMonth and (eth.LastMonth is null or '$end_month_id' <= eth.LastMonth)
- LEFT JOIN $db_output.ccg_mapping_2021 ccg21 ON r.IC_Rec_CCG = ccg21.CCG_UNMAPPED  --- regions/stps taken from CCG rather than provider 
+ LEFT JOIN $db_output.bbrb_stp_mapping stp on r.IC_Rec_CCG = stp.CCG_Code and '$end_month_id' < '$apr26_icb_swap_month_id'
+ LEFT JOIN $db_output.commissioning_org_mapping co ON r.IC_Rec_CCG_Mapped = co.CCG_Code and '$end_month_id' >= '$apr26_icb_swap_month_id'
  LEFT JOIN $db_output.bbrb_org_daily_latest od ON i.OrgIDProv = od.ORG_CODE
      
  WHERE i.StartDateHospProvSpell BETWEEN '$rp_startdate_12m' AND '$rp_enddate'    
@@ -181,6 +182,7 @@
  r.RecordNumber,
  r.UniqServReqID,
  r.IC_Rec_CCG,
+ r.IC_Rec_CCG_Mapped,
  r.ReferralRequestReceivedDate,
  r.ServDischDate,
  ROW_NUMBER() OVER (PARTITION by r.UniqServReqID ORDER BY r.UniqMonthID desc) AS Ref_MnthNum
@@ -192,6 +194,7 @@
                            UniqServReqID,
                            CONCAT(Person_ID, UniqServReqID) as UniqPersRefID,
                            IC_Rec_CCG,
+                           IC_Rec_CCG_Mapped,
                            ReferralRequestReceivedDate,
                            ServDischDate
        FROM                $db_output.NHSE_Pre_Proc_Referral
@@ -242,21 +245,22 @@
  r.UniqMonthID,
  r.OrgIDProv,
  od.NAME as Provider_Name,
- ccg21.CCG21CDH as CCG_Code, 
- ccg21.CCG21NM as CCG_Name, 
- ccg21.NHSER21CDH as Region_Code, 
- ccg21.NHSER21NM as Region_Name,
- ccg21.STP21CDH as STP_Code,
- ccg21.STP21NM as STP_Name,
+ COALESCE(stp.CCG_Code, co.CCG_Code) as CCG_Code,
+ COALESCE(stp.CCG_Name, co.CCG_Name) AS CCG_Name,
+ COALESCE(stp.Region_Code, co.Region_Code) AS Region_Code,
+ COALESCE(stp.Region_Name, co.Region_Name) AS Region_Name,
+ COALESCE(stp.STP_Code, co.STP_Code) AS STP_Code,
+ COALESCE(stp.STP_Name, co.STP_Name) AS STP_Name,
  r.Person_ID,
  r.RecordNumber,
  r.UniqServReqID,
  ROW_NUMBER() OVER (PARTITION BY a.Person_ID, a.UniqServReqID ORDER BY a.Der_DirectContactOrder ASC) AS Der_DirectContactOrder
   
  FROM $db_output.CMH_Activity a
- INNER JOIN $db_output.CMH_Access_Outpatient_Refs3 r ON a.RecordNumber = r.RecordNumber AND a.UniqServReqID = r.UniqServReqID AND a.Der_DirectContactOrder IS NOT NULL
-  
- LEFT JOIN $db_output.ccg_mapping_2021 ccg21 ON r.IC_Rec_CCG = ccg21.CCG_UNMAPPED
+ INNER JOIN $db_output.CMH_Access_Outpatient_Refs3 r ON a.RecordNumber = r.RecordNumber AND a.UniqServReqID = r.UniqServReqID AND a.Der_DirectContactOrder IS NOT NULL 
+
+ LEFT JOIN $db_output.bbrb_stp_mapping stp on r.IC_Rec_CCG = stp.CCG_Code and '$end_month_id' < '$apr26_icb_swap_month_id'
+ LEFT JOIN $db_output.commissioning_org_mapping co ON r.IC_Rec_CCG_Mapped = co.CCG_Code and '$end_month_id' >= '$apr26_icb_swap_month_id'
  LEFT JOIN $db_output.bbrb_org_daily_latest od ON r.OrgIDProv = od.ORG_CODE
 
 # COMMAND ----------
@@ -311,12 +315,12 @@
  r.UniqServReqID,
  r.OrgIDProv,
  od.NAME as Provider_Name,
- ccg21.CCG21CDH as CCG_Code, 
- ccg21.CCG21NM as CCG_Name, 
- ccg21.NHSER21CDH as Region_Code, 
- ccg21.NHSER21NM as Region_Name,
- ccg21.STP21CDH as STP_Code,
- ccg21.STP21NM as STP_Name,
+ COALESCE(stp.CCG_Code, co.CCG_Code) as CCG_Code,
+ COALESCE(stp.CCG_Name, co.CCG_Name) AS CCG_Name,
+ COALESCE(stp.Region_Code, co.Region_Code) AS Region_Code,
+ COALESCE(stp.Region_Name, co.Region_Name) AS Region_Name,
+ COALESCE(stp.STP_Code, co.STP_Code) AS STP_Code,
+ COALESCE(stp.STP_Name, co.STP_Name) AS STP_Name,
  a.Der_ContactDate,
  r.ServDischDate,
  r.ReferralRequestReceivedDate,
@@ -325,7 +329,8 @@
  FROM $db_output.cmh_access_outpatient_medians_refs3 r
  left JOIN  $db_output.CMH_Activity a ON a.UniqServReqID = r.UniqServReqID AND a.Der_RefDirectContactOrder IS NOT NULL
   
- LEFT JOIN $db_output.CCG_MAPPING_2021 ccg21 ON r.IC_Rec_CCG = ccg21.CCG_UNMAPPED
+ LEFT JOIN $db_output.bbrb_stp_mapping stp on r.IC_Rec_CCG = stp.CCG_Code and '$end_month_id' < '$apr26_icb_swap_month_id'
+ LEFT JOIN $db_output.commissioning_org_mapping co ON r.IC_Rec_CCG_Mapped = co.CCG_Code and '$end_month_id' >= '$apr26_icb_swap_month_id'
  LEFT JOIN $db_output.bbrb_org_daily_latest od ON r.OrgIDProv = od.ORG_CODE
 
 # COMMAND ----------

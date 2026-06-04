@@ -1,7 +1,7 @@
 -- Databricks notebook source
 --DELETE FROM $db_output.integrity_rules;
 CREATE WIDGET TEXT db_output DEFAULT "menh_dq";
-CREATE WIDGET TEXT dbm DEFAULT "mhsds_db";
+CREATE WIDGET TEXT dbm DEFAULT "mhsds_database";
 CREATE WIDGET TEXT reference_data DEFAULT "reference_data";
 CREATE WIDGET TEXT month_id DEFAULT "1445";
 CREATE WIDGET TEXT rp_startdate DEFAULT "2020-08-01";

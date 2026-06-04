@@ -13,6 +13,7 @@
  ,r.ServDischDate
  ,r.OrgIDProv
  ,r.IC_Rec_CCG
+ ,r.IC_Rec_CCG_Mapped
  ,'ServTeamTypeRefToMH' AS Identifier   
   
  FROM $db_output.NHSE_Pre_Proc_Referral r
@@ -60,6 +61,7 @@
      ,r.ServDischDate
      ,r.OrgIDProv
      ,r.IC_Rec_CCG
+     ,r.IC_Rec_CCG_Mapped
      ,'SNoMED' AS Identifier
      
  FROM $db_output.NHSE_Pre_Proc_Referral r
@@ -84,6 +86,7 @@
      ,r.RecordNumber
      ,r.OrgIDProv
      ,r.IC_Rec_CCG
+     ,r.IC_Rec_CCG_Mapped
      ,r.UniqServReqID
      ,r.Identifier
      ,c.UniqCareContID
@@ -111,6 +114,7 @@
      ,r.RecordNumber
      ,r.OrgIDProv
      ,r.IC_Rec_CCG
+     ,r.IC_Rec_CCG_Mapped
      ,r.UniqServReqID
      ,r.Identifier
      ,c.UniqCareContID
@@ -150,6 +154,7 @@
  ,r.ServDischDate
  ,r.OrgIDProv
  ,r.IC_Rec_CCG
+ ,r.IC_Rec_CCG_Mapped
   
  FROM $db_output.ips_referrals r
 
@@ -164,6 +169,7 @@
      ,a.RecordNumber
      ,a.OrgIDProv
      ,a.IC_Rec_CCG
+     ,a.IC_Rec_CCG_Mapped
      ,a.UniqServReqID
      ,a.UniqCareContID
      ,a.Der_ContactDate
@@ -231,12 +237,12 @@
      ,r.OrgIDProv
      ,m.OrgIDProvName as Provider_Name
      ,r.IC_Rec_CCG
-     ,COALESCE(i.ccg_code,'UNKNOWN') AS CCG_Code
-     ,COALESCE(i.ccg_name,'UNKNOWN') AS CCG_Name
-     ,COALESCE(i.STP_CODE, 'UNKNOWN') AS STP_Code
-     ,COALESCE(i.STP_NAME, 'UNKNOWN') AS STP_Name
-     ,COALESCE(i.REGION_CODE, 'UNKNOWN') AS Region_Code
-     ,COALESCE(i.REGION_NAME, 'UNKNOWN') AS Region_Name
+     ,COALESCE(stp.CCG_Code, co.CCG_Code,'UNKNOWN') AS CCG_Code
+     ,COALESCE(stp.CCG_Name, co.CCG_Name,'UNKNOWN') AS CCG_Name
+     ,COALESCE(stp.STP_Code, co.STP_Code,'UNKNOWN') AS STP_Code
+     ,COALESCE(stp.STP_Name, co.STP_Name,'UNKNOWN') AS STP_Name
+     ,COALESCE(stp.Region_Code, co.Region_Code,'UNKNOWN') AS Region_Code
+     ,COALESCE(stp.Region_Name, co.Region_Name,'UNKNOWN') AS Region_Name
      ,CASE WHEN a.AccessFlag = 1 THEN 1 ELSE 0 END AS AccessFlag 
      ,CASE WHEN a.FYAccessFlag = 1 THEN 1 ELSE 0 END AS FYAccessFlag
      ,a.AccessDate
@@ -244,7 +250,8 @@
   
  FROM $db_output.ips_referrals_distinct r 
  LEFT JOIN $db_output.ips_activity_agg a ON r.UniqServReqID = a.UniqServReqID AND r.RecordNumber = a.RecordNumber
- LEFT JOIN $db_output.bbrb_stp_mapping i ON r.IC_Rec_CCG = i.ccg_code 
+ LEFT JOIN $db_output.bbrb_stp_mapping stp on r.IC_Rec_CCG = stp.CCG_Code and '$end_month_id' < '$apr26_icb_swap_month_id'
+ LEFT JOIN $db_output.commissioning_org_mapping co ON r.IC_Rec_CCG_Mapped = co.CCG_Code and '$end_month_id' >= '$apr26_icb_swap_month_id'
  INNER JOIN $db_output.mhs001mpi_12_months_data m ON a.Person_ID = m.Person_ID and a.RecordNumber = m.RecordNumber and a.AccessFlag = 1 ---join on recordnumber to get demographics submitted by provider at firstcontact
  LEFT JOIN $db_output.gender_desc g on m.Der_Gender = g.Der_Gender and '$end_month_id' >= g.FirstMonth and (g.LastMonth is null or '$end_month_id' <= g.LastMonth)
 

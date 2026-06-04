@@ -1,14 +1,4 @@
 # Databricks notebook source
- %sql
- create widget text db_output default "";
- create widget text db_source default "";
- create widget text rp_startdate default "";
- create widget text rp_enddate default "";
- create widget text status default "";
- create widget text product default "";
-
-# COMMAND ----------
-
 import pandas as pd
 import numpy as np
 
@@ -70,8 +60,8 @@ params
 # COMMAND ----------
 
 # DBTITLE 1,Create generic tables used in all analysis products
+dbutils.notebook.run("./01_Generic_Prepare/01_generic_stp_region_mapping", 0, params) ##needs to run before 00_generic_prep now for new mapping
 dbutils.notebook.run("./01_Generic_Prepare/00_generic_prep", 0, params)
-dbutils.notebook.run("./01_Generic_Prepare/01_generic_stp_region_mapping", 0, params)
 dbutils.notebook.run("./01_Generic_Prepare/03_generic_population", 0, params)
 dbutils.notebook.run("./01_Generic_Prepare/04_mhsds_ref_tables", 0, params)
 
@@ -87,7 +77,7 @@ else:
 # COMMAND ----------
 
 # DBTITLE 1,Prepare all or just one product?
-if params['product'] != 'ALL':
+if params['product'] not in ['ALL', 'ICB_CHANGES']:
   for key,values in run_params.items():
     if params['product'][:2] == key[:2]:
       print(values)
@@ -96,12 +86,17 @@ if params['product'] != 'ALL':
 else:
   for key,values in run_params.items():
       print(f'Product: {key}')
-      returned_tables = dbutils.notebook.run(f'{values}', 0, params)   
+      returned_tables = dbutils.notebook.run(f'{values}', 0, params)
 
 # COMMAND ----------
 
 # DBTITLE 1,Aggregate population and product measures
 dbutils.notebook.run("./agg", 0, params)
+
+# COMMAND ----------
+
+ %sql
+ select * from $db_output.bbrb_final_raw
 
 # COMMAND ----------
 
@@ -228,6 +223,16 @@ if test_df.exists.eq(True).all():
 else:
   notes = "Rows in bbrb_final_suppressed do not exist in bbrb_final"
 print(notes)
+
+# COMMAND ----------
+
+ %sql
+ select * from $db_output.bbrb_final_raw
+
+# COMMAND ----------
+
+ %sql
+ select * from $db_output.bbrb_final
 
 # COMMAND ----------
 
