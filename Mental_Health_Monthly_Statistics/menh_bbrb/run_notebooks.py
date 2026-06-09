@@ -1,7 +1,7 @@
 # Databricks notebook source
  %sql
- create widget text db default "ellie_hogan1_100239";
- create widget text db_output default "ellie_hogan1_100239";
+ create widget text db default "personal_db";
+ create widget text db_output default "personal_db";
  create widget text db_source default "mhsds_database";
  create widget text mhsds_database default "mhsds_database";
  create widget text mhsds_database default "mhsds_database";

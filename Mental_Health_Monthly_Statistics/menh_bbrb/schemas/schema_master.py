@@ -1,6 +1,6 @@
 # Databricks notebook source
  %sql
- create widget text db_output default "ellie_hogan1_100239";
+ create widget text db_output default "personal_db";
 
 # COMMAND ----------
 
